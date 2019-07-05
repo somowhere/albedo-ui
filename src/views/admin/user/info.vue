@@ -89,7 +89,6 @@
 
 
 <script>
-  import {handleDown} from "@/api/admin/user";
   import {mapState} from 'vuex'
   import store from "@/store";
   import request from '@/router/axios'

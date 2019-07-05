@@ -54,7 +54,7 @@ export const getUserInfo = () => {
 
 export const getDicts = () => {
   return request({
-    url: '/admin/sys/dict/codes',
+    url: '/admin/sys/dict/all',
     method: 'get'
   })
 }

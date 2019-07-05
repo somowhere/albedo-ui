@@ -14,7 +14,7 @@
  * this software without specific prior written permission.
  * Author: lengleng (wangiegie@gmail.com)
  */
-import { getDetails } from '@/api/admin/user'
+import { getDetails } from './userService'
 
 var validateUsername = (rule, value, callback) => {
   getDetails(value).then(response => {

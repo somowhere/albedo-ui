@@ -69,7 +69,7 @@ const user = {
       return new Promise((resolve, reject) => {
         getUserInfo().then((res) => {
           const data = res.data || {}
-          commit('SET_USERIFNO', data.sysUser)
+          commit('SET_USERIFNO', data.user)
           commit('SET_ROLES', data.roles || [])
           commit('SET_PERMISSIONS', data.permissions || [])
           resolve(data)
