@@ -45,7 +45,7 @@ export const tableOption = {
     }]
   }, {
     label: '类型',
-    prop: 'type',
+    prop: 'code',
     'search': true,
     rules: [{
       required: true,

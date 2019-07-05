@@ -1,6 +1,4 @@
-import {
-  validatenull
-} from '@/util/validate'
+import {validatenull} from '@/util/validate'
 import website from '@/const/website'
 
 const keyName = website.key + '-';

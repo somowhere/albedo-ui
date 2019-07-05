@@ -8,12 +8,9 @@ import './permission' // 权限
 import './error' // 日志
 import router from './router/router'
 import store from './store'
-import { loadStyle } from './util/util'
+import {loadStyle} from './util/util'
 import * as urls from '@/config/env'
-import {
-  iconfontUrl,
-  iconfontVersion
-} from '@/config/env'
+import {iconfontUrl, iconfontVersion} from '@/config/env'
 import * as filters from './filters' // 全局filter
 import './styles/common.scss'
 // 引入avue的包
@@ -22,7 +19,7 @@ import Avue from '@smallwei/avue/lib/index.js'
 import '@smallwei/avue/lib/theme-chalk/index.css'
 import basicContainer from './components/basic-container/main'
 
-import { validatenull } from '@/util/validate'
+import {validatenull} from '@/util/validate'
 
 Vue.prototype.validatenull = validatenull
 

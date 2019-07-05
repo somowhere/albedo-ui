@@ -141,8 +141,8 @@
           current: page.currentPage,
           size: page.pageSize
         }, params)).then(response => {
-          this.list = response.data.data.records
-          this.page.total = response.data.data.total
+          this.list = response.data.records
+          this.page.total = response.data.total
           this.listLoading = false
         })
       },
@@ -169,7 +169,7 @@
             return fetchMenuTree()
           })
           .then(response => {
-            this.treeData = response.data.data
+            this.treeData = response.data
             // 解析出所有的太监节点
             this.checkedKeys = this.resolveAllEunuchNodeId(this.treeData, this.checkedKeys, [])
             this.dialogStatus = 'permission'
@@ -258,7 +258,7 @@
           this.dialogPermissionVisible = false
           fetchMenuTree()
             .then(response => {
-              this.form = response.data.data
+              this.form = response.data
               return fetchRoleTree(roleId)
             })
             .then(response => {

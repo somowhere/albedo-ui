@@ -83,8 +83,8 @@
           current: page.currentPage,
           size: page.pageSize
         }, params)).then(response => {
-          this.tableData = response.data.data.records
-          this.page.total = response.data.data.total
+          this.tableData = response.data.records
+          this.page.total = response.data.total
           this.tableLoading = false
         })
       },

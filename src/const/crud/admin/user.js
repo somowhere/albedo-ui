@@ -19,7 +19,7 @@ import { getDetails } from '@/api/admin/user'
 var validateUsername = (rule, value, callback) => {
   getDetails(value).then(response => {
     if (window.boxType === 'edit') callback()
-    let result = response.data.data
+    let result = response.data
     if (result !== null) {
       callback(new Error('用户名已经存在'))
     } else {
@@ -104,7 +104,7 @@ export const tableOption = {
     }]
   }, {
     label: '角色',
-    prop: 'role',
+    prop: 'roleIdList',
     formsolt: true,
     solt: true,
     overHidden: true,

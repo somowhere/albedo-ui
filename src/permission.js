@@ -4,7 +4,6 @@
  */
 import router from './router/router'
 import store from '@/store'
-import {getStore} from '@/util/store'
 import {validatenull} from '@/util/validate'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style

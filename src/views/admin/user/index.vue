@@ -154,19 +154,19 @@
           current: page.currentPage,
           size: page.pageSize
         }, params)).then(response => {
-          this.list = response.data.data.records;
-          this.page.total = response.data.data.total
+          this.list = response.data.records;
+          this.page.total = response.data.total
           this.listLoading = false;
         });
       },
       getNodeData(data) {
         deptRoleList().then(response => {
-          this.rolesOptions = response.data.data;
+          this.rolesOptions = response.data;
         });
       },
       handleDept() {
         fetchTree().then(response => {
-          this.treeDeptData = response.data.data;
+          this.treeDeptData = response.data;
         });
       },
       handleFilter(param) {
@@ -188,7 +188,7 @@
             this.role[i] = this.form.roleList[i].roleId;
           }
           deptRoleList().then(response => {
-            this.rolesOptions = response.data.data;
+            this.rolesOptions = response.data;
           });
         } else if (type === 'add') {
           this.role = [];
@@ -200,7 +200,7 @@
         this.form.password = undefined
       },
       create(row, done, loading) {
-        addObj(this.form).then(() => {
+        addObj(this.form).then((data) => {
           this.getList(this.page);
           done();
           this.$notify({

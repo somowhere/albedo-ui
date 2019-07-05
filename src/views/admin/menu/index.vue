@@ -226,7 +226,7 @@
     methods: {
       getList() {
         fetchMenuTree(this.listQuery).then(response => {
-          this.treeData = response.data.data
+          this.treeData = response.data
         })
       },
       filterNode(value, data) {
@@ -274,7 +274,7 @@
           this.formStatus = 'update'
         }
         getObj(data.id).then(response => {
-          this.form = response.data.data
+          this.form = response.data
         })
         this.currentId = data.id
         this.showElement = true

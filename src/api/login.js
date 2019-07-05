@@ -15,6 +15,7 @@
  * Author: lengleng (wangiegie@gmail.com)
  */
 import request from '@/router/axios'
+
 const scope = 'server'
 
 export const loginByUsername = (username, password, code, randomStr) => {
@@ -24,7 +25,7 @@ export const loginByUsername = (username, password, code, randomStr) => {
     url: '/auth/oauth/token',
     headers: {
       isToken:false,
-      'Authorization': 'Basic cGlnOnBpZw=='
+      'Authorization': 'Basic YWxiZWRvOmFsYmVkbw=='
     },
     method: 'post',
     params: { username, password, randomStr, code, grant_type, scope }
@@ -37,7 +38,7 @@ export const refreshToken = (refresh_token) => {
     url: '/auth/oauth/token',
     headers: {
       'isToken': false,
-      'Authorization': 'Basic cGlnOnBpZw==',
+      'Authorization': 'Basic YWxiZWRvOmFsYmVkbw==',
     },
     method: 'post',
     params: { refresh_token, grant_type, scope }
@@ -46,11 +47,17 @@ export const refreshToken = (refresh_token) => {
 
 export const getUserInfo = () => {
   return request({
-    url: '/admin/user/info',
+    url: '/admin/sys/user/info',
     method: 'get'
   })
 }
 
+export const getDicts = () => {
+  return request({
+    url: '/admin/sys/dict/codes',
+    method: 'get'
+  })
+}
 export const logout = () => {
   return request({
     url: '/auth/token/logout',
