@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function fetchList (query) {
   return request({
-    url: '/auth/token/page',
+    url: '/auth/token/',
     method: 'get',
     params: query
   })

@@ -1,4 +1,4 @@
-import {validatenull} from '@/util/validate'
+import {validateNull} from '@/util/validate'
 import website from '@/const/website'
 
 const keyName = website.key + '-';
@@ -34,8 +34,8 @@ export const getStore = (params = {}) => {
   let obj = {},
     content;
   obj = window.sessionStorage.getItem(name);
-  if (validatenull(obj)) obj = window.localStorage.getItem(name);
-  if (validatenull(obj)) return;
+  if (validateNull(obj)) obj = window.localStorage.getItem(name);
+  if (validateNull(obj)) return;
   try {
     obj = JSON.parse(obj);
   } catch{

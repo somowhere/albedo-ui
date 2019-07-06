@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function fetchList (query) {
   return request({
-    url: '/admin/sys/log/page',
+    url: '/admin/sys/log/',
     method: 'get',
     params: query
   })

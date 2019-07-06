@@ -17,15 +17,15 @@
 
 import request from '@/router/axios'
 
-export function fetchList (query) {
+export function pageUser (query) {
   return request({
-    url: '/admin/sys/user/page',
+    url: '/admin/sys/user/',
     method: 'get',
     params: query
   })
 }
 
-export function addObj (obj) {
+export function saveUser (obj) {
   return request({
     url: '/admin/sys/user',
     method: 'post',
@@ -33,31 +33,24 @@ export function addObj (obj) {
   })
 }
 
-export function getObj (id) {
+export function findUser (id) {
   return request({
     url: '/admin/sys/user/' + id,
     method: 'get'
   })
 }
 
-export function delObj (id) {
+export function removeUser (id) {
   return request({
     url: '/admin/sys/user/' + id,
     method: 'delete'
   })
 }
 
-export function putObj (obj) {
+export function lockUser (obj) {
   return request({
     url: '/admin/sys/user',
     method: 'put',
     data: obj
-  })
-}
-
-export function getDetails (obj) {
-  return request({
-    url: '/admin/sys/user/details/' + obj,
-    method: 'get'
   })
 }

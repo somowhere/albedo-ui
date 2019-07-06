@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function fetchList (query) {
   return request({
-    url: '/gen/generator/page',
+    url: '/gen/generator/',
     method: 'get',
     params: query
   })

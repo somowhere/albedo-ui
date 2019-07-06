@@ -1,4 +1,4 @@
-import {validatenull} from './validate'
+import {validateNull, validateNotNull} from './validate'
 
 // 表单序列化
 export const serialize = data => {
@@ -240,7 +240,7 @@ export const isObjectValueEqual = (a, b) => {
  */
 export const findByvalue = (dic, value) => {
   let result = ''
-  if (validatenull(dic)) return value
+  if (validateNull(dic)) return value
   if (typeof (value) === 'string' || typeof (value) === 'number' || typeof (value) === 'boolean') {
     let index = 0
     index = findArray(dic, value)
@@ -322,4 +322,26 @@ export const parseJsonItemForm = function (formItems) {
       }
     })
   return JSON.stringify(json_list);
+}
+export const parseTreeData = (dataList) => {
+  var treeData=[],getChild = function (id) {
+    return dataList.filter((item) => {
+      return item.pid == id
+    })
+  },parseData = function(item){
+    var childs = getChild(item.id);
+    if(!validateNull(childs)){
+      item.children = childs;
+      childs.forEach(temp => {
+        parseData(temp)
+      })
+    }
+  }
+  dataList.forEach(item => {
+    if (item.id==1 || validateNull(item.pid)|| item.pid==0) {
+      parseData(item)
+      treeData.push(item)
+    }
+  })
+  return treeData;
 }

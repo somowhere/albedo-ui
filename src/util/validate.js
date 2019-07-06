@@ -89,7 +89,7 @@ export function validateEmail (email) {
 /**
  * 判断身份证号码
  */
-export function cardid (code) {
+export function cardId (code) {
   let list = []
   let result = true
   let msg = ''
@@ -130,7 +130,7 @@ export function cardid (code) {
     82: '澳门',
     91: '国外 '
   }
-  if (!validatenull(code)) {
+  if (!validateNull(code)) {
     if (code.length == 18) {
       if (!code || !/(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(code)) {
         msg = '证件号码格式错误'
@@ -172,13 +172,13 @@ export function cardid (code) {
 /**
  * 判断手机号码是否正确
  */
-export function isvalidatemobile (phone) {
+export function isValidateMobile (phone) {
   let list = []
   let result = true
   let msg = ''
   var isPhone = /^0\d{2,3}-?\d{7,8}$/
   // 增加134 减少|1349[0-9]{7}，增加181,增加145，增加17[678]
-  if (!validatenull(phone)) {
+  if (!validateNull(phone)) {
     if (phone.length == 11) {
       if (isPhone.test(phone)) {
         msg = '手机号码格式不正确'
@@ -199,7 +199,7 @@ export function isvalidatemobile (phone) {
 /**
  * 判断姓名是否正确
  */
-export function validatename (name) {
+export function validateName (name) {
   var regName = /^[\u4e00-\u9fa5]{2,4}$/
   if (!regName.test(name)) return false
   return true
@@ -208,7 +208,7 @@ export function validatename (name) {
 /**
  * 判断是否为整数
  */
-export function validatenum (num, type) {
+export function validateNum (num, type) {
   let regName = /[^\d.]/g
   if (type == 1) {
     if (!regName.test(num)) return false
@@ -222,7 +222,7 @@ export function validatenum (num, type) {
 /**
  * 判断是否为小数
  */
-export function validatenumord (num, type) {
+export function validateNumord (num, type) {
   let regName = /[^\d.]/g
   if (type == 1) {
     if (!regName.test(num)) return false
@@ -236,7 +236,7 @@ export function validatenumord (num, type) {
 /**
  * 判断是否为空
  */
-export function validatenull (val) {
+export function validateNull (val) {
   if (typeof val === 'boolean') {
     return false
   }
@@ -253,3 +253,42 @@ export function validatenull (val) {
   }
   return false
 }
+/**
+ * 判断是否为空
+ */
+export function validateNotNull(val) {
+  return !validateNull(val);
+};
+export function validateUniqueField(url){
+  return request({
+    url: url,
+    method: 'get'
+  })
+}
+var beforeValue={};
+export function isValidateUnique(rule, value, callback, url){
+  if(validateNotNull(value) && value != beforeValue[rule.field]){
+    if(validateNull(url)){
+      url = rule.url;
+    }
+    url += '&'+rule.field+'='+value
+    validateUniqueField(url).then(rs => {
+      beforeValue[rule.field] = value;
+      if(!rs){
+        callback(new Error(validateNotNull(rule.message) ? rule.message : "已存在，请修正"))
+      }else{
+        callback()
+      }
+    });
+  }else{
+    callback()
+  }
+}
+
+export function objectToString(val) {
+  return validateNotNull(val) ? val.toString() : val;
+};
+
+export function toStr(val) {
+  return validateNotNull(val) ? val.toString() : '';
+};
