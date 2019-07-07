@@ -27,7 +27,7 @@ export function pageUser (query) {
 
 export function saveUser (obj) {
   return request({
-    url: '/admin/sys/user',
+    url: '/admin/sys/user/',
     method: 'post',
     data: obj
   })
@@ -47,10 +47,9 @@ export function removeUser (id) {
   })
 }
 
-export function lockUser (obj) {
+export function lockUser (id) {
   return request({
-    url: '/admin/sys/user',
-    method: 'put',
-    data: obj
+    url: '/admin/sys/user/'+id,
+    method: 'put'
   })
 }

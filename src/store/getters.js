@@ -18,6 +18,7 @@ const getters = {
   expires_in: state => state.user.expires_in,
   roles: state => state.user.roles,
   permissions: state => state.user.permissions,
+  dicts: state => state.user.dicts,
   menu: state => state.user.menu,
   menuAll: state => state.user.menuAll
 }

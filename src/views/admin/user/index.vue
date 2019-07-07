@@ -3,62 +3,74 @@
 <template>
   <div class="app-container calendar-list-container">
     <basic-container>
-<!--      <el-row :gutter="20">-->
-<!--        <el-col :span="6"-->
-<!--                style='margin-top:15px;'>-->
-<!--        <el-card class="box-card">-->
-<!--          <div slot="header" class="clearfix">-->
-<!--            <span>部门</span>-->
+      <el-row :gutter="20">
+        <el-col :span="6"
+                style='margin-top:15px;'>
+        <el-card class="box-card" shadow="hover">
+          <div slot="header" class="clearfix">
+            <span>部门</span>
 
-<!--            <el-button type="text" class="card-heard-btn" icon="icon-filesearch" title="搜索" @click="searchTree=(searchTree ? false:true)"></el-button>-->
-<!--            <el-button type="text" class="card-heard-btn" icon="icon-reload" title="刷新" @click="getTree()"></el-button>-->
-<!--          </div>-->
-<!--          <el-input v-show="searchTree"-->
-<!--                    placeholder="输入关键字进行过滤"-->
-<!--                    v-model="filterText">-->
-<!--          </el-input>-->
-<!--          <el-tree-->
-<!--            class="filter-tree"-->
-<!--            :data="treeData"-->
-<!--            ref="leftTree"-->
-<!--            node-key="id"-->
-<!--            highlight-current-->
-<!--            :expand-on-click-node="false"-->
-<!--            :filter-node-method="filterNode"-->
-<!--            @node-click="clickNodeTreeData">-->
-<!--          </el-tree>-->
-<!--        </el-card>-->
-<!--      </el-col>-->
-<!--      <el-col :span="18">-->
-<!--        <div class="filter-container">-->
-<!--          <el-form :inline="true">-->
-<!--            <el-form-item label="名称">-->
-<!--              <el-input class="filter-item input-normal" v-model="listQuery.username"></el-input>-->
-<!--            </el-form-item>-->
-<!--            <el-form-item>-->
-<!--              <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>-->
-<!--              <el-button v-if="sys_user_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>-->
-<!--            </el-form-item>-->
-<!--          </el-form>-->
-<!--        </div>-->
-<!--        <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">-->
+            <el-button type="text" class="card-heard-btn" icon="icon-filesearch" title="搜索" @click="searchTree=(searchTree ? false:true)"></el-button>
+            <el-button type="text" class="card-heard-btn" icon="icon-reload" title="刷新" @click="getTree()"></el-button>
+          </div>
+          <el-input v-show="searchTree"
+                    placeholder="输入关键字进行过滤"
+                    v-model="filterText">
+          </el-input>
+          <el-tree
+            class="filter-tree"
+            :data="treeDeptData"
+            ref="leftDeptTree"
+            node-key="id"
+            highlight-current
+            :expand-on-click-node="false"
+            :filter-node-method="filterNode"
+            @node-click="clickNodeTreeData">
+          </el-tree>
+        </el-card>
+      </el-col>
+      <el-col :span="18">
+        <div class="filter-container" v-show="searchFilterVisible">
+          <el-form :inline="true" ref="searchForm">
+            <el-form-item label="名称">
+              <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+              <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
+              </el-form-item>
+          </el-form>
+        </div>
+        <!-- 表格功能列 -->
 
-<!--          <el-table-column align="center" label="所属组织">-->
-<!--            <template slot-scope="scope">-->
-<!--              <span>{{scope.row.deptName}}</span>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+        <div class="table-menu">
+          <div class="table-menu-left">
+            <el-button size="small" v-if="sys_user_edit" class="filter-item" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+          </div>
+          <div class="table-menu-right">
+            <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+          </div>
+        </div>
+        <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange"	 :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row>
+          <el-table-column
+            type="index" fixed="left" width="60">
+          </el-table-column>
+          <el-table-column align="center" label="所属组织" width="100">
+            <template slot-scope="scope">
+              <span>{{scope.row.deptName}}</span>
+            </template>
+          </el-table-column>
 
-<!--          <el-table-column align="center" label="用户名">-->
-<!--            <template slot-scope="scope">-->
-<!--          <span>-->
-<!--&lt;!&ndash;            <img v-if="scope.row.avatar" class="user-avatar" style="width: 20px; height: 20px; border-radius: 50%;" :src="getFilePath(scope.row.avatar)">&ndash;&gt;-->
-<!--            {{scope.row.username}}-->
-<!--          </span>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          <el-table-column align="center" label="用户名" width="100" prop="username" sortable="custom">
+            <template slot-scope="scope">
+          <span>
+<!--            <img v-if="scope.row.avatar" class="user-avatar" style="width: 20px; height: 20px; border-radius: 50%;" :src="getFilePath(scope.row.avatar)">-->
+            {{scope.row.username}}
+          </span>
+            </template>
+          </el-table-column>
 
-<!--          <el-table-column align="center" label="邮箱">-->
+<!--          <el-table-column align="center" label="邮箱" width="120">-->
 <!--            <template slot-scope="scope">-->
 <!--          <span>-->
 <!--            {{scope.row.email}}-->
@@ -66,109 +78,110 @@
 <!--            </template>-->
 <!--          </el-table-column>-->
 
-<!--          <el-table-column align="center" label="手机号">-->
-<!--            <template slot-scope="scope">-->
-<!--              <span>{{scope.row.phone}}</span>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          <el-table-column align="center" label="手机号" width="120">
+            <template slot-scope="scope">
+              <span>{{scope.row.phone}}</span>
+            </template>
+          </el-table-column>
 
-<!--          <el-table-column align="center" label="角色">-->
-<!--            <template slot-scope="scope">-->
-<!--              <span v-for="role in scope.row.roleList">{{role.name}} </span>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          <el-table-column align="center" label="角色" width="120">
+            <template slot-scope="scope">
+              <span v-for="role in scope.row.roleList">{{role.name}} </span>
+            </template>
+          </el-table-column>
 
-<!--          <el-table-column align="center" label="创建时间">-->
-<!--            <template slot-scope="scope">-->
-<!--              <span>{{scope.row.createdDate}}</span>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          <el-table-column align="center" label="状态" width="80">
+            <template slot-scope="scope">
+              <el-tag>{{scope.row.statusText}}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="创建时间" width="120">
+            <template slot-scope="scope">
+              <span>{{scope.row.createdDate}}</span>
+            </template>
+          </el-table-column>
 
-<!--          <el-table-column align="center" class-name="status-col" label="状态">-->
-<!--            <template slot-scope="scope">-->
-<!--              <el-tag>{{scope.row.statusText}}</el-tag>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
 
-<!--          <el-table-column align="center" fixed="right" label="操作" v-if="sys_user_edit || sys_user_lock || sys_user_delete">-->
-<!--            <template slot-scope="scope">-->
-<!--              <el-button v-if="sys_user_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">-->
-<!--              </el-button>-->
-<!--              <el-button v-if="sys_user_lock" :icon="scope.row.status=='正常' ? 'icon-lock' : 'icon-unlock'" :title="scope.row.status=='正常' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">-->
-<!--              </el-button>-->
-<!--              <el-button v-if="sys_user_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">-->
-<!--              </el-button>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          <el-table-column align="center" fixed="right" width="130" label="操作" v-if="sys_user_edit || sys_user_lock || sys_user_delete">
+            <template slot-scope="scope">
+              <el-button v-if="sys_user_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
+              </el-button>
+              <el-button v-if="sys_user_lock" :icon="scope.row.status=='正常' ? 'icon-lock' : 'icon-unlock'" :title="scope.row.status=='正常' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">
+              </el-button>
+              <el-button v-if="sys_user_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+              </el-button>
+            </template>
+          </el-table-column>
 
-<!--        </el-table>-->
-<!--        <div v-show="!listLoading" class="pagination-container">-->
-<!--          <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">-->
-<!--          </el-pagination>-->
-<!--        </div>-->
-<!--      </el-col>-->
-<!--    </el-row>-->
-<!--    <el-dialog title="选择部门" :visible.sync="dialogDeptVisible">-->
-<!--      <el-tree class="filter-tree" :data="treeDeptData" :default-checked-keys="checkedKeys"-->
-<!--               check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData" default-expand-all>-->
-<!--      </el-tree>-->
-<!--    </el-dialog>-->
-<!--    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">-->
-<!--    <el-form :model="form" ref="form" label-width="100px">-->
-<!--&lt;!&ndash;      <el-form-item label="头像" prop="avatar">&ndash;&gt;-->
-<!--&lt;!&ndash;        <my-upload field="uploadFile" @crop-upload-success="cropUploadSuccess" v-model="showUpload"&ndash;&gt;-->
-<!--&lt;!&ndash;                   :width="300" :height="300" :url="ctx+'/file/upload'" :headers="headers" img-format="png"></my-upload>&ndash;&gt;-->
-<!--&lt;!&ndash;        <img :src="getFilePath(form.avatar)" class="header-img" />&ndash;&gt;-->
-<!--&lt;!&ndash;        <input type="hidden" v-model="form.avatar" />&ndash;&gt;-->
-<!--&lt;!&ndash;        <el-button type="primary" @click="showUpload = !showUpload" size="mini">选择&ndash;&gt;-->
-<!--&lt;!&ndash;          <i class="el-icon-upload el-icon&#45;&#45;right"></i>&ndash;&gt;-->
-<!--&lt;!&ndash;        </el-button>&ndash;&gt;-->
-<!--&lt;!&ndash;      </el-form-item>&ndash;&gt;-->
-<!--      <el-form-item label="所属部门" prop="deptName" :rules="[{required: true,message: '请选择部门'}]">-->
-<!--        <el-input v-model="form.deptName" placeholder="选择部门" @focus="handleDept()" readonly></el-input>-->
-<!--        <input type="hidden" v-model="form.deptId" />-->
+        </el-table>
+        <div v-show="!listLoading" class="pagination-container">
+          <el-pagination class="pull-right" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
+      </el-col>
+    </el-row>
+    <el-dialog title="选择部门" :visible.sync="dialogDeptVisible">
+      <el-tree class="filter-tree" :data="treeDeptData" :default-checked-keys="checkedKeys"
+               check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData" default-expand-all>
+      </el-tree>
+    </el-dialog>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-form :model="form" ref="form" label-width="100px">
+<!--      <el-form-item label="头像" prop="avatar">-->
+<!--        <my-upload field="uploadFile" @crop-upload-success="cropUploadSuccess" v-model="showUpload"-->
+<!--                   :width="300" :height="300" :url="ctx+'/file/upload'" :headers="headers" img-format="png"></my-upload>-->
+<!--        <img :src="getFilePath(form.avatar)" class="header-img" />-->
+<!--        <input type="hidden" v-model="form.avatar" />-->
+<!--        <el-button type="primary" @click="showUpload = !showUpload" size="mini">选择-->
+<!--          <i class="el-icon-upload el-icon--right"></i>-->
+<!--        </el-button>-->
 <!--      </el-form-item>-->
+      <el-form-item label="所属部门" prop="deptName" :rules="[{required: true,message: '请选择部门', trigger: 'change'}]">
+        <el-input v-model="form.deptName" placeholder="选择部门" @focus="dialogDeptVisible=true" readonly>
+        </el-input>
+        <input type="hidden" v-model="form.deptId" />
+      </el-form-item>
 
-<!--      <el-form-item label="用户名" prop="loginId" :rules="[-->
-<!--          {required: true,message: '请输入账户'},-->
-<!--          {min: 3,max: 20,message: '长度在 3 到 20 个字符'},-->
-<!--          {validator:validateUnique}-->
-<!--        ]">-->
-<!--        <el-input v-model="form.loginId" placeholder="请输用户名"></el-input>-->
-<!--      </el-form-item>-->
+      <el-form-item label="用户名" prop="username" :rules="[
+          {required: true,message: '请输入账户'},
+          {min: 3,max: 20,message: '长度在 3 到 20 个字符'},
+          {validator:validateUnique}
+        ]">
+        <el-input v-model="form.username" placeholder="请输用户名"></el-input>
+      </el-form-item>
 
-<!--      <el-form-item label="密码" prop="password" :rules="[{validator: validatePass}]">-->
-<!--        <el-input type="password" v-model="form.password" :placeholder="this.dialogStatus == 'create' ? '请输入密码' : '若不修改密码，请留空'" ></el-input>-->
-<!--      </el-form-item>-->
+      <el-form-item label="密码" prop="password" :rules="[{validator: validatePass}]">
+        <el-input type="password" v-model="form.password" :placeholder="this.dialogStatus == 'create' ? '请输入密码' : '若不修改密码，请留空'" ></el-input>
+      </el-form-item>
 
-<!--      <el-form-item label="确认密码" placeholder="请再次输入密码" prop="confirmPassword" :rules="[{validator: validateConfirmPass}]">-->
-<!--        <el-input type="password" v-model="form.confirmPassword"></el-input>-->
-<!--      </el-form-item>-->
+      <el-form-item label="确认密码" placeholder="请再次输入密码" prop="confirmPassword" :rules="[{validator: validateConfirmPass}]">
+        <el-input type="password" v-model="form.confirmPassword"></el-input>
+      </el-form-item>
 
-<!--      <el-form-item label="手机号" prop="phone" :rules="[{validator:validatePhone}]">-->
-<!--        <el-input v-model="form.phone" placeholder="验证码登录使用"></el-input>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="邮箱" prop="email" :rules="[{ type: 'email',message: '请填写正确邮箱' }]">-->
-<!--        <el-input v-model="form.email"></el-input>-->
-<!--      </el-form-item>-->
+      <el-form-item label="手机号" prop="phone" :rules="[{validator:validatePhone}]">
+        <el-input v-model="form.phone" placeholder="验证码登录使用"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email" :rules="[{ type: 'email',message: '请填写正确邮箱' }]">
+        <el-input v-model="form.email"></el-input>
+      </el-form-item>
 
-<!--      <el-form-item label="角色" prop="roleIdList" :rules="[{required: true,message: '请选择角色' }]">-->
-<!--        <AvueCrudSelect v-model="form.roleIdList" :multiple="true" :filterable="true" :dic="rolesOptions"></AvueCrudSelect>-->
-<!--      </el-form-item>-->
+      <el-form-item label="角色" prop="roleIdList" :rules="[{required: true,message: '请选择角色' }]">
+        <CrudSelect v-model="form.roleIdList" :multiple="true" :filterable="true" :dic="rolesOptions"></CrudSelect>
+      </el-form-item>
 
-<!--      <el-form-item label="状态" prop="status" :rules="[{required: true,message: '请选择状态' }]">-->
-<!--        <AvueCrudRadio v-model="form.status" :dic="statusOptions"></AvueCrudRadio>-->
-<!--      </el-form-item>-->
+      <el-form-item label="状态" prop="status" :rules="[{required: true,message: '请选择状态' }]">
+        <CrudRadio v-model="form.status" :dic="statusOptions"></CrudRadio>
+      </el-form-item>
 
-<!--      <el-form-item label="备注" prop="description">-->
-<!--        <el-input type="textarea" v-model="form.description" placeholder=""></el-input>-->
-<!--      </el-form-item>-->
-<!--    </el-form>-->
-<!--    <div slot="footer" class="dialog-footer">-->
-<!--      <el-button @click="cancel()">取 消</el-button>-->
-<!--      <el-button type="primary" @click="save()">保 存</el-button>-->
-<!--    </div>-->
-<!--  </el-dialog>-->
+      <el-form-item label="备注" prop="description">
+        <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="cancel()">取 消</el-button>
+      <el-button type="primary" @click="save()">保 存</el-button>
+    </div>
+  </el-dialog>
     </basic-container>
   </div>
 </template>
@@ -183,22 +196,27 @@
     isValidateMobile,
     isValidateUnique,
     objectToString, toStr,
-    validateNull
+    validateNull,
+    validateNotNull
   } from "@/util/validate";
   import {MSG_TYPE_SUCCESS} from "@/const/common";
+  import CrudSelect from "@/views/avue/crud-select";
+  import CrudRadio from "@/views/avue/crud-radio";
   export default {
     name: 'User',
+    components: {CrudSelect,CrudRadio},
     data() {
       return {
         treeDeptData: [],
         dialogDeptVisible: false,
         dialogFormVisible: false,
+        searchFilterVisible: true,
         checkedKeys: [],
         list: null,
         total: null,
         listLoading: true,
         listQuery: {
-          page: 1,
+          current: 1,
           size: 20
         },
         formEdit: true,
@@ -208,26 +226,28 @@
         statusOptions: [],
         rolesOptions: [],
         searchTree: false,
-        treeData: [],
+        treeDeptData: [],
         labelPosition: 'right',
         form: {
           username: undefined,
           deptId: undefined,
+          password: undefined,
+          confirmPassword: undefined,
           phone: undefined,
           email: undefined,
           roleIdList: undefined,
           status: undefined,
           description: undefined
         },
-        validateUnique: (rule, value, callback,test) => {
-          isValidateUnique(rule, value, callback, '/sys/user/checkByProperty?id='+toStr(this.form.id))
+        validateUnique: (rule, value, callback) => {
+          isValidateUnique(rule, value, callback, '/admin/sys/user/checkByProperty?id='+toStr(this.form.id))
         },
         validatePhone: (rule, value, callback) => {
           isValidateMobile(rule, value, callback)
         },
         validatePass: (rule, value, callback) => {
           if(validateNull(this.form.id)){
-            if (value === '') {
+            if (validateNull(value)) {
               callback(new Error('请输入密码'));
               return;
             }
@@ -235,8 +255,8 @@
           callback();
         },
         validateConfirmPass: (rule, value, callback) => {
-          if(!validateNull(this.form.password)){
-            if (value === '') {
+          if(validateNotNull(this.form.password)){
+            if (validateNull(value)) {
               callback(new Error('请再次输入密码'));
               return;
             } else if (value !== this.form.password) {
@@ -260,23 +280,19 @@
     },
     watch: {
       filterText(val) {
-        this.$refs['leftTree'].filter(val);
-      },
-      filterFormText(val) {
-        this.$refs['formTree'].filter(val);
+        this.$refs['leftDeptTree'].filter(val);
       }
     },
     created() {
-      this.getTree()
+      this.getTreeDept()
       this.getList()
-      console.log(this.permissions)
-      // this.sys_user_edit = this.permissions.indexOf("sys_user_edit") !== -1;
-      // this.sys_user_lock = this.permissions.indexOf("sys_user_lock") !== -1;
-      // this.sys_user_delete = this.permissions.indexOf("sys_user_delete") !== -1;
+      this.sys_user_edit = this.permissions["sys_user_edit"];
+      this.sys_user_lock = this.permissions["sys_user_lock"];
+      this.sys_user_delete = this.permissions["sys_user_del"];
       deptRoleList().then(response => {
         this.rolesOptions = response.data;
       });
-      // this.statusOptions = this.dicts['sys_status'];
+      this.statusOptions = this.dicts['sys_yes_no'];
     },
     computed: {
       ...mapGetters([
@@ -286,7 +302,7 @@
     methods: {
       getList() {
         this.listLoading = true;
-        this.listQuery.isAsc = false;
+        // this.listQuery.isAsc = false;
         this.listQuery.queryConditionJson = parseJsonItemForm([{
           fieldName: 'a.username',value:this.listQuery.username
         },{
@@ -298,10 +314,19 @@
           this.listLoading = false;
         });
       },
-      getTree() {
+      sortChange( column){
+        if(column.order=="ascending"){
+          this.listQuery.ascs=column.prop
+          this.listQuery.descs=undefined;
+        }else{
+          this.listQuery.descs=column.prop
+          this.listQuery.ascs=undefined;
+        }
+        this.getList()
+      },
+      getTreeDept() {
         fetchDeptTree({all:true}).then(response => {
-          this.treeData = parseTreeData(response.data);
-          console.log(this.treeData)
+          this.treeDeptData = parseTreeData(response.data);
         })
       },
       filterNode(value, data) {
@@ -313,14 +338,20 @@
         this.currentNode = data;
         this.getList()
       },
-
       clickNodeSelectData(data) {
+        console.log(data)
+        this.form.deptId = data.id;
+        this.form.deptName = data.label;
         this.dialogDeptVisible = false;
-        this.form.orgId = data.id;
-        this.form.orgName = data.label;
+      },
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
+        this.listQuery.deptId = undefined;
+        this.$refs['leftDeptTree'].setCurrentKey(null)
       },
       handleFilter() {
-        this.listQuery.page = 1;
+        this.listQuery.current = 1;
         this.getList();
       },
       handleSizeChange(val) {
@@ -328,28 +359,26 @@
         this.getList();
       },
       handleCurrentChange(val) {
-        this.listQuery.page = val;
+        this.listQuery.current = val;
         this.getList();
       },
       handleEdit(row) {
         this.resetForm();
-        this.dialogStatus = row && !validateNull(row.id)? "update" : "create";
+        this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
         if(this.dialogStatus == "create"){
           this.dialogFormVisible = true;
         }else{
           findUser(row.id).then(response => {
             this.form = response.data;
-            this.form.password="";
-            this.form.status=objectToString(this.form.status)
+            console.log(this.form)
+            this.form.password=undefined;
             this.dialogFormVisible = true;
           });
         }
       },
       handleLock: function (row) {
         lockUser(row.id).then((data) => {
-          if (data.status == MSG_TYPE_SUCCESS) {
             this.getList();
-          }
         });
       },
       handleDelete(row) {
@@ -359,15 +388,14 @@
           type: 'warning'
         }).then(() => {
           removeUser(row.id).then((rs) => {
-            if (rs.status == MSG_TYPE_SUCCESS) {
               this.getList();
-            }
           })
         })
       },
       save() {
-        const set = this.$refs;
-        set['form'].validate(valid => {
+        console.log(this.$refs['form'])
+        this.$refs['form'].validate(valid => {
+          console.log(valid)
           if (valid) {
             saveUser(this.form).then(() => {
               this.getList()
@@ -384,20 +412,18 @@
       },
       resetForm() {
         this.form = {
-          permission: undefined,
-          name: undefined,
-          menuId: undefined,
-          parentId: undefined,
-          url: undefined,
-          icon: undefined,
-          sort: undefined,
-          component: undefined,
-          type: undefined,
-          method: undefined
+          username: undefined,
+          deptId: undefined,
+          deptName: undefined,
+          password: undefined,
+          confirmPassword: undefined,
+          phone: undefined,
+          email: undefined,
+          roleIdList: undefined,
+          lockFlag: undefined,
+          description: undefined
         }
-        if(this.$refs['form']){
-          this.$refs['form'].resetFields();
-        }
+        this.$refs['form']&&this.$refs['form'].resetFields();
       }
     }
   }

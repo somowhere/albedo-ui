@@ -33,7 +33,9 @@ router.beforeEach((to, from, next) => {
    if (to.path === '/login') {
       next({path: '/'})
     } else {
-      if (store.getters.permissions.length === 0) {
+     // console.log("permissions")
+     // console.log(store.getters.permissions)
+      if (validateNull(store.getters.permissions)) {
         store.dispatch('GetUserInfo').then(() => {
           next({...to, replace: true})
         }).catch(() => {
