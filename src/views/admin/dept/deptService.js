@@ -17,65 +17,48 @@
 
 import request from '@/router/axios'
 
-export function fetchList (query) {
+export function fetchDeptTree (query) {
   return request({
-    url: '/admin/sys/role/page',
+    url: '/admin/sys/dept/user-tree',
     method: 'get',
     params: query
   })
 }
 
-export function deptRoleList () {
+export function fetchTree (query) {
   return request({
-    url: '/admin/sys/role/list',
-    method: 'get'
+    url: '/admin/sys/dept/tree',
+    method: 'get',
+    params: query
   })
 }
 
-export function getObj (id) {
+export function saveDept (obj) {
   return request({
-    url: '/admin/sys/role/' + id,
-    method: 'get'
-  })
-}
-
-export function addObj (obj) {
-  return request({
-    url: '/admin/sys/role',
+    url: '/admin/sys/dept',
     method: 'post',
     data: obj
   })
 }
 
-export function putObj (obj) {
+export function getDept (id) {
   return request({
-    url: '/admin/sys/role',
-    method: 'put',
-    data: obj
+    url: '/admin/sys/dept/' + id,
+    method: 'get'
   })
 }
 
-export function delObj (id) {
+export function removeDept (id) {
   return request({
-    url: '/admin/sys/role/' + id,
+    url: '/admin/sys/dept/' + id,
     method: 'delete'
   })
 }
 
-export function permissionUpd (roleId, menuIds) {
+export function lockDept (obj) {
   return request({
-    url: '/admin/sys/role/menu',
+    url: '/admin/sys/dept',
     method: 'put',
-    params: {
-      roleId: roleId,
-      menuIds: menuIds
-    }
-  })
-}
-
-export function fetchRoleTree (roleName) {
-  return request({
-    url: '/admin/sys/menu/tree/' + roleName,
-    method: 'get'
+    data: obj
   })
 }

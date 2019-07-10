@@ -19,9 +19,9 @@ import Avue from '@smallwei/avue/lib/index.js'
 import '@smallwei/avue/lib/theme-chalk/index.css'
 import basicContainer from './components/basic-container/main'
 
-import {validatenull} from '@/util/validate'
+import {validateNull} from '@/util/validate'
 
-Vue.prototype.validatenull = validatenull
+Vue.prototype.validateNull = validateNull
 
 Vue.use(Avue, { menuType: 'text' })
 

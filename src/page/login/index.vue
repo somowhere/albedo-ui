@@ -23,7 +23,7 @@
   import {mapGetters} from "vuex";
   import {getStore, setStore} from "@/util/store";
   import {dateFormat} from "@/util/date";
-  import {validatenull} from "@/util/validate";
+  import {validateNull} from "@/util/validate";
 
   export default {
     name: "login",

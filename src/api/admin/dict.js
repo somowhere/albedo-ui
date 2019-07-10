@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function fetchList (query) {
   return request({
-    url: '/admin/sys/dict/page',
+    url: '/admin/sys/dict/',
     method: 'get',
     params: query
   })

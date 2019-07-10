@@ -37,7 +37,7 @@
   import top from './top/'
   import sidebar from './sidebar/'
   import admin from '@/util/admin';
-  import {validatenull} from '@/util/validate';
+  import {validateNull} from '@/util/validate';
   import {calcDate} from '@/util/date.js';
   import {getStore} from '@/util/store.js';
 
@@ -89,7 +89,7 @@
             debug: true,
           });
 
-          if (validatenull(token)) {
+          if (validateNull(token)) {
             return;
           }
 

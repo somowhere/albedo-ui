@@ -30,6 +30,7 @@ const user = {
   state: {
     userInfo: {},
     permissions: {},
+    dicts: [],
     roles: [],
     menu: getStore({
       name: 'menu'
@@ -69,6 +70,8 @@ const user = {
       return new Promise((resolve, reject) => {
         getUserInfo().then((res) => {
           const data = res.data || {}
+          console.log("getUserInfo")
+          console.log(data)
           commit('SET_USERIFNO', data.user)
           commit('SET_ROLES', data.roles || [])
           commit('SET_PERMISSIONS', data.permissions || [])
@@ -77,7 +80,6 @@ const user = {
           reject()
         })
         getDicts().then((res) => {
-          console.log("dictCodes"+res)
           const data = res.data || {}
           commit('SET_DICTS', data)
           resolve(data)
@@ -106,6 +108,7 @@ const user = {
       return new Promise((resolve, reject) => {
         logout().then(() => {
           commit('SET_MENU', [])
+          commit('SET_DICTS', [])
           commit('SET_PERMISSIONS', [])
           commit('SET_USER_INFO', {})
           commit('SET_ACCESS_TOKEN', '')
@@ -124,6 +127,7 @@ const user = {
     FedLogOut({commit}) {
       return new Promise(resolve => {
         commit('SET_MENU', [])
+        commit('SET_DICTS', [])
         commit('SET_PERMISSIONS', [])
         commit('SET_USER_INFO', {})
         commit('SET_ACCESS_TOKEN', '')

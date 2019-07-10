@@ -4,7 +4,7 @@
  */
 import router from './router/router'
 import store from '@/store'
-import {validatenull} from '@/util/validate'
+import {validateNull} from '@/util/validate'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 NProgress.configure({showSpinner: false})
@@ -22,7 +22,7 @@ router.beforeEach((to, from, next) => {
     to.meta.$keepAlive = true
   } else {
     NProgress.start()
-    if (to.meta.keepAlive === true && validatenull(to.meta.$keepAlive)) {
+    if (to.meta.keepAlive === true && validateNull(to.meta.$keepAlive)) {
       to.meta.$keepAlive = true
     } else {
       to.meta.$keepAlive = false
@@ -33,7 +33,9 @@ router.beforeEach((to, from, next) => {
    if (to.path === '/login') {
       next({path: '/'})
     } else {
-      if (store.getters.permissions.length === 0) {
+     // console.log("permissions")
+     // console.log(store.getters.permissions)
+      if (validateNull(store.getters.permissions)) {
         store.dispatch('GetUserInfo').then(() => {
           next({...to, replace: true})
         }).catch(() => {
@@ -44,7 +46,7 @@ router.beforeEach((to, from, next) => {
       } else {
         const value = to.query.src || to.fullPath
         const label = to.query.name || to.name
-        if (meta.isTab !== false && !validatenull(value) && !validatenull(label)) {
+        if (meta.isTab !== false && !validateNull(value) && !validateNull(label)) {
           store.commit('ADD_TAG', {
             label: label,
             value: value,
