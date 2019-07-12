@@ -17,65 +17,47 @@
 
 import request from '@/router/axios'
 
-export function fetchList (query) {
+export function fetchDictTree (query) {
   return request({
-    url: '/admin/sys/role/',
+    url: '/admin/sys/dict/tree',
     method: 'get',
     params: query
   })
 }
 
-export function deptRoleList () {
+export function pageDict (query) {
   return request({
-    url: '/admin/sys/role/comboData',
-    method: 'get'
+    url: '/admin/sys/dict/',
+    method: 'get',
+    params: query
   })
 }
 
-export function getRole (id) {
+export function saveDict (obj) {
   return request({
-    url: '/admin/sys/role/' + id,
-    method: 'get'
-  })
-}
-
-export function addRole (obj) {
-  return request({
-    url: '/admin/sys/role',
+    url: '/admin/sys/dict/',
     method: 'post',
     data: obj
   })
 }
 
-export function putRole (obj) {
+export function findDict (id) {
   return request({
-    url: '/admin/sys/role',
-    method: 'put',
-    data: obj
+    url: '/admin/sys/dict/' + id,
+    method: 'get'
   })
 }
 
-export function delRole (id) {
+export function removeDict (id) {
   return request({
-    url: '/admin/sys/role/' + id,
+    url: '/admin/sys/dict/' + id,
     method: 'delete'
   })
 }
 
-export function permissionUpd (roleId, menuIds) {
+export function lockDict (id) {
   return request({
-    url: '/admin/sys/role/menu',
-    method: 'put',
-    params: {
-      roleId: roleId,
-      menuIds: menuIds
-    }
-  })
-}
-
-export function fetchRoleTree (roleName) {
-  return request({
-    url: '/admin/sys/menu/tree/' + roleName,
-    method: 'get'
+    url: '/admin/sys/dict/'+id,
+    method: 'put'
   })
 }

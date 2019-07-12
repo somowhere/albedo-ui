@@ -11,7 +11,7 @@
             <span>部门</span>
 
             <el-button type="text" class="card-heard-btn" icon="icon-filesearch" title="搜索" @click="searchTree=(searchTree ? false:true)"></el-button>
-            <el-button type="text" class="card-heard-btn" icon="icon-reload" title="刷新" @click="getTree()"></el-button>
+            <el-button type="text" class="card-heard-btn" icon="icon-reload" title="刷新" @click="getTreeDept()"></el-button>
           </div>
           <el-input v-show="searchTree"
                     placeholder="输入关键字进行过滤"
@@ -51,7 +51,7 @@
             <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
           </div>
         </div>
-        <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange"	 :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row>
+        <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row>
           <el-table-column
             type="index" fixed="left" width="60">
           </el-table-column>
@@ -86,16 +86,16 @@
 
           <el-table-column align="center" label="角色" width="120">
             <template slot-scope="scope">
-              <span v-for="role in scope.row.roleList">{{role.name}} </span>
+              <span>{{scope.row.roleNames}}</span>
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="状态" width="80">
+          <el-table-column align="center" label="锁定" width="80">
             <template slot-scope="scope">
-              <el-tag>{{scope.row.statusText}}</el-tag>
+              <el-tag>{{scope.row.lockFlagText}}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="创建时间" width="120">
+          <el-table-column align="center" label="创建时间" width="120" prop="createdDate" sortable="custom">
             <template slot-scope="scope">
               <span>{{scope.row.createdDate}}</span>
             </template>
@@ -106,7 +106,7 @@
             <template slot-scope="scope">
               <el-button v-if="sys_user_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
               </el-button>
-              <el-button v-if="sys_user_lock" :icon="scope.row.status=='正常' ? 'icon-lock' : 'icon-unlock'" :title="scope.row.status=='正常' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">
+              <el-button v-if="sys_user_lock" :icon="scope.row.lockFlag == '0' ? 'icon-lock' : 'icon-unlock'" :title="scope.row.lockFlag == '0' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">
               </el-button>
               <el-button v-if="sys_user_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
               </el-button>
@@ -169,8 +169,8 @@
         <CrudSelect v-model="form.roleIdList" :multiple="true" :filterable="true" :dic="rolesOptions"></CrudSelect>
       </el-form-item>
 
-      <el-form-item label="状态" prop="status" :rules="[{required: true,message: '请选择状态' }]">
-        <CrudRadio v-model="form.status" :dic="statusOptions"></CrudRadio>
+      <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
+        <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
       </el-form-item>
 
       <el-form-item label="备注" prop="description">
@@ -187,9 +187,9 @@
 </template>
 
 <script>
-  import {findUser, saveUser, removeUser, pageUser, lockUser} from "./userService";
-  import {fetchDeptTree} from "../dept/deptService";
-  import {deptRoleList} from "../role/roleService";
+  import {findUser, saveUser, removeUser, pageUser, lockUser} from "./service";
+  import {fetchDeptTree} from "../dept/service";
+  import {deptRoleList} from "../role/service";
   import { mapGetters } from 'vuex';
   import {parseJsonItemForm, parseTreeData} from "@/util/util";
   import {
@@ -202,6 +202,7 @@
   import {MSG_TYPE_SUCCESS} from "@/const/common";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
+  import {SYS_NO, SYS_YES} from "../../../const/common";
   export default {
     name: 'User',
     components: {CrudSelect,CrudRadio},
@@ -223,10 +224,9 @@
         filterText: '',
         filterFormText: '',
         formStatus: '',
-        statusOptions: [],
+        flagOptions: [],
         rolesOptions: [],
         searchTree: false,
-        treeDeptData: [],
         labelPosition: 'right',
         form: {
           username: undefined,
@@ -236,7 +236,7 @@
           phone: undefined,
           email: undefined,
           roleIdList: undefined,
-          status: undefined,
+          lockFlag: undefined,
           description: undefined
         },
         validateUnique: (rule, value, callback) => {
@@ -292,7 +292,7 @@
       deptRoleList().then(response => {
         this.rolesOptions = response.data;
       });
-      this.statusOptions = this.dicts['sys_yes_no'];
+      this.flagOptions = this.dicts['sys_flag'];
     },
     computed: {
       ...mapGetters([
@@ -314,18 +314,18 @@
           this.listLoading = false;
         });
       },
-      sortChange( column){
+      sortChange(column){
         if(column.order=="ascending"){
-          this.listQuery.ascs=column.prop
-          this.listQuery.descs=undefined;
+          this.listQuery.asc=column.prop
+          this.listQuery.desc=undefined;
         }else{
-          this.listQuery.descs=column.prop
-          this.listQuery.ascs=undefined;
+          this.listQuery.desc=column.prop
+          this.listQuery.asc=undefined;
         }
         this.getList()
       },
       getTreeDept() {
-        fetchDeptTree({all:true}).then(response => {
+        fetchDeptTree().then(response => {
           this.treeDeptData = parseTreeData(response.data);
         })
       },
