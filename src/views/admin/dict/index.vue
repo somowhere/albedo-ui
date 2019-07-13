@@ -21,8 +21,7 @@
               :data="treeDictData"
               ref="leftDictTree"
               node-key="id"
-              highlight-current
-              :default-expanded-keys="['1']"
+              highlight-current default-expand-all
               :expand-on-click-node="false"
               :filter-node-method="filterNode"
               @node-click="clickNodeTreeData">
@@ -42,7 +41,6 @@
             </el-form>
           </div>
           <!-- 表格功能列 -->
-
           <div class="table-menu">
             <div class="table-menu-left">
               <el-button size="small" v-if="sys_dict_edit" class="filter-item" @click="handleEdit" type="primary" icon="edit">添加</el-button>
@@ -61,7 +59,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column align="center" label="字典名" width="100" prop="name" sortable="custom">
+            <el-table-column align="center" label="字典名" width="100" prop="dict.name" sortable="custom">
               <template slot-scope="scope">
               <span>
                 {{scope.row.name}}
@@ -83,14 +81,21 @@
                 <el-tag>{{scope.row.showText}}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="创建时间" prop="createdDate" sortable="custom">
+            <el-table-column align="center" label="序号" width="100" prop="dict.sort" sortable="custom">
+              <template slot-scope="scope">
+              <span>
+                {{scope.row.sort}}
+              </span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="创建时间" prop="dict.created_date" sortable="custom">
               <template slot-scope="scope">
                 <span>{{scope.row.createdDate}}</span>
               </template>
             </el-table-column>
 
 
-            <el-table-column align="center" fixed="right" width="130" label="操作" v-if="sys_dict_edit || sys_dict_lock || sys_dict_delete">
+            <el-table-column align="center" fixed="right" width="100" label="操作" v-if="sys_dict_edit || sys_dict_lock || sys_dict_delete">
               <template slot-scope="scope">
                 <el-button v-if="sys_dict_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
                 </el-button>
@@ -107,14 +112,14 @@
         </el-col>
       </el-row>
       <el-dialog title="选择字典" :visible.sync="dialogDictVisible">
-        <el-tree class="filter-tree" :data="treeDictData" :default-checked-keys="checkedKeys"
-                 check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData" default-expand-all>
+        <el-tree class="filter-tree" ref="selectParentDictTree" default-expand-all :data="treeDictData" :default-checked-keys="checkedKeys"
+                 check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData">
         </el-tree>
       </el-dialog>
       <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
         <el-form :model="form" ref="form" label-width="100px">
-          <el-form-item label="所属字典" prop="parentName" :rules="[{required: true,message: '请选择字典', trigger: 'change'}]">
-            <el-input v-model="form.parentName" placeholder="选择字典" @focus="dialogDictVisible=true" readonly>
+          <el-form-item label="所属字典" prop="parentName">
+            <el-input v-model="form.parentName" placeholder="选择字典" @focus="selectParentDictTree()" :disabled="disableSelectParent" readonly>
             </el-input>
             <input type="hidden" v-model="form.parentId" />
           </el-form-item>
@@ -123,13 +128,15 @@
             <el-input v-model="form.name" placeholder="请输入字典"></el-input>
           </el-form-item>
 
-          <el-form-item label="编码" prop="code" :rules="[ {validator:validateUnique}]">
+          <el-form-item label="编码" prop="code" :rules="[ {required: true,validator:validateUnique}]">
             <el-input v-model="form.code" placeholder="请输入编码"></el-input>
           </el-form-item>
           <el-form-item label="值" prop="val">
             <el-input v-model="form.val"></el-input>
           </el-form-item>
-
+          <el-form-item label="排序" prop="sort">
+            <el-input v-model="form.sort"></el-input>
+          </el-form-item>
           <el-form-item label="显示" prop="show" :rules="[{required: true,message: '请选择' }]">
             <CrudRadio v-model="form.show" :dic="flagOptions"></CrudRadio>
           </el-form-item>
@@ -156,6 +163,7 @@
   import {isValidateUnique, toStr, validateNotNull} from "@/util/validate";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
+  import {objectToString} from "../../../util/validate";
 
   export default {
     name: 'Dict',
@@ -182,12 +190,14 @@
         rolesOptions: [],
         searchTree: false,
         labelPosition: 'right',
+        disableSelectParent: false,
         form: {
           name: undefined,
           parentId: undefined,
           code: undefined,
           val: undefined,
           show: undefined,
+          sort: undefined,
           remark: undefined,
           description: undefined
         },
@@ -216,6 +226,7 @@
       this.sys_dict_edit = this.permissions["sys_dict_edit"];
       this.sys_dict_lock = this.permissions["sys_dict_lock"];
       this.sys_dict_delete = this.permissions["sys_dict_del"];
+      console.log(this.dicts)
       this.flagOptions = this.dicts['sys_flag'];
     },
     computed: {
@@ -249,10 +260,12 @@
         this.getList()
       },
       getTreeDict() {
-        fetchDictTree().then(response => {
+        fetchDictTree({extId:this.form.id}).then(response => {
           this.treeDictData = parseTreeData(response.data);
+          this.currentNode = this.treeDictData[0];
           this.listQuery.parentId=this.treeDictData[0].id;
-          this.$refs['leftDictTree'].setCurrentKey(this.listQuery.parentId);
+          let thiz=this;
+          setTimeout(function(){thiz.$refs['leftDictTree'].setCurrentKey(thiz.listQuery.parentId);}, 100)
           this.getList();
         })
       },
@@ -271,11 +284,17 @@
         this.form.parentName = data.label;
         this.dialogDictVisible = false;
       },
+      selectParentDictTree(){
+        this.dialogDictVisible=true;
+        let thiz=this;
+        setTimeout(function(){thiz.$refs['selectParentDictTree'].setCurrentKey(thiz.form.parentId ? thiz.form.parentId : null);}, 100)
+      },
       //搜索清空
       searchReset() {
         this.$refs['searchForm'].resetFields();
         this.listQuery.parentId = undefined;
-        this.$refs['leftDictTree'].setCurrentKey(null)
+        this.$refs['leftDictTree'].setCurrentKey(null);
+        this.currentNode=undefined;
       },
       handleFilter() {
         this.listQuery.current = 1;
@@ -293,12 +312,16 @@
         this.resetForm();
         this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
         if(this.dialogStatus == "create"){
+          if(this.currentNode){
+            this.form.parentId=this.currentNode.id;
+            this.form.parentName=this.currentNode.label;
+          }
           this.dialogFormVisible = true;
         }else{
           findDict(row.id).then(response => {
             this.form = response.data;
-            console.log(this.form)
-            this.form.password=undefined;
+            this.disableSelectParent = this.form.parentName ? false : true;
+            this.form.show=objectToString(this.form.show);
             this.dialogFormVisible = true;
           });
         }
@@ -344,6 +367,7 @@
           code: undefined,
           val: undefined,
           show: undefined,
+          sort: undefined,
           remark: undefined,
           description: undefined
         }
