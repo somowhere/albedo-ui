@@ -327,6 +327,10 @@
       getTreeDept() {
         fetchDeptTree().then(response => {
           this.treeDeptData = parseTreeData(response.data);
+          this.listQuery.parentId=this.treeDeptData[0].id;
+          setTimeout(() => {
+            this.$refs.leftDeptTree.setCurrentKey(this.listQuery.parentId);
+          },0);
         })
       },
       filterNode(value, data) {

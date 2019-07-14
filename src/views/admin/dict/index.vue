@@ -252,7 +252,9 @@
         fetchDictTree().then(response => {
           this.treeDictData = parseTreeData(response.data);
           this.listQuery.parentId=this.treeDictData[0].id;
-          this.$refs['leftDictTree'].setCurrentKey(this.listQuery.parentId);
+          setTimeout(() => {
+            this.$refs['leftDictTree'].setCurrentKey(this.listQuery.parentId);
+          },0);
           this.getList();
         })
       },
