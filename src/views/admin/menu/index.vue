@@ -83,12 +83,12 @@
             </el-table-column>
             <el-table-column align="center" label="菜单类型" width="120">
               <template slot-scope="scope">
-                <span>{{scope.row.type}}</span>
+                <span>{{scope.row.typeText}}</span>
               </template>
             </el-table-column>
             <el-table-column align="center" label="路由缓冲" width="120">
               <template slot-scope="scope">
-                <span>{{scope.row.keepAlive}}</span>
+                <span>{{scope.row.keepAliveText}}</span>
               </template>
             </el-table-column>
             <el-table-column align="center" label="前端URL" width="120">
@@ -144,24 +144,36 @@
             <input type="hidden" v-model="form.parentId" />
           </el-form-item>
 
-          <el-form-item label="菜单" prop="name" :rules="[{required: true,message: '请输入菜单'}]">
-            <el-input v-model="form.name" placeholder="请输入菜单"></el-input>
+          <el-form-item label="名称" prop="name" :rules="[{required: true,message: '请输入菜单名称'}]">
+            <el-input v-model="form.name" placeholder="请输入名称"></el-input>
           </el-form-item>
 
-          <el-form-item label="编码" prop="code" :rules="[ {required: true,validator:validateUnique}]">
-            <el-input v-model="form.code" placeholder="请输入编码"></el-input>
+          <el-form-item label="权限" prop="permission" :rules="[ {validator:validateUnique}]">
+            <el-input v-model="form.permission" placeholder="请输入权限"></el-input>
           </el-form-item>
-          <el-form-item label="值" prop="val">
-            <el-input v-model="form.val"></el-input>
+          <el-form-item label="图标" prop="icon">
+            <el-input v-model="form.icon"></el-input>
           </el-form-item>
-          <el-form-item label="排序" prop="sort">
-            <el-input v-model="form.sort"></el-input>
+          <el-form-item label="VUE页面" prop="component">
+            <el-input v-model="form.component"></el-input>
           </el-form-item>
-          <el-form-item label="显示" prop="show" :rules="[{required: true,message: '请选择' }]">
+          <el-form-item label="菜单类型" prop="type" :rules="[{required: true,message: '请选择' }]">
+            <CrudRadio v-model="form.type" :dic="menuTypeOptions"></CrudRadio>
+          </el-form-item>
+          <el-form-item label="路由缓冲" prop="keepAlive" >
+            <el-switch
+              v-model="form.keepAlive"
+              active-color="#13ce66" inactive-color="#ff4949" active-value="1" inactive-value="0">
+            </el-switch>
+          </el-form-item>
+          <el-form-item label="前端URL" prop="path" >
+            <el-input v-model="form.path"></el-input>
+          </el-form-item>
+          <el-form-item label="是否显示" prop="show" :rules="[{required: true,message: '请选择' }]">
             <CrudRadio v-model="form.show" :dic="flagOptions"></CrudRadio>
           </el-form-item>
-          <el-form-item label="备注" prop="description">
-            <el-input type="textarea" v-model="form.remark" placeholder=""></el-input>
+          <el-form-item label="序号" prop="sort">
+            <el-input-number v-model="form.sort" :min="1" :max="1000"></el-input-number>
           </el-form-item>
           <el-form-item label="描述" prop="description">
             <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
@@ -207,18 +219,21 @@
         filterFormText: '',
         formStatus: '',
         flagOptions: [],
-        rolesOptions: [],
+        menuTypeOptions: [],
         searchTree: false,
         labelPosition: 'right',
         disableSelectParent: false,
         form: {
           name: undefined,
           parentId: undefined,
-          code: undefined,
-          val: undefined,
-          show: undefined,
-          sort: undefined,
-          remark: undefined,
+          permission: undefined,
+          icon: undefined,
+          component: undefined,
+          type: undefined,
+          keepAlive: undefined,
+          show:undefined,
+          path:undefined,
+          sort:undefined,
           description: undefined
         },
         validateUnique: (rule, value, callback) => {
@@ -248,6 +263,8 @@
       this.sys_menu_delete = this.permissions["sys_menu_del"];
       console.log(this.dicts)
       this.flagOptions = this.dicts['sys_flag'];
+      this.menuTypeOptions = this.dicts['sys_menu_type'];
+
     },
     computed: {
       ...mapGetters([
@@ -284,8 +301,9 @@
           this.treeMenuData = parseTreeData(response.data);
           this.currentNode = this.treeMenuData[0];
           this.listQuery.parentId=this.treeMenuData[0].id;
-          let thiz=this;
-          setTimeout(function(){thiz.$refs['leftMenuTree'].setCurrentKey(thiz.listQuery.parentId);}, 100)
+          setTimeout(() => {
+            this.$refs['leftMenuTree'].setCurrentKey(this.listQuery.parentId);
+          }, 100)
           this.getList();
         })
       },
@@ -306,8 +324,7 @@
       },
       selectParentMenuTree(){
         this.dialogMenuVisible=true;
-        let thiz=this;
-        setTimeout(function(){thiz.$refs['selectParentMenuTree'].setCurrentKey(thiz.form.parentId ? thiz.form.parentId : null);}, 100)
+        setTimeout(()=>{this.$refs['selectParentMenuTree'].setCurrentKey(this.form.parentId ? this.form.parentId : null);}, 100)
       },
       //搜索清空
       searchReset() {
@@ -384,11 +401,14 @@
         this.form = {
           name: undefined,
           parentId: undefined,
-          code: undefined,
-          val: undefined,
-          show: undefined,
-          sort: undefined,
-          remark: undefined,
+          permission: undefined,
+          icon: undefined,
+          component: undefined,
+          type: undefined,
+          keepAlive: undefined,
+          show:undefined,
+          path:undefined,
+          sort:undefined,
           description: undefined
         }
         this.$refs['form']&&this.$refs['form'].resetFields();
