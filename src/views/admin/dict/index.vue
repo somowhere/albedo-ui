@@ -49,9 +49,9 @@
               <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
             </div>
           </div>
-          <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row>
+          <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :default-sort="{prop:'dict.sort'}" :data="list" v-loading="listLoading" element-loading-text="加载中..."  fit highlight-current-row>
             <el-table-column
-              type="index" fixed="left" width="60">
+              type="index" fixed="left" width="40">
             </el-table-column>
             <el-table-column align="center" label="上级字典" width="100">
               <template slot-scope="scope">
@@ -59,19 +59,19 @@
               </template>
             </el-table-column>
 
-            <el-table-column align="center" label="字典名" width="100" prop="dict.name" sortable="custom">
+            <el-table-column align="center" label="名称" width="150" prop="dict.name" sortable="custom">
               <template slot-scope="scope">
               <span>
                 {{scope.row.name}}
               </span>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="编码" width="120">
+            <el-table-column align="center" label="编码" width="140">
               <template slot-scope="scope">
                 <span>{{scope.row.code}}</span>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="值" width="120">
+            <el-table-column align="center" label="值" width="140">
               <template slot-scope="scope">
                 <span>{{scope.row.val}}</span>
               </template>
