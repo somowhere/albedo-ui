@@ -1,352 +1,397 @@
-<!--
-  -    Copyright (c) 2018-2025, lengleng All rights reserved.
-  -
-  - Redistribution and use in source and binary forms, with or without
-  - modification, are permitted provided that the following conditions are met:
-  -
-  - Redistributions of source code must retain the above copyright notice,
-  - this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-  - notice, this list of conditions and the following disclaimer in the
-  - documentation and/or other materials provided with the distribution.
-  - Neither the name of the pig4cloud.com developer nor the names of its
-  - contributors may be used to endorse or promote products derived from
-  - this software without specific prior written permission.
-  - Author: lengleng (wangiegie@gmail.com)
-  -->
+
 
 <template>
   <div class="app-container calendar-list-container">
     <basic-container>
-      <div class="filter-container">
-        <el-button-group>
-          <el-button type="primary"
-                     v-if="menuManager_btn_add"
-                     icon="plus"
-                     @click="handlerAdd">添加
-          </el-button>
-          <el-button type="primary"
-                     v-if="menuManager_btn_edit"
-                     icon="edit"
-                     @click="handlerEdit">编辑
-          </el-button>
-          <el-button type="primary"
-                     v-if="menuManager_btn_del"
-                     icon="delete"
-                     @click="handleDelete">删除
-          </el-button>
-        </el-button-group>
-      </div>
-
-      <el-row>
-        <el-col :span="8"
+      <el-row :gutter="20">
+        <el-col :span="6"
                 style='margin-top:15px;'>
-          <el-tree class="filter-tree"
-                   node-key="id"
-                   highlight-current
-                   :data="treeData"
-                   :default-expanded-keys="aExpandedKeys"
-                   :filter-node-method="filterNode"
-                   :props="defaultProps"
-                   @node-click="getNodeData"
-                   @node-expand="nodeExpand"
-                   @node-collapse="nodeCollapse">
-          </el-tree>
-        </el-col>
-        <el-col :span="16"
-                style='margin-top:15px;'>
-          <el-card class="box-card">
-            <el-form :label-position="labelPosition"
-                     label-width="80px"
-                     :model="form"
-                     ref="form">
-              <el-form-item label="父级节点"
-                            prop="parentId">
-                <el-input v-model="form.parentId"
-                          :disabled="true"
-                          placeholder="请输入父级节点"></el-input>
-              </el-form-item>
-              <el-form-item label="节点ID"
-                            prop="menuId">
-                <el-input v-model="form.menuId" type="number"
-                          :disabled="formEdit || formStatus === 'update'"
-                          placeholder="请输入节点ID"></el-input>
-              </el-form-item>
-              <el-form-item label="标题"
-                            prop="name">
-                <el-input v-model="form.name"
-                          :disabled="formEdit"
-                          placeholder="请输入标题"></el-input>
-              </el-form-item>
-              <el-form-item label="类型"
-                            prop="type">
-                <el-select class="filter-item"
-                           v-model="form.type"
-                           :disabled="formEdit"
-                           placeholder="请输入资源请求类型">
-                  <el-option v-for="item in  typeOptions"
-                             :key="item"
-                             :label="item | typeFilter"
-                             :value="item"></el-option>
-                </el-select>
-              </el-form-item>
-
-              <el-form-item label="权限标识"
-                            prop="permission" v-if="form.type === '1'">
-                <el-input v-model="form.permission"
-                          :disabled="formEdit"
-                          placeholder="请输入权限标识"></el-input>
-              </el-form-item>
-              <el-form-item label="图标" v-if="form.type === '0'"
-                            prop="icon">
-                <el-input v-model="form.icon"
-                                       :disabled="formEdit"
-                                       placeholder="请输入图标"></el-input>
-              </el-form-item>
-              <el-form-item label="排序" v-if="form.type === '0'"
-                            prop="sort">
-                <el-input type="number"
-                          v-model="form.sort"
-                          :disabled="formEdit"
-                          placeholder="请输入排序"></el-input>
-              </el-form-item>
-              <el-form-item label="前端组件" v-if="form.type === '0'"
-                            prop="component">
-                <el-input v-model="form.component"
-                          :disabled="formEdit"
-                          placeholder="请输入描述"></el-input>
-              </el-form-item>
-              <el-form-item label="前端地址" v-if="form.type === '0'"
-                            prop="component">
-                <el-input v-model="form.path"
-                          :disabled="formEdit"
-                          placeholder="iframe嵌套地址"></el-input>
-              </el-form-item>
-              <el-form-item label="路由缓冲" v-if="form.type === '0'"
-                            prop="component">
-                <el-switch v-model="form.keepAlive"
-                           :disabled="formEdit"
-                           active-color="#13ce66"
-                           inactive-color="#ff4949"
-                           :active-value='"0"'
-                           :inactive-value='"1"'>
-                </el-switch>
-              </el-form-item>
-              <el-form-item v-if="formStatus == 'update'">
-                <el-button type="primary"
-                           @click="update">更新
-                </el-button>
-                <el-button @click="onCancel">取消</el-button>
-              </el-form-item>
-              <el-form-item v-if="formStatus == 'create'">
-                <el-button type="primary"
-                           @click="create">保存
-                </el-button>
-                <el-button @click="onCancel">取消</el-button>
-              </el-form-item>
-            </el-form>
+          <el-card class="box-card" shadow="hover">
+            <div slot="header" class="clearfix">
+              <span>菜单</span>
+              <el-button type="text" class="card-heard-btn" icon="icon-filesearch" title="搜索" @click="searchTree=(searchTree ? false:true)"></el-button>
+              <el-button type="text" class="card-heard-btn" icon="icon-reload" title="刷新" @click="getTreeMenu()"></el-button>
+            </div>
+            <el-input v-show="searchTree"
+                      placeholder="输入关键字进行过滤"
+                      v-model="filterText">
+            </el-input>
+            <el-tree
+              class="filter-tree"
+              :data="treeMenuData"
+              ref="leftMenuTree"
+              node-key="id"
+              highlight-current default-expand-all
+              :expand-on-click-node="false"
+              :filter-node-method="filterNode"
+              @node-click="clickNodeTreeData">
+            </el-tree>
           </el-card>
         </el-col>
+        <el-col :span="18">
+          <div class="filter-container" v-show="searchFilterVisible">
+            <el-form :inline="true" ref="searchForm">
+              <el-form-item label="名称">
+                <el-input class="filter-item input-normal" size="small" v-model="listQuery.name"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+                <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+          <!-- 表格功能列 -->
+          <div class="table-menu">
+            <div class="table-menu-left">
+              <el-button size="small" v-if="sys_menu_edit" class="filter-item" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+            </div>
+            <div class="table-menu-right">
+              <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+            </div>
+          </div>
+          <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row>
+            <el-table-column
+              type="index" fixed="left" width="60">
+            </el-table-column>
+            <el-table-column align="center" label="上级菜单" width="100">
+              <template slot-scope="scope">
+                <span>{{scope.row.parentName}}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="名称" width="100" prop="menu.name" sortable="custom">
+              <template slot-scope="scope">
+                <span>
+                  {{scope.row.name}}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="权限" width="120">
+              <template slot-scope="scope">
+                <span>{{scope.row.permission}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="图标" width="120">
+              <template slot-scope="scope">
+                <span>{{scope.row.icon}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="VUE页面" width="120">
+              <template slot-scope="scope">
+                <span>{{scope.row.component}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="菜单类型" width="120">
+              <template slot-scope="scope">
+                <span>{{scope.row.type}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="路由缓冲" width="120">
+              <template slot-scope="scope">
+                <span>{{scope.row.keepAlive}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="前端URL" width="120">
+              <template slot-scope="scope">
+                <span>{{scope.row.path}}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="显示" width="80">
+              <template slot-scope="scope">
+                <el-tag>{{scope.row.showText}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="序号" width="100" prop="menu.sort" sortable="custom">
+              <template slot-scope="scope">
+                <span>
+                  {{scope.row.sort}}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="创建时间" prop="menu.created_date" sortable="custom">
+              <template slot-scope="scope">
+                <span>{{scope.row.createdDate}}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" fixed="right" width="100" label="操作" v-if="sys_menu_edit || sys_menu_lock || sys_menu_delete">
+              <template slot-scope="scope">
+                <el-button v-if="sys_menu_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
+                </el-button>
+                <el-button v-if="sys_menu_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+                </el-button>
+              </template>
+            </el-table-column>
+
+          </el-table>
+          <div v-show="!listLoading" class="pagination-container">
+            <el-pagination class="pull-right" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
+            </el-pagination>
+          </div>
+        </el-col>
       </el-row>
+      <el-dialog title="选择菜单" :visible.sync="dialogMenuVisible">
+        <el-tree class="filter-tree" ref="selectParentMenuTree" default-expand-all :data="treeMenuData" :default-checked-keys="checkedKeys"
+                 check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData">
+        </el-tree>
+      </el-dialog>
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+        <el-form :model="form" ref="form" label-width="100px">
+          <el-form-item label="所属菜单" prop="parentName">
+            <el-input v-model="form.parentName" placeholder="选择菜单" @focus="selectParentMenuTree()" :disabled="disableSelectParent" readonly>
+            </el-input>
+            <input type="hidden" v-model="form.parentId" />
+          </el-form-item>
+
+          <el-form-item label="菜单" prop="name" :rules="[{required: true,message: '请输入菜单'}]">
+            <el-input v-model="form.name" placeholder="请输入菜单"></el-input>
+          </el-form-item>
+
+          <el-form-item label="编码" prop="code" :rules="[ {required: true,validator:validateUnique}]">
+            <el-input v-model="form.code" placeholder="请输入编码"></el-input>
+          </el-form-item>
+          <el-form-item label="值" prop="val">
+            <el-input v-model="form.val"></el-input>
+          </el-form-item>
+          <el-form-item label="排序" prop="sort">
+            <el-input v-model="form.sort"></el-input>
+          </el-form-item>
+          <el-form-item label="显示" prop="show" :rules="[{required: true,message: '请选择' }]">
+            <CrudRadio v-model="form.show" :dic="flagOptions"></CrudRadio>
+          </el-form-item>
+          <el-form-item label="备注" prop="description">
+            <el-input type="textarea" v-model="form.remark" placeholder=""></el-input>
+          </el-form-item>
+          <el-form-item label="描述" prop="description">
+            <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="cancel()">取 消</el-button>
+          <el-button type="primary" @click="save()">保 存</el-button>
+        </div>
+      </el-dialog>
     </basic-container>
   </div>
 </template>
 
 <script>
-  import {addObj, delObj, fetchMenuTree, getObj, putObj} from '@/api/admin/menu'
-  import {mapGetters} from 'vuex'
+  import {findMenu, lockMenu, pageMenu, removeMenu, saveMenu, fetchMenuTree} from "./service";
+  import {mapGetters} from 'vuex';
+  import {parseJsonItemForm, parseTreeData} from "@/util/util";
+  import {isValidateUnique, toStr, validateNotNull} from "@/util/validate";
+  import CrudSelect from "@/views/avue/crud-select";
+  import CrudRadio from "@/views/avue/crud-radio";
+  import {objectToString} from "../../../util/validate";
 
   export default {
-    name: 'menu',
+    name: 'Menu',
+    components: {CrudSelect,CrudRadio},
     data() {
       return {
+        treeMenuData: [],
+        dialogMenuVisible: false,
+        dialogFormVisible: false,
+        searchFilterVisible: true,
+        checkedKeys: [],
         list: null,
         total: null,
-        formEdit: true,
-        formAdd: true,
-        formStatus: '',
-        showElement: false,
-        typeOptions: ['0', '1'],
-        methodOptions: ['GET', 'POST', 'PUT', 'DELETE'],
+        listLoading: true,
         listQuery: {
-          name: undefined
+          current: 1,
+          size: 20
         },
-        treeData: [],
-        oExpandedKey: {
-          // key (from tree id) : expandedOrNot boolean
-        },
-        oTreeNodeChildren: {
-          // id1 : [children] (from tree node id1)
-          // id2 : [children] (from tree node id2)
-        },
-        aExpandedKeys: [],
-        defaultProps: {
-          children: 'children',
-          label: 'name'
-        },
+        formEdit: true,
+        filterText: '',
+        filterFormText: '',
+        formStatus: '',
+        flagOptions: [],
+        rolesOptions: [],
+        searchTree: false,
         labelPosition: 'right',
+        disableSelectParent: false,
         form: {
-          permission: undefined,
           name: undefined,
-          menuId: undefined,
           parentId: undefined,
-          icon: undefined,
+          code: undefined,
+          val: undefined,
+          show: undefined,
           sort: undefined,
-          component: undefined,
-          type: undefined,
-          path: undefined
+          remark: undefined,
+          description: undefined
         },
-        currentId: -1,
-        menuManager_btn_add: false,
-        menuManager_btn_edit: false,
-        menuManager_btn_del: false
+        validateUnique: (rule, value, callback) => {
+          isValidateUnique(rule, value, callback, '/admin/sys/menu/checkByProperty?id='+toStr(this.form.id))
+        },
+        dialogStatus: 'create',
+        textMap: {
+          update: '编辑',
+          create: '创建'
+        },
+        sys_menu_edit: false,
+        sys_menu_lock: false,
+        sys_menu_delete: false,
+        currentNode: {},
+        tableKey: 0
       }
     },
-    filters: {
-      typeFilter(type) {
-        const typeMap = {
-          0: '菜单',
-          1: '按钮'
-        }
-        return typeMap[type]
+    watch: {
+      filterText(val) {
+        this.$refs['leftMenuTree'].filter(val);
       }
     },
     created() {
-      this.getList()
-      this.menuManager_btn_add = this.permissions['sys_menu_add']
-      this.menuManager_btn_edit = this.permissions['sys_menu_edit']
-      this.menuManager_btn_del = this.permissions['sys_menu_del']
+      this.getTreeMenu()
+      this.sys_menu_edit = this.permissions["sys_menu_edit"];
+      this.sys_menu_lock = this.permissions["sys_menu_lock"];
+      this.sys_menu_delete = this.permissions["sys_menu_del"];
+      console.log(this.dicts)
+      this.flagOptions = this.dicts['sys_flag'];
     },
     computed: {
       ...mapGetters([
-        'elements',
-        'permissions'
+        "permissions","dicts"
       ])
     },
     methods: {
       getList() {
-        fetchMenuTree(this.listQuery).then(response => {
-          this.treeData = response.data
+        this.listLoading = true;
+        // this.listQuery.isAsc = false;
+        this.listQuery.queryConditionJson = parseJsonItemForm([{
+          fieldName: 'name',value:this.listQuery.name
+        },{
+          fieldName: 'parent_id',value:this.listQuery.parentId,operate:'eq'
+        }])
+        pageMenu(this.listQuery).then(response => {
+          this.list = response.data.records;
+          this.total = response.data.total;
+          this.listLoading = false;
+        });
+      },
+      sortChange(column){
+        if(column.order=="ascending"){
+          this.listQuery.asc=column.prop
+          this.listQuery.desc=undefined;
+        }else{
+          this.listQuery.desc=column.prop
+          this.listQuery.asc=undefined;
+        }
+        this.getList()
+      },
+      getTreeMenu() {
+        fetchMenuTree({extId:this.form.id}).then(response => {
+          this.treeMenuData = parseTreeData(response.data);
+          this.currentNode = this.treeMenuData[0];
+          this.listQuery.parentId=this.treeMenuData[0].id;
+          let thiz=this;
+          setTimeout(function(){thiz.$refs['leftMenuTree'].setCurrentKey(thiz.listQuery.parentId);}, 100)
+          this.getList();
         })
       },
       filterNode(value, data) {
         if (!value) return true
         return data.label.indexOf(value) !== -1
       },
-
-      nodeExpand(data) {
-        let aChildren = data.children
-        if (aChildren.length > 0) {
-          this.oExpandedKey[data.id] = true
-          this.oTreeNodeChildren[data.id] = aChildren
-        }
-        this.setExpandedKeys()
+      clickNodeTreeData(data) {
+        this.listQuery.parentId = data.id
+        this.currentNode = data;
+        this.getList()
       },
-      nodeCollapse(data) {
-        this.oExpandedKey[data.id] = false
-        // 如果有子节点
-        this.treeRecursion(this.oTreeNodeChildren[data.id], (oNode) => {
-          this.oExpandedKey[oNode.id] = false
+      clickNodeSelectData(data) {
+        console.log(data)
+        this.form.parentId = data.id;
+        this.form.parentName = data.label;
+        this.dialogMenuVisible = false;
+      },
+      selectParentMenuTree(){
+        this.dialogMenuVisible=true;
+        let thiz=this;
+        setTimeout(function(){thiz.$refs['selectParentMenuTree'].setCurrentKey(thiz.form.parentId ? thiz.form.parentId : null);}, 100)
+      },
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
+        this.listQuery.parentId = undefined;
+        this.$refs['leftMenuTree'].setCurrentKey(null);
+        this.currentNode=undefined;
+      },
+      handleFilter() {
+        this.listQuery.current = 1;
+        this.getList();
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val;
+        this.getList();
+      },
+      handleEdit(row) {
+        this.resetForm();
+        this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
+        if(this.dialogStatus == "create"){
+          if(this.currentNode){
+            this.form.parentId=this.currentNode.id;
+            this.form.parentName=this.currentNode.label;
+          }
+          this.dialogFormVisible = true;
+        }else{
+          findMenu(row.id).then(response => {
+            this.form = response.data;
+            this.disableSelectParent = this.form.parentName ? false : true;
+            this.form.show=objectToString(this.form.show);
+            this.dialogFormVisible = true;
+          });
+        }
+      },
+      handleLock: function (row) {
+        lockMenu(row.id).then((data) => {
+          this.getList();
         });
-        this.setExpandedKeys()
       },
-      setExpandedKeys() {
-        let oTemp = this.oExpandedKey
-        this.aExpandedKeys = []
-        for (let sKey in oTemp) {
-          if (oTemp[sKey]) {
-            this.aExpandedKeys.push(parseInt(sKey));
-          }
-        }
-      },
-      treeRecursion(aChildren, fnCallback) {
-        if (aChildren) {
-          for (let i = 0; i < aChildren.length; ++i) {
-            let oNode = aChildren[i]
-            fnCallback && fnCallback(oNode)
-            this.treeRecursion(oNode.children, fnCallback)
-          }
-        }
-      },
-
-      getNodeData(data) {
-        if (!this.formEdit) {
-          this.formStatus = 'update'
-        }
-        getObj(data.id).then(response => {
-          this.form = response.data
-        })
-        this.currentId = data.id
-        this.showElement = true
-      },
-      handlerEdit() {
-        if (this.form.menuId) {
-          this.formEdit = false
-          this.formStatus = 'update'
-        }
-      },
-      handlerAdd() {
-        this.resetForm()
-        this.formEdit = false
-        this.formStatus = 'create'
-      },
-      handleDelete() {
+      handleDelete(row) {
         this.$confirm('此操作将永久删除, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          delObj(this.currentId).then(() => {
-            this.getList()
-            this.resetForm()
-            this.onCancel()
-            this.$notify({
-              title: '成功',
-              message: '删除成功',
-              type: 'success',
-              duration: 2000
+          removeMenu(row.id).then((rs) => {
+            this.getList();
+          })
+        })
+      },
+      save() {
+        console.log(this.$refs['form'])
+        this.$refs['form'].validate(valid => {
+          console.log(valid)
+          if (valid) {
+            saveMenu(this.form).then(() => {
+              this.getList()
+              this.dialogFormVisible = false;
             })
-          })
-        })
+          } else {
+            return false;
+          }
+        });
       },
-      update() {
-        putObj(this.form).then(() => {
-          this.getList()
-          this.$notify({
-            title: '成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 2000
-          })
-        })
-      },
-      create() {
-        addObj(this.form).then(() => {
-          this.getList()
-          this.$notify({
-            title: '成功',
-            message: '创建成功',
-            type: 'success',
-            duration: 2000
-          })
-        })
-      },
-      onCancel() {
-        this.formEdit = true
-        this.formStatus = ''
+      cancel() {
+        this.dialogFormVisible = false;
+        this.$refs['form'].resetFields();
       },
       resetForm() {
         this.form = {
-          permission: undefined,
           name: undefined,
-          menuId: undefined,
-          parentId: this.currentId,
-          icon: undefined,
+          parentId: undefined,
+          code: undefined,
+          val: undefined,
+          show: undefined,
           sort: undefined,
-          component: undefined,
-          type: undefined,
-          path: undefined
+          remark: undefined,
+          description: undefined
         }
+        this.$refs['form']&&this.$refs['form'].resetFields();
       }
     }
   }

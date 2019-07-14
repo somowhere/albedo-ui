@@ -53,7 +53,7 @@
         </div>
         <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row>
           <el-table-column
-            type="index" fixed="left" width="60">
+            type="index" fixed="left" width="50">
           </el-table-column>
           <el-table-column align="center" label="所属组织" width="100">
             <template slot-scope="scope">
@@ -61,7 +61,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="用户名" width="100" prop="username" sortable="custom">
+          <el-table-column align="center" label="用户名" width="140" prop="a.username" sortable="custom">
             <template slot-scope="scope">
           <span>
 <!--            <img v-if="scope.row.avatar" class="user-avatar" style="width: 20px; height: 20px; border-radius: 50%;" :src="getFilePath(scope.row.avatar)">-->
@@ -70,13 +70,13 @@
             </template>
           </el-table-column>
 
-<!--          <el-table-column align="center" label="邮箱" width="120">-->
-<!--            <template slot-scope="scope">-->
-<!--          <span>-->
-<!--            {{scope.row.email}}-->
-<!--          </span>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          <el-table-column align="center" label="邮箱" width="120">
+            <template slot-scope="scope">
+          <span>
+            {{scope.row.email}}
+          </span>
+            </template>
+          </el-table-column>
 
           <el-table-column align="center" label="手机号" width="120">
             <template slot-scope="scope">
@@ -84,7 +84,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="角色" width="120">
+          <el-table-column align="center" label="角色" width="160">
             <template slot-scope="scope">
               <span>{{scope.row.roleNames}}</span>
             </template>
@@ -95,14 +95,14 @@
               <el-tag>{{scope.row.lockFlagText}}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column align="center" label="创建时间" width="120" prop="createdDate" sortable="custom">
+          <el-table-column align="center" label="创建时间" width="160" prop="a.created_date" sortable="custom">
             <template slot-scope="scope">
               <span>{{scope.row.createdDate}}</span>
             </template>
           </el-table-column>
 
 
-          <el-table-column align="center" fixed="right" width="130" label="操作" v-if="sys_user_edit || sys_user_lock || sys_user_delete">
+          <el-table-column align="center" label="操作" fixed="right" width="130" v-if="sys_user_edit || sys_user_lock || sys_user_delete">
             <template slot-scope="scope">
               <el-button v-if="sys_user_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
               </el-button>
@@ -374,7 +374,6 @@
         }else{
           findUser(row.id).then(response => {
             this.form = response.data;
-            console.log(this.form)
             this.form.password=undefined;
             this.dialogFormVisible = true;
           });

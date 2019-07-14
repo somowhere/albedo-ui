@@ -9,6 +9,9 @@ export const MSG_TYPE_WARNING = 2
 export const MSG_TYPE_ERROR = -1
 
 
+/*** TREE跟节点 */
+export const TREE_ROOT = "-1"
+
 /*** 否 */
 export const SYS_NO = "0"
 /*** 是 */

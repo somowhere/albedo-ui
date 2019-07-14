@@ -287,6 +287,7 @@ export function isValidateUnique(rule, value, callback, url){
     validateUniqueField(url).then(rs => {
       beforeValue[rule.field] = value;
       if(!rs){
+        console.log(rs)
         callback(new Error(validateNotNull(rule.message) ? rule.message : "已存在，请修正"))
       }else{
         callback()
