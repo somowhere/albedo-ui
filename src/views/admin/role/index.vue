@@ -245,7 +245,9 @@
             this.form = response.data;
             this.dialogFormVisible = true;
             if(this.$refs.treeMenu){
-              this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
+              // console.log(this.$refs.treeMenu);
+              // console.log(this.form.menuIdList);
+             // this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
             }
           });
         }
