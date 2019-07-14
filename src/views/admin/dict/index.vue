@@ -287,8 +287,7 @@
       },
       selectParentDictTree(){
         this.dialogDictVisible=true;
-        let thiz=this;
-        setTimeout(function(){thiz.$refs['selectParentDictTree'].setCurrentKey(thiz.form.parentId ? thiz.form.parentId : null);}, 100)
+        setTimeout(()=>{this.$refs['selectParentDictTree'].setCurrentKey(this.form.parentId ? this.form.parentId : null);}, 100)
       },
       //搜索清空
       searchReset() {

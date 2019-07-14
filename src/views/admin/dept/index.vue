@@ -21,17 +21,17 @@
       <div class="filter-container">
         <el-button-group>
           <el-button type="primary"
-                     v-if="deptManager_btn_add"
+                     v-if="sys_dept_edit"
                      icon="plus"
                      @click="handlerAdd">添加
           </el-button>
           <el-button type="primary"
-                     v-if="deptManager_btn_edit"
+                     v-if="sys_dept_edit"
                      icon="edit"
                      @click="handlerEdit">编辑
           </el-button>
           <el-button type="primary"
-                     v-if="deptManager_btn_del"
+                     v-if="sys_dept_del"
                      icon="delete"
                      @click="handleDelete">删除
           </el-button>
@@ -51,6 +51,11 @@
                    default-expand-all>
           </el-tree>
         </el-col>
+        <el-dialog title="选择父级节点" :visible.sync="dialogDeptVisible">
+          <el-tree class="filter-tree" ref="selectParentDeptTree" default-expand-all :data="treeData"
+                   check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData">
+          </el-tree>
+        </el-dialog>
         <el-col :span="16"
                 style='margin-top:15px;'>
           <el-card class="box-card">
@@ -59,12 +64,13 @@
                      :rules="rules"
                      :model="form"
                      ref="form">
-              <el-form-item label="父级节点"
-                            prop="parentId">
-                <el-input v-model="form.parentId"
-                          :disabled="formEdit"
-                          placeholder="请输入父级节点"></el-input>
+
+              <el-form-item label="父级节点" prop="parentName">
+                <el-input v-model="form.parentName" placeholder="选择父级节点" @focus="selectParentDeptTree()" :disabled="formEdit" readonly>
+                </el-input>
+                <input type="hidden" v-model="form.parentId" />
               </el-form-item>
+
               <el-form-item label="节点编号"
                             prop="deptId"
                             v-if="formEdit">
@@ -84,6 +90,9 @@
                           v-model="form.sort"
                           :disabled="formEdit"
                           placeholder="请输入排序"></el-input>
+              </el-form-item>
+              <el-form-item label="描述" prop="description">
+                <el-input type="textarea" v-model="form.description" :disabled="formEdit" placeholder=""></el-input>
               </el-form-item>
                 <el-button type="primary"
                            @click="save">保存
@@ -105,6 +114,7 @@
     name: 'dept',
     data() {
       return {
+        dialogDeptVisible: false,
         list: null,
         total: null,
         formEdit: true,
@@ -133,19 +143,18 @@
           name: undefined,
           orderNum: undefined,
           parentId: undefined,
-          deptId: undefined
+          deptId: undefined,
+          description:undefined
         },
         currentId: 0,
-        deptManager_btn_add: false,
-        deptManager_btn_edit: false,
-        deptManager_btn_del: false
+        sys_dept_edit: false,
+        sys_dept_del: false
       }
     },
     created() {
       this.getList()
-      this.deptManager_btn_add = this.permissions['sys_dept_add']
-      this.deptManager_btn_edit = this.permissions['sys_dept_edit']
-      this.deptManager_btn_del = this.permissions['sys_dept_del']
+      this.sys_dept_edit = this.permissions['sys_dept_edit']
+      this.sys_dept_del = this.permissions['sys_dept_del']
     },
     computed: {
       ...mapGetters([
@@ -170,11 +179,22 @@
         getDept(data.id).then(response => {
           this.form = response.data
         })
+
         this.currentId = data.id
         this.showElement = true
       },
+      clickNodeSelectData(data) {
+        console.log(data)
+        this.form.parentId = data.id;
+        this.form.parentName = data.label;
+        this.dialogDeptVisible = false;
+      },
+      selectParentDeptTree(){
+        this.dialogDeptVisible=true;
+        setTimeout(() => {this.$refs['selectParentDeptTree'].setCurrentKey(this.form.parentId ? this.form.parentId : null);}, 100)
+      },
       handlerEdit() {
-        if (this.form.deptId) {
+        if (this.form.id) {
           this.formEdit = false
           this.formStatus = 'update'
         }
@@ -190,6 +210,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          console.log(this.currentId);
           removeDept(this.currentId).then(() => {
             this.getList()
             this.resetForm()

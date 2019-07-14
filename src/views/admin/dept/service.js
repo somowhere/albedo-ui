@@ -35,7 +35,7 @@ export function fetchTree (query) {
 
 export function saveDept (obj) {
   return request({
-    url: '/admin/sys/dept',
+    url: '/admin/sys/dept/',
     method: 'post',
     data: obj
   })
