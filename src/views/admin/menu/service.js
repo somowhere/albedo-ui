@@ -17,13 +17,6 @@
 
 import request from '@/router/axios'
 
-export function GetMenu () {
-  return request({
-    url: '/admin/sys/menu/user-menu',
-    method: 'get'
-  })
-}
-
 export function fetchMenuTree (query) {
   return request({
     url: '/admin/sys/menu/tree',
@@ -32,7 +25,15 @@ export function fetchMenuTree (query) {
   })
 }
 
-export function addObj (obj) {
+export function pageMenu (query) {
+  return request({
+    url: '/admin/sys/menu/',
+    method: 'get',
+    params: query
+  })
+}
+
+export function saveMenu (obj) {
   return request({
     url: '/admin/sys/menu/',
     method: 'post',
@@ -40,24 +41,23 @@ export function addObj (obj) {
   })
 }
 
-export function getObj (id) {
+export function findMenu (id) {
   return request({
     url: '/admin/sys/menu/' + id,
     method: 'get'
   })
 }
 
-export function delObj (id) {
+export function removeMenu (id) {
   return request({
     url: '/admin/sys/menu/' + id,
     method: 'delete'
   })
 }
 
-export function putObj (obj) {
+export function lockMenu (id) {
   return request({
-    url: '/admin/sys/menu/',
-    method: 'put',
-    data: obj
+    url: '/admin/sys/menu/'+id,
+    method: 'put'
   })
 }
