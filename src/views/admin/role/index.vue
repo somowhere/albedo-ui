@@ -63,7 +63,7 @@
                 <el-tag>{{scope.row.lockFlagText}}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="创建时间" width="160" prop="a.created_date" sortable="custom">
+            <el-table-column align="center" label="创建时间" prop="a.created_date" sortable="custom">
               <template slot-scope="scope">
                 <span>{{scope.row.createdDate}}</span>
               </template>
@@ -90,25 +90,23 @@
       </el-row>
       <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
         <el-form :model="form" ref="form" label-width="100px">
-          <el-form-item label="数据权限" prop="dataScope" :rules="[{required: true,message: '请选择' }]">
-            <CrudRadio v-model="form.dataScope" :dic="dataScopeOptions"></CrudRadio>
-          </el-form-item>
+
           <el-form-item label="角色名称" prop="name" :rules="[
-          {required: true,message: '请输入角色名称'},
-          {validator:validateUnique}
+          {required: true,message: '请输入角色名称'}
         ]">
             <el-input v-model="form.name" placeholder="请输入角色名称"></el-input>
           </el-form-item>
           <el-form-item label="角色标识" prop="code" :rules="[{required: true,message: '请输入角色名称'}]">
             <el-input v-model="form.code" placeholder="请输入角色标识"></el-input>
           </el-form-item>
-          <el-col :span="12">
+          <el-form-item label="数据权限" prop="dataScope" :rules="[{required: true,message: '请选择' }]">
+            <CrudRadio v-model="form.dataScope" :dic="dataScopeOptions"></CrudRadio>
+          </el-form-item>
             <el-form-item label="操作权限" prop="menuIdList">
               <el-tree class="filter-tree" :data="treeMenuData" ref="treeMenu" node-key="id"
                        show-checkbox default-expand-all :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData">
               </el-tree>
             </el-form-item>
-          </el-col>
           <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
             <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
           </el-form-item>
@@ -164,9 +162,7 @@
           lockFlag: undefined,
           description: undefined
         },
-        validateUnique: (rule, value, callback) => {
-          isValidateUnique(rule, value, callback, '/admin/sys/role/checkByProperty?id='+toStr(this.form.id))
-        },
+
         dialogStatus: 'create',
         textMap: {
           update: '编辑',
@@ -275,6 +271,7 @@
         console.log(this.$refs['form'])
         this.$refs['form'].validate(valid => {
           console.log(valid)
+          console.log(this.form.menuIdList)
           if (valid) {
             saveRole(this.form).then(() => {
               this.getList()
