@@ -1,173 +1,304 @@
-<!--
-  -    Copyright (c) 2018-2025, lengleng All rights reserved.
-  -
-  - Redistribution and use in source and binary forms, with or without
-  - modification, are permitted provided that the following conditions are met:
-  -
-  - Redistributions of source code must retain the above copyright notice,
-  - this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-  - notice, this list of conditions and the following disclaimer in the
-  - documentation and/or other materials provided with the distribution.
-  - Neither the name of the pig4cloud.com developer nor the names of its
-  - contributors may be used to endorse or promote products derived from
-  - this software without specific prior written permission.
-  - Author: lengleng (wangiegie@gmail.com)
-  -->
+
 
 <template>
-  <div class="execution">
+  <div class="app-container calendar-list-container">
     <basic-container>
-      <avue-crud ref="crud"
-                 :page="page"
-                 :data="tableData"
-                 :table-loading="tableLoading"
-                 :option="tableOption"
-                 @on-load="getList"
-                 @refresh-change="refreshChange"
-                 @row-update="handleUpdate"
-                 @row-save="handleSave"
-                 @row-del="rowDel">
-        <template slot-scope="scope"
-                  slot="menu">
-          <el-button type="text"
-                     v-if="permissions.sys_client_edit"
-                     icon="el-icon-check"
-                     size="mini"
-                     plain
-                     @click="handleEdit(scope.row,scope.index)">编辑
-          </el-button>
-          <el-button type="text"
-                     v-if="permissions.sys_client_del"
-                     icon="el-icon-delete"
-                     size="mini"
-                     plain
-                     @click="handleDel(scope.row,scope.index)">删除
-          </el-button>
-        </template>
-      </avue-crud>
+      <el-row>
+
+        <el-col>
+          <div class="filter-container" v-show="searchFilterVisible">
+            <el-form :inline="true" :model="listQuery" ref="searchForm">
+              <el-form-item label="名称">
+                <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+                <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+          <!-- 表格功能列 -->
+
+          <div class="table-menu">
+            <div class="table-menu-left">
+              <el-button size="small" v-if="sys_client_edit" class="filter-item" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+            </div>
+            <div class="table-menu-right">
+              <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+            </div>
+          </div>
+          <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
+            <el-table-column
+              type="index" fixed="left" width="50">
+            </el-table-column>
+            <el-table-column align="center" label="数据权限" width="100">
+              <template slot-scope="scope">
+                <span>{{scope.row.dataScopeText}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="终端名称" width="100">
+              <template slot-scope="scope">
+                <span>{{scope.row.name}}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="终端标识" width="140">
+              <template slot-scope="scope">
+          <span>
+            {{scope.row.code}}
+          </span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="终端描述" width="120">
+              <template slot-scope="scope">
+          <span>
+            {{scope.row.remark}}
+          </span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="锁定" width="80">
+              <template slot-scope="scope">
+                <el-tag>{{scope.row.lockFlagText}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="创建时间" width="160" prop="a.created_date" sortable="custom">
+              <template slot-scope="scope">
+                <span>{{scope.row.createdDate}}</span>
+              </template>
+            </el-table-column>
+
+
+            <el-table-column align="center" label="操作" fixed="right" width="130" v-if="sys_client_edit || sys_client_delete">
+              <template slot-scope="scope">
+                <el-button v-if="sys_client_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
+                </el-button>
+                <el-button v-if="sys_client_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+                </el-button>
+              </template>
+            </el-table-column>
+
+          </el-table>
+          <div v-show="!listLoading" class="pagination-container">
+            <el-pagination class="pull-right" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
+            </el-pagination>
+          </div>
+        </el-col>
+      </el-row>
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+        <el-form :model="form" ref="form" label-width="100px">
+          <el-form-item label="数据权限" prop="dataScope" :rules="[{required: true,message: '请选择' }]">
+            <CrudRadio v-model="form.dataScope" :dic="dataScopeOptions"></CrudRadio>
+          </el-form-item>
+          <el-form-item label="终端名称" prop="name" :rules="[
+          {required: true,message: '请输入终端名称'},
+          {validator:validateUnique}
+        ]">
+            <el-input v-model="form.name" placeholder="请输入终端名称"></el-input>
+          </el-form-item>
+          <el-form-item label="终端标识" prop="code" :rules="[{required: true,message: '请输入终端名称'}]">
+            <el-input v-model="form.code" placeholder="请输入终端标识"></el-input>
+          </el-form-item>
+          <el-col :span="12">
+            <el-form-item label="操作权限" prop="menuIdList">
+              <el-tree class="filter-tree" :data="treeMenuData" ref="treeMenu" node-key="id"
+                       show-checkbox default-expand-all :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData">
+              </el-tree>
+            </el-form-item>
+          </el-col>
+          <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
+            <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
+          </el-form-item>
+          <el-form-item label="终端描述" prop="remark" :rules="[{required: true, message: '请输入终端描述'}]">
+            <el-input v-model="form.remark"></el-input>
+          </el-form-item>
+          <el-form-item label="备注" prop="description">
+            <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="cancel()">取 消</el-button>
+          <el-button type="primary" @click="save()">保 存</el-button>
+        </div>
+      </el-dialog>
     </basic-container>
   </div>
 </template>
 
 <script>
-  import {addObj, delObj, fetchList, putObj} from '@/api/admin/client'
-  import {tableOption} from '@/const/crud/admin/client'
-  import {mapGetters} from 'vuex'
-
+  import {findClient, saveClient, removeClient, pageClient} from "./service";
+  import {fetchMenuTree} from "../menu/service";
+  import {mapGetters } from 'vuex';
+  import {parseJsonItemForm,parseTreeData} from "@/util/util";
+  import {isValidateUnique,toStr,validateNotNull} from "@/util/validate";
+  import CrudSelect from "@/views/avue/crud-select";
+  import CrudRadio from "@/views/avue/crud-radio";
+  import {MSG_TYPE_SUCCESS} from "../../../const/common";
   export default {
-    name: 'client',
+    name: 'Client',
+    components: {CrudSelect,CrudRadio},
     data() {
       return {
-        tableData: [],
-        page: {
-          total: 0, // 总页数
-          currentPage: 1, // 当前页数
-          pageSize: 20 // 每页显示多少条
+        treeMenuData:[],
+        dialogFormVisible: false,
+        searchFilterVisible: true,
+        checkedKeys: [],
+        list: null,
+        total: null,
+        listLoading: true,
+        listQuery: {
+          current: 1,
+          size: 20
         },
-        tableLoading: false,
-        tableOption: tableOption
+        formEdit: true,
+        flagOptions: [],
+        dataScopeOptions:[],
+        form: {
+          name: undefined,
+          dataScope: undefined,
+          code: undefined,
+          menuIdList: [],
+          remark: undefined,
+          lockFlag: undefined,
+          description: undefined
+        },
+        validateUnique: (rule, value, callback) => {
+          isValidateUnique(rule, value, callback, '/admin/sys/client/checkByProperty?id='+toStr(this.form.id))
+        },
+        dialogStatus: 'create',
+        textMap: {
+          update: '编辑',
+          create: '创建'
+        },
+        sys_client_edit: false,
+        sys_client_delete: false,
+        currentNode: {},
+        tableKey: 0
       }
     },
-    created() {
+    watch: {
     },
-    mounted: function () {
+    created() {
+      this.getList()
+      this.sys_client_edit = this.permissions["sys_client_edit"];
+      this.sys_client_delete = this.permissions["sys_client_del"];
+      this.flagOptions = this.dicts['sys_flag'];
+      this.dataScopeOptions = this.dicts['sys_data_scope'];
+      fetchMenuTree().then(rs => {
+        this.treeMenuData = parseTreeData(rs.data);
+      })
     },
     computed: {
-      ...mapGetters(['permissions'])
+      ...mapGetters([
+        "permissions","dicts"
+      ])
     },
     methods: {
-      getList(page, params) {
-        this.tableLoading = true
-        fetchList(Object.assign({
-          current: page.currentPage,
-          size: page.pageSize
-        }, params)).then(response => {
-          this.tableData = response.data.records
-          this.page.total = response.data.total
-          this.tableLoading = false
-        })
+      getList() {
+        this.listLoading = true;
+        this.listQuery.queryConditionJson = parseJsonItemForm([{
+          fieldName: 'name',value:this.listQuery.name}])
+        pageClient(this.listQuery).then(response => {
+          this.list = response.data.records;
+          this.total = response.data.total;
+          this.listLoading = false;
+        });
       },
-      /**
-       * @title 打开新增窗口
-       * @detail 调用crud的handleadd方法即可
-       *
-       **/
-      handleAdd: function () {
-        this.$refs.crud.rowAdd()
+      sortChange(column){
+        if(column.order=="ascending"){
+          this.listQuery.asc=column.prop
+          this.listQuery.desc=undefined;
+        }else{
+          this.listQuery.desc=column.prop
+          this.listQuery.asc=undefined;
+        }
+        this.getList()
       },
-      handleEdit(row, index) {
-        this.$refs.crud.rowEdit(row, index)
+
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
       },
-      handleDel(row, index) {
-        this.$refs.crud.rowDel(row, index)
+      handleFilter() {
+        this.listQuery.current = 1;
+        this.getList();
       },
-      rowDel: function (row, index) {
-        var _this = this
-        this.$confirm('是否确认删除ID为' + row.clientId, '提示', {
+      handleSizeChange(val) {
+        this.listQuery.size = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val;
+        this.getList();
+      },
+      handleEdit(row) {
+        this.resetForm();
+        this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
+        if(this.dialogStatus == "create"){
+          this.dialogFormVisible = true;
+        }else{
+          findClient(row.id).then(response => {
+              this.form = response.data;
+              this.dialogFormVisible = true;
+              if (this.$refs.treeMenu) {
+                // console.log(this.$refs.treeMenu);
+                // console.log(this.form.menuIdList);
+                // this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
+              }
+          });
+        }
+      },
+      handleLock: function (row) {
+        lockClient(row.id).then(response =>{
+          this.getList();
+        });
+      },
+      handleDelete(row) {
+        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(function () {
-          return delObj(row.clientId)
-        }).then(data => {
-          _this.tableData.splice(index, 1)
-          _this.$message({
-            showClose: true,
-            message: '删除成功',
-            type: 'success'
+        }).then(() => {
+          removeClient(row.id).then(response => {
+              this.getList();
           })
-          this.refreshChange()
-        }).catch(function (err) {
         })
       },
-      /**
-       * @title 数据更新
-       * @param row 为当前的数据
-       * @param index 为当前更新数据的行数
-       * @param done 为表单关闭函数
-       *
-       **/
-      handleUpdate: function (row, index, done) {
-        putObj(row).then(data => {
-          this.tableData.splice(index, 1, Object.assign({}, row))
-          this.$message({
-            showClose: true,
-            message: '修改成功',
-            type: 'success'
-          })
-          this.refreshChange()
-          done()
-        })
+      getNodeTreeMenuData(data, obj) {
+        this.form.menuIdList = obj.checkedKeys;
       },
-      /**
-       * @title 数据添加
-       * @param row 为当前的数据
-       * @param done 为表单关闭函数
-       *
-       **/
-      handleSave: function (row, done) {
-        addObj(row).then(data => {
-          this.tableData.push(Object.assign({}, row))
-          this.$message({
-            showClose: true,
-            message: '添加成功',
-            type: 'success'
-          })
-          this.refreshChange()
-          done()
-        })
+      save() {
+        console.log(this.$refs['form'])
+        this.$refs['form'].validate(valid => {
+          console.log(valid)
+          if (valid) {
+            saveClient(this.form).then(response => {
+                this.getList()
+                this.dialogFormVisible = false;
+            })
+          } else {
+            return false;
+          }
+        });
       },
-      /**
-       * 刷新回调
-       */
-      refreshChange() {
-        this.getList(this.page)
+      cancel() {
+        this.dialogFormVisible = false;
+        this.$refs['form'].resetFields();
+      },
+      resetForm() {
+        this.form = {
+          name: undefined,
+          dataScope: undefined,
+          code: undefined,
+          menuIdList: [],
+          remark: undefined,
+          lockFlag: undefined,
+          description: undefined
+        }
+        this.$refs['form']&&this.$refs['form'].resetFields();
       }
     }
   }
 </script>
-
-<style lang="scss" scoped>
-</style>
 

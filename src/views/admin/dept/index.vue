@@ -109,6 +109,7 @@
 <script>
   import {saveDept, removeDept, fetchTree, getDept} from './service'
   import {mapGetters} from 'vuex'
+  import {MSG_TYPE_SUCCESS} from "../../../const/common";
 
   export default {
     name: 'dept',
@@ -184,7 +185,6 @@
         this.showElement = true
       },
       clickNodeSelectData(data) {
-        console.log(data)
         this.form.parentId = data.id;
         this.form.parentName = data.label;
         this.dialogDeptVisible = false;
@@ -210,31 +210,24 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          console.log(this.currentId);
-          removeDept(this.currentId).then(() => {
-            this.getList()
-            this.resetForm()
-            this.onCancel()
-            this.$notify({
-              title: '成功',
-              message: '删除成功',
-              type: 'success',
-              duration: 2000
-            })
+          removeDept(this.currentId).then(response => {
+              this.getList()
+              this.resetForm()
+              this.onCancel()
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
           })
         })
       },
       save() {
         this.$refs.form.validate((valid) => {
           if (!valid) return
-          saveDept(this.form).then(() => {
-            this.getList()
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
+          saveDept(this.form).then(response => {
+              this.getList()
           })
         })
       },

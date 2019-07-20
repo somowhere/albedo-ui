@@ -30,9 +30,9 @@ export default {
     return {};
   },
   created() {
-    this.$store.dispatch("GetMenu").then(data => {
-      if (data.length === 0) return;
-      this.$router.$avueRouter.formatRoutes(data, true);
+    this.$store.dispatch("GetMenu").then(response => {
+      if (response.length === 0) return;
+      this.$router.$avueRouter.formatRoutes(response, true);
     });
   },
   computed: {

@@ -55,10 +55,10 @@ const user = {
         param: ['password']
       })
       return new Promise((resolve, reject) => {
-        loginByUsername(user.username, user.password, user.code, user.randomStr).then(data => {
-          commit('SET_ACCESS_TOKEN', data.access_token)
-          commit('SET_REFRESH_TOKEN', data.refresh_token)
-          commit('SET_EXPIRES_IN', data.expires_in)
+        loginByUsername(user.username, user.password, user.code, user.randomStr).then(response => {
+          commit('SET_ACCESS_TOKEN', response.access_token)
+          commit('SET_REFRESH_TOKEN', response.refresh_token)
+          commit('SET_EXPIRES_IN', response.expires_in)
           commit('CLEAR_LOCK')
           resolve()
         }).catch(error => {

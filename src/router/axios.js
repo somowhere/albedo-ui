@@ -4,7 +4,9 @@ import errorCode from '@/const/errorCode'
 import router from "@/router/router"
 import {Message} from 'element-ui'
 import 'nprogress/nprogress.css'
-import store from "@/store"; // progress bar style
+import store from "@/store";
+import {validateNotNull} from "../util/validate";
+import {MSG_TYPE_FAIL, MSG_TYPE_SUCCESS} from "../const/common"; // progress bar style
 axios.defaults.timeout = 30000
 // 返回其他状态吗
 axios.defaults.validateStatus = function (status) {
@@ -48,7 +50,7 @@ axios.interceptors.response.use(res => {
     return
   }
 
-  if (status !== 200 || res.data.code === 0) {
+  if (status !== 200 || (res.data && res.data.code === MSG_TYPE_FAIL)) {
     Message({
       message: message,
       type: 'error'

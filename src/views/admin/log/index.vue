@@ -1,122 +1,182 @@
-<!--
-  -    Copyright (c) 2018-2025, lengleng All rights reserved.
-  -
-  - Redistribution and use in source and binary forms, with or without
-  - modification, are permitted provided that the following conditions are met:
-  -
-  - Redistributions of source code must retain the above copyright notice,
-  - this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-  - notice, this list of conditions and the following disclaimer in the
-  - documentation and/or other materials provided with the distribution.
-  - Neither the name of the pig4cloud.com developer nor the names of its
-  - contributors may be used to endorse or promote products derived from
-  - this software without specific prior written permission.
-  - Author: lengleng (wangiegie@gmail.com)
-  -->
+
 
 <template>
-  <div class="log">
+  <div class="app-container calendar-list-container">
     <basic-container>
-      <avue-crud ref="crud"
-                 :page="page"
-                 :data="tableData"
-                 :table-loading="tableLoading"
-                 :option="tableOption"
-                 @on-load="getList"
-                 @search-change="searchChange"
-                 @refresh-change="refreshChange"
-                 @row-del="rowDel">
-        <template slot-scope="scope"
-                  slot="menu">
-          <el-button type="text"
-                     v-if="permissions.sys_log_del"
-                     icon="el-icon-delete"
-                     size="mini"
-                     @click="handleDel(scope.row,scope.index)">删除
-          </el-button>
-        </template>
-      </avue-crud>
+      <el-row>
+
+        <el-col>
+          <div class="filter-container" v-show="searchFilterVisible">
+            <el-form :inline="true" :model="listQuery" ref="searchForm">
+              <el-form-item label="名称">
+                <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+                <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+          <!-- 表格功能列 -->
+
+          <div class="table-menu">
+            <div class="table-menu-left">
+            </div>
+            <div class="table-menu-right">
+              <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+            </div>
+          </div>
+          <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
+            <el-table-column
+              type="index" fixed="left" width="50">
+            </el-table-column>
+            <el-table-column align="center" label="类型" width="200">
+              <template slot-scope="scope">
+                <span>{{scope.row.type}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="标题" width="150">
+              <template slot-scope="scope">
+                <span>{{scope.row.title}}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="IP地址" width="250">
+              <template slot-scope="scope">
+              <span>
+                {{scope.row.remoteAddr}}
+              </span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="请求方式" width="120">
+              <template slot-scope="scope">
+          <span>
+            {{scope.row.method}}
+          </span>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="客户端">
+              <template slot-scope="scope">
+                <el-tag>{{scope.row.serviceId}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="请求时间">
+              <template slot-scope="scope">
+                <el-tag>{{scope.row.time}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="创建时间">
+              <template slot-scope="scope">
+                <el-tag>{{scope.row.createTime}}</el-tag>
+              </template>
+            </el-table-column>
+
+            <el-table-column align="center" label="操作" fixed="right" width="60" v-if="sys_log_delete">
+              <template slot-scope="scope">
+                <el-button v-if="sys_log_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+                </el-button>
+              </template>
+            </el-table-column>
+
+          </el-table>
+          <div v-show="!listLoading" class="pagination-container">
+            <el-pagination class="pull-right" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
+            </el-pagination>
+          </div>
+        </el-col>
+      </el-row>
     </basic-container>
   </div>
 </template>
 
 <script>
-  import {delObj, fetchList} from '@/api/admin/log'
-  import {tableOption} from '@/const/crud/admin/log'
-  import {mapGetters} from 'vuex'
-
+  import { removeLog, pageLog} from "./service";
+  import {mapGetters } from 'vuex';
   export default {
-    name: 'log',
+    name: 'Log',
     data() {
       return {
-        tableData: [],
-        page: {
-          total: 0, // 总页数
-          currentPage: 1, // 当前页数
-          pageSize: 20 // 每页显示多少条
+        treeMenuData:[],
+        dialogFormVisible: false,
+        searchFilterVisible: true,
+        checkedKeys: [],
+        list: null,
+        total: null,
+        listLoading: true,
+        listQuery: {
+          current: 1,
+          size: 20
         },
-        tableLoading: false,
-        tableOption: tableOption
+        formEdit: true,
+        flagOptions: [],
+        dataScopeOptions:[],
+        sys_log_delete: false,
+        currentNode: {},
+        tableKey: 0
       }
     },
-    created() {
+    watch: {
     },
-    mounted: function () {
+    created() {
+      this.getList()
+      this.sys_log_delete = this.permissions["sys_log_del"];
     },
     computed: {
-      ...mapGetters(['permissions'])
+      ...mapGetters([
+        "permissions","dicts"
+      ])
     },
     methods: {
-      getList(page, params) {
-        this.tableLoading = true
-        fetchList(Object.assign({
-          descs: 'created_date',
-          current: page.currentPage,
-          size: page.pageSize
-        }, params)).then(response => {
-          this.tableData = response.data.records
-          this.page.total = response.data.total
-          this.tableLoading = false
-        })
+      getList() {
+        this.listLoading = true;
+        this.listQuery.params = {"username":this.listQuery.name}
+        pageLog(this.listQuery).then(response => {
+          this.list = response.data.records;
+          this.total = response.data.total;
+          this.listLoading = false;
+        });
       },
-      handleDel(row, index) {
-        this.$refs.crud.rowDel(row, index)
+      sortChange(column){
+        if(column.order=="ascending"){
+          this.listQuery.asc=column.prop
+          this.listQuery.desc=undefined;
+        }else{
+          this.listQuery.desc=column.prop
+          this.listQuery.asc=undefined;
+        }
+        this.getList()
       },
-      rowDel: function (row, index) {
-        var _this = this
-        this.$confirm('是否确认删除ID为"' + row.id + '"的日志?', '警告', {
+
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
+      },
+      handleFilter() {
+        this.listQuery.current = 1;
+        this.getList();
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val;
+        this.getList();
+      },
+      handleDelete(row) {
+        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(function () {
-          return delObj(row.id)
-        }).then(data => {
-          this.getList(this.page)
-          _this.$message({
-            showClose: true,
-            message: '删除成功',
-            type: 'success'
+        }).then(() => {
+          removeLog(row.id).then((rs) => {
+            this.getList();
           })
-        }).catch(function (err) {
         })
-      },
-      /**
-       * 搜索回调
-       */
-      searchChange(form) {
-        this.getList(this.page, form)
-      },
-      /**
-       * 刷新回调
-       */
-      refreshChange() {
-        this.getList(this.page)
       }
     }
   }
 </script>
-
-<style lang="scss" scoped>
-</style>
 

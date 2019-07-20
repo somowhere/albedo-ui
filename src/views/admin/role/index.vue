@@ -7,7 +7,7 @@
 
         <el-col>
           <div class="filter-container" v-show="searchFilterVisible">
-            <el-form :inline="true" ref="searchForm">
+            <el-form :inline="true" :model="listQuery" ref="searchForm">
               <el-form-item label="名称">
                 <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
               </el-form-item>
@@ -253,7 +253,7 @@
         }
       },
       handleLock: function (row) {
-        lockRole(row.id).then((data) => {
+        lockRole(row.id).then(response =>{
           this.getList();
         });
       },

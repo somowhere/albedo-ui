@@ -31,8 +31,8 @@
       </el-col>
       <el-col :span="18">
         <div class="filter-container" v-show="searchFilterVisible">
-          <el-form :inline="true" ref="searchForm">
-            <el-form-item label="名称">
+          <el-form :inline="true" :model="listQuery" ref="searchForm">
+            <el-form-item label="名称" prop="username">
               <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
             </el-form-item>
             <el-form-item>
@@ -179,6 +179,7 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="cancel()">取 消</el-button>
+      <el-button @click="resetForm()">重 置</el-button>
       <el-button type="primary" @click="save()">保 存</el-button>
     </div>
   </el-dialog>
@@ -350,6 +351,7 @@
       },
       //搜索清空
       searchReset() {
+        console.log(this.$refs['searchForm'])
         this.$refs['searchForm'].resetFields();
         this.listQuery.deptId = undefined;
         this.$refs['leftDeptTree'].setCurrentKey(null)
@@ -372,15 +374,15 @@
         if(this.dialogStatus == "create"){
           this.dialogFormVisible = true;
         }else{
-          findUser(row.id).then(response => {
-            this.form = response.data;
-            this.form.password=undefined;
-            this.dialogFormVisible = true;
+          findUser(row.id).then(response =>{
+              this.form = data.data;
+              this.form.password = undefined;
+              this.dialogFormVisible = true;
           });
         }
       },
       handleLock: function (row) {
-        lockUser(row.id).then((data) => {
+        lockUser(row.id).then(response =>{
             this.getList();
         });
       },
@@ -390,7 +392,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          removeUser(row.id).then((rs) => {
+          removeUser(row.id).then(response =>{
               this.getList();
           })
         })
@@ -400,9 +402,9 @@
         this.$refs['form'].validate(valid => {
           console.log(valid)
           if (valid) {
-            saveUser(this.form).then(() => {
-              this.getList()
-              this.dialogFormVisible = false;
+            saveUser(this.form).then(response => {
+                this.getList()
+                this.dialogFormVisible = false;
             })
           } else {
             return false;

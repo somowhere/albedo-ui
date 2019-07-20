@@ -34,9 +34,9 @@ export default {
   },
   methods: {
     openMenu(item) {
-      this.$store.dispatch("GetMenu", item.parentId).then(data => {
-        if (data.length !== 0) {
-          this.$router.$avueRouter.formatRoutes(data, true);
+      this.$store.dispatch("GetMenu", item.parentId).then(response => {
+        if (response.length !== 0) {
+          this.$router.$avueRouter.formatRoutes(response, true);
         }
         let itemActive,
           childItemActive = 0;

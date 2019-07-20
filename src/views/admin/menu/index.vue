@@ -30,7 +30,7 @@
         </el-col>
         <el-col :span="18">
           <div class="filter-container" v-show="searchFilterVisible">
-            <el-form :inline="true" ref="searchForm">
+            <el-form :inline="true" :model="listQuery" ref="searchForm">
               <el-form-item label="名称">
                 <el-input class="filter-item input-normal" size="small" v-model="listQuery.name"></el-input>
               </el-form-item>
@@ -196,6 +196,7 @@
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
   import {objectToString} from "../../../util/validate";
+  import {MSG_TYPE_SUCCESS} from "../../../const/common";
 
   export default {
     name: 'Menu',
@@ -355,16 +356,16 @@
           }
           this.dialogFormVisible = true;
         }else{
-          findMenu(row.id).then(response => {
-            this.form = response.data;
-            this.disableSelectParent = this.form.parentName ? false : true;
-            this.form.show=objectToString(this.form.show);
-            this.dialogFormVisible = true;
+          findMenu(row.id).then(response =>{
+              this.form = data.data;
+              this.disableSelectParent = this.form.parentName ? false : true;
+              this.form.show = objectToString(this.form.show);
+              this.dialogFormVisible = true;
           });
         }
       },
       handleLock: function (row) {
-        lockMenu(row.id).then((data) => {
+        lockMenu(row.id).then(response =>{
           this.getList();
         });
       },
@@ -374,8 +375,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          removeMenu(row.id).then((rs) => {
-            this.getList();
+          removeMenu(row.id).then(response =>{
+              this.getList();
           })
         })
       },
@@ -384,9 +385,9 @@
         this.$refs['form'].validate(valid => {
           console.log(valid)
           if (valid) {
-            saveMenu(this.form).then(() => {
-              this.getList()
-              this.dialogFormVisible = false;
+            saveMenu(this.form).then(response =>{
+                this.getList()
+                this.dialogFormVisible = false;
             })
           } else {
             return false;

@@ -7,7 +7,7 @@
 
         <el-col>
           <div class="filter-container" v-show="searchFilterVisible">
-            <el-form :inline="true" ref="searchForm">
+            <el-form :inline="true" :model="listQuery"  ref="searchForm">
               <el-form-item label="名称">
                 <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
               </el-form-item>
@@ -85,6 +85,7 @@
   import { removeToken, pageToken} from "./service";
   import {mapGetters } from 'vuex';
   import {parseJsonItemForm} from "@/util/util";
+  import {MSG_TYPE_SUCCESS} from "../../../const/common";
   export default {
     name: 'Token',
     data() {
@@ -162,8 +163,8 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          removeToken(row.id).then((rs) => {
-            this.getList();
+          removeToken(row.id).then(response =>{
+              this.getList();
           })
         })
       }
