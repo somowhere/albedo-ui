@@ -1,95 +1,96 @@
 
 <template>
   <div class="app-container calendar-list-container">
-    <div class="filter-container">
-      <el-form :inline="true">
-        <el-form-item label="表名">
-          <el-input class="filter-item input-normal" v-model="listQuery.name"></el-input>
-        </el-form-item>
-        <el-form-item label="说明">
-          <el-input class="filter-item input-normal" v-model="listQuery.comments"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
-          <el-button v-if="gen_table_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">
-
-      <el-table-column align="center" label="表名">
-        <template slot-scope="scope">
-          <span>{{scope.row.name}}</span>
-        </template>
-      </el-table-column>
-
-
-      <el-table-column align="center" label="说明">
-        <template slot-scope="scope">
-          <span>
-            {{scope.row.comments}}
-          </span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="类名">
-        <template slot-scope="scope">
-          <span>{{scope.row.className}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="父表名">
-        <template slot-scope="scope">
-          <span>{{scope.row.parentTable}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="类名">
-        <template slot-scope="scope">
-          <span>{{scope.row.className}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="创建时间">
-        <template slot-scope="scope">
-          <span>{{scope.row.createdDate}}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" class-name="status-col" label="状态">
-        <template slot-scope="scope">
-          <el-tag>{{scope.row.statusText}}</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="操作">
-        <template slot-scope="scope">
-          <el-button v-if="gen_table_edit" icon="icon-edit" title="编辑" type="text"  @click="handleEdit(scope.row)">
-          </el-button>
-          <el-button v-if="gen_table_delete" icon="icon-delete" title="删除" type="text"  @click="handleDelete(scope.row)">
-          </el-button>
-        </template>
-      </el-table-column>
-
-    </el-table>
-
-    <div v-show="!listLoading" class="pagination-container">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
-      </el-pagination>
-    </div>
-
-    <el-dialog :title="'选择表'" :visible.sync="dialogBeforeFormVisible">
-      <el-form :model="formSelect" ref="formSelect" label-width="100px">
-        <el-form-item label="表名" prop="name" :rules="[{required: true,message: '请选择表名'}]">
-          <AvueCrudSelect v-model="formSelect.name" :filterable="true" :dic="selectTableList"></AvueCrudSelect>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="this.dialogBeforeFormVisible = false;">取 消</el-button>
-        <el-button type="primary" @click="showNextForm()">下一步</el-button>
+    <basic-container>
+      <div class="filter-container">
+        <el-form :inline="true">
+          <el-form-item label="表名">
+            <el-input class="filter-item input-normal" v-model="listQuery.name"></el-input>
+          </el-form-item>
+          <el-form-item label="说明">
+            <el-input class="filter-item input-normal" v-model="listQuery.comments"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+            <el-button v-if="gen_table_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+          </el-form-item>
+        </el-form>
       </div>
-    </el-dialog>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :fullscreen="true">
+      <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">
+
+        <el-table-column align="center" label="表名">
+          <template slot-scope="scope">
+            <span>{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
+
+
+        <el-table-column align="center" label="说明">
+          <template slot-scope="scope">
+            <span>
+              {{scope.row.comments}}
+            </span>
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center" label="类名">
+          <template slot-scope="scope">
+            <span>{{scope.row.className}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="父表名">
+          <template slot-scope="scope">
+            <span>{{scope.row.parentTable}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="类名">
+          <template slot-scope="scope">
+            <span>{{scope.row.className}}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center" label="创建时间">
+          <template slot-scope="scope">
+            <span>{{scope.row.createdDate}}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center" class-name="status-col" label="状态">
+          <template slot-scope="scope">
+            <el-tag>{{scope.row.statusText}}</el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column align="center" label="操作">
+          <template slot-scope="scope">
+            <el-button v-if="gen_table_edit" icon="icon-edit" title="编辑" type="text"  @click="handleEdit(scope.row)">
+            </el-button>
+            <el-button v-if="gen_table_delete" icon="icon-delete" title="删除" type="text"  @click="handleDelete(scope.row)">
+            </el-button>
+          </template>
+        </el-table-column>
+
+      </el-table>
+
+      <div v-show="!listLoading" class="pagination-container">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        </el-pagination>
+      </div>
+
+      <el-dialog :title="'选择表'" :visible.sync="dialogBeforeFormVisible">
+        <el-form :model="formSelect" ref="formSelect" label-width="100px">
+          <el-form-item label="表名" prop="name" :rules="[{required: true,message: '请选择表名'}]">
+            <AvueCrudSelect v-model="formSelect.name" :filterable="true" :dic="selectTableList"></AvueCrudSelect>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="this.dialogBeforeFormVisible = false;">取 消</el-button>
+          <el-button type="primary" @click="showNextForm()">下一步</el-button>
+        </div>
+      </el-dialog>
+
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :fullscreen="true">
       <el-form :model="form" ref="form" label-width="100px">
         <el-form-item label="名称" prop="name" :rules="[{required: true,message: '请输入名称'}]">
           <el-input v-model="form.name" placeholder="请输名称"></el-input>
@@ -197,6 +198,7 @@
         <el-button type="primary" @click="save()">保 存</el-button>
       </div>
     </el-dialog>
+    </basic-container>
   </div>
 </template>
 

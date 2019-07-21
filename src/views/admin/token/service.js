@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function pageToken (query) {
   return request({
-    url: '/admin/sys/token/',
+    url: '/admin/token/',
     method: 'get',
     params: query
   })
@@ -27,7 +27,7 @@ export function pageToken (query) {
 
 export function removeToken (id) {
   return request({
-    url: '/admin/sys/token/' + id,
+    url: '/admin/token/' + id,
     method: 'delete'
   })
 }

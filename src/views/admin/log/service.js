@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function pageLog (query) {
   return request({
-    url: '/admin/sys/log/',
+    url: '/admin/log/',
     method: 'get',
     params: query
   })
@@ -27,7 +27,7 @@ export function pageLog (query) {
 
 export function removeLog (id) {
   return request({
-    url: '/admin/sys/log/' + id,
+    url: '/admin/log/' + id,
     method: 'delete'
   })
 }

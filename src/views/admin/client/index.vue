@@ -164,7 +164,7 @@
           description: undefined
         },
         validateUnique: (rule, value, callback) => {
-          isValidateUnique(rule, value, callback, '/admin/sys/client/checkByProperty?id='+toStr(this.form.id))
+          isValidateUnique(rule, value, callback, '/admin/client/checkByProperty?id='+toStr(this.form.id))
         },
         dialogStatus: 'create',
         textMap: {
@@ -207,11 +207,11 @@
       },
       sortChange(column){
         if(column.order=="ascending"){
-          this.listQuery.asc=column.prop
-          this.listQuery.desc=undefined;
+          this.listQuery.ascs=column.prop
+          this.listQuery.descs=undefined;
         }else{
-          this.listQuery.desc=column.prop
-          this.listQuery.asc=undefined;
+          this.listQuery.descs=column.prop
+          this.listQuery.ascs=undefined;
         }
         this.getList()
       },

@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function pageClient (query) {
   return request({
-    url: '/admin/sys/client/',
+    url: '/admin/client/',
     method: 'get',
     params: query
   })
@@ -27,14 +27,14 @@ export function pageClient (query) {
 
 export function findClient (id) {
   return request({
-    url: '/admin/sys/client/' + id,
+    url: '/admin/client/' + id,
     method: 'get'
   })
 }
 
 export function saveClient (obj) {
   return request({
-    url: '/admin/sys/client',
+    url: '/admin/client',
     method: 'post',
     data: obj
   })
@@ -42,7 +42,7 @@ export function saveClient (obj) {
 
 export function removeClient (id) {
   return request({
-    url: '/admin/sys/client/' + id,
+    url: '/admin/client/' + id,
     method: 'delete'
   })
 }
