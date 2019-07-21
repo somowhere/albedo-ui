@@ -8,8 +8,8 @@
         <el-col>
           <div class="filter-container" v-show="searchFilterVisible">
             <el-form :inline="true" :model="listQuery" ref="searchForm">
-              <el-form-item label="名称">
-                <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
+              <el-form-item label="标题" prop="title">
+                <el-input class="filter-item input-normal" size="small" v-model="listQuery.title"></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>

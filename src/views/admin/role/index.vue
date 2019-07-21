@@ -8,8 +8,8 @@
         <el-col>
           <div class="filter-container" v-show="searchFilterVisible">
             <el-form :inline="true" :model="listQuery" ref="searchForm">
-              <el-form-item label="名称">
-                <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
+              <el-form-item label="名称" prop="name">
+                <el-input class="filter-item input-normal" size="small" v-model="listQuery.name"></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
@@ -31,11 +31,6 @@
             <el-table-column
               type="index" fixed="left" width="50">
             </el-table-column>
-            <el-table-column align="center" label="数据权限" width="100">
-              <template slot-scope="scope">
-                <span>{{scope.row.dataScopeText}}</span>
-              </template>
-            </el-table-column>
             <el-table-column align="center" label="角色名称" width="100">
               <template slot-scope="scope">
                 <span>{{scope.row.name}}</span>
@@ -49,8 +44,12 @@
           </span>
               </template>
             </el-table-column>
-
-            <el-table-column align="center" label="角色描述" width="120">
+            <el-table-column align="center" label="数据权限" width="130">
+              <template slot-scope="scope">
+                <span>{{scope.row.dataScopeText}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="角色描述">
               <template slot-scope="scope">
           <span>
             {{scope.row.remark}}

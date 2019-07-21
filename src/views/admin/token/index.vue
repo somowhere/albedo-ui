@@ -8,7 +8,7 @@
         <el-col>
           <div class="filter-container" v-show="searchFilterVisible">
             <el-form :inline="true" :model="listQuery"  ref="searchForm">
-              <el-form-item label="名称">
+              <el-form-item label="名称" prop="username">
                 <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
               </el-form-item>
               <el-form-item>
@@ -123,7 +123,7 @@
     methods: {
       getList() {
         this.listLoading = true;
-        this.listQuery.params = {"username":this.listQuery.name}
+        this.listQuery.params = {"username":this.listQuery.username}
         pageToken(this.listQuery).then(response => {
           this.list = response.data.records;
           this.total = response.data.total;
