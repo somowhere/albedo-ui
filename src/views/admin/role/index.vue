@@ -99,7 +99,7 @@
             <el-input v-model="form.code" placeholder="请输入角色标识"></el-input>
           </el-form-item>
           <el-form-item label="数据权限" prop="dataScope" :rules="[{required: true,message: '请选择' }]">
-            <CrudRadio v-model="form.dataScope" :dic="dataScopeOptions"></CrudRadio>
+            <CrudSelect v-model="form.dataScope" :dic="dataScopeOptions"></CrudSelect>
           </el-form-item>
             <el-form-item label="操作权限" prop="menuIdList">
               <el-tree class="filter-tree" :data="treeMenuData" ref="treeMenu" node-key="id"
