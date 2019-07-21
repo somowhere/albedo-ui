@@ -351,7 +351,6 @@
       },
       //搜索清空
       searchReset() {
-        console.log(this.$refs['searchForm'])
         this.$refs['searchForm'].resetFields();
         this.listQuery.deptId = undefined;
         this.$refs['leftDeptTree'].setCurrentKey(null)
@@ -375,7 +374,7 @@
           this.dialogFormVisible = true;
         }else{
           findUser(row.id).then(response =>{
-              this.form = data.data;
+              this.form = response.data;
               this.form.password = undefined;
               this.dialogFormVisible = true;
           });
