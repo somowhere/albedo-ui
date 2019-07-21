@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function fetchDictTree (query) {
   return request({
-    url: '/admin/sys/dict/tree',
+    url: '/admin/dict/tree',
     method: 'get',
     params: query
   })
@@ -27,7 +27,7 @@ export function fetchDictTree (query) {
 
 export function pageDict (query) {
   return request({
-    url: '/admin/sys/dict/',
+    url: '/admin/dict/',
     method: 'get',
     params: query
   })
@@ -35,7 +35,7 @@ export function pageDict (query) {
 
 export function saveDict (obj) {
   return request({
-    url: '/admin/sys/dict/',
+    url: '/admin/dict/',
     method: 'post',
     data: obj
   })
@@ -43,21 +43,21 @@ export function saveDict (obj) {
 
 export function findDict (id) {
   return request({
-    url: '/admin/sys/dict/' + id,
+    url: '/admin/dict/' + id,
     method: 'get'
   })
 }
 
 export function removeDict (id) {
   return request({
-    url: '/admin/sys/dict/' + id,
+    url: '/admin/dict/' + id,
     method: 'delete'
   })
 }
 
 export function lockDict (id) {
   return request({
-    url: '/admin/sys/dict/'+id,
+    url: '/admin/dict/'+id,
     method: 'put'
   })
 }

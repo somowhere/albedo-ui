@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function pageUser (query) {
   return request({
-    url: '/admin/sys/user/',
+    url: '/admin/user/',
     method: 'get',
     params: query
   })
@@ -27,7 +27,7 @@ export function pageUser (query) {
 
 export function saveUser (obj) {
   return request({
-    url: '/admin/sys/user/',
+    url: '/admin/user/',
     method: 'post',
     data: obj
   })
@@ -35,21 +35,21 @@ export function saveUser (obj) {
 
 export function findUser (id) {
   return request({
-    url: '/admin/sys/user/' + id,
+    url: '/admin/user/' + id,
     method: 'get'
   })
 }
 
 export function removeUser (id) {
   return request({
-    url: '/admin/sys/user/' + id,
+    url: '/admin/user/' + id,
     method: 'delete'
   })
 }
 
 export function lockUser (id) {
   return request({
-    url: '/admin/sys/user/'+id,
+    url: '/admin/user/'+id,
     method: 'put'
   })
 }

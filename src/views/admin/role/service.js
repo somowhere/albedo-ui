@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function pageRole (query) {
   return request({
-    url: '/admin/sys/role/',
+    url: '/admin/role/',
     method: 'get',
     params: query
   })
@@ -27,21 +27,21 @@ export function pageRole (query) {
 
 export function deptRoleList () {
   return request({
-    url: '/admin/sys/role/combo-data',
+    url: '/admin/role/combo-data',
     method: 'get'
   })
 }
 
 export function findRole (id) {
   return request({
-    url: '/admin/sys/role/' + id,
+    url: '/admin/role/' + id,
     method: 'get'
   })
 }
 
 export function saveRole (obj) {
   return request({
-    url: '/admin/sys/role',
+    url: '/admin/role',
     method: 'post',
     data: obj
   })
@@ -49,14 +49,14 @@ export function saveRole (obj) {
 
 export function removeRole (id) {
   return request({
-    url: '/admin/sys/role/' + id,
+    url: '/admin/role/' + id,
     method: 'delete'
   })
 }
 
 export function permissionUpd (roleId, menuIds) {
   return request({
-    url: '/admin/sys/role/menu',
+    url: '/admin/role/menu',
     method: 'put',
     params: {
       roleId: roleId,
@@ -67,13 +67,13 @@ export function permissionUpd (roleId, menuIds) {
 
 export function fetchRoleTree (roleName) {
   return request({
-    url: '/admin/sys/menu/tree/' + roleName,
+    url: '/admin/menu/tree/' + roleName,
     method: 'get'
   })
 }
 export function lockRole (id) {
   return request({
-    url: '/admin/sys/role/'+id,
+    url: '/admin/role/'+id,
     method: 'get'
   })
 }

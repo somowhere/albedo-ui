@@ -120,69 +120,69 @@
         </div>
       </el-col>
     </el-row>
-    <el-dialog title="选择部门" :visible.sync="dialogDeptVisible">
-      <el-tree class="filter-tree" :data="treeDeptData" :default-checked-keys="checkedKeys"
-               check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData" default-expand-all>
-      </el-tree>
+      <el-dialog title="选择部门" :visible.sync="dialogDeptVisible">
+        <el-tree class="filter-tree" :data="treeDeptData" :default-checked-keys="checkedKeys"
+                 check-strictly node-key="id" highlight-current @node-click="clickNodeSelectData" default-expand-all>
+        </el-tree>
+      </el-dialog>
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form :model="form" ref="form" label-width="100px">
+  <!--      <el-form-item label="头像" prop="avatar">-->
+  <!--        <my-upload field="uploadFile" @crop-upload-success="cropUploadSuccess" v-model="showUpload"-->
+  <!--                   :width="300" :height="300" :url="ctx+'/file/upload'" :headers="headers" img-format="png"></my-upload>-->
+  <!--        <img :src="getFilePath(form.avatar)" class="header-img" />-->
+  <!--        <input type="hidden" v-model="form.avatar" />-->
+  <!--        <el-button type="primary" @click="showUpload = !showUpload" size="mini">选择-->
+  <!--          <i class="el-icon-upload el-icon--right"></i>-->
+  <!--        </el-button>-->
+  <!--      </el-form-item>-->
+        <el-form-item label="所属部门" prop="deptName" :rules="[{required: true,message: '请选择部门', trigger: 'change'}]">
+          <el-input v-model="form.deptName" placeholder="选择部门" @focus="dialogDeptVisible=true" readonly>
+          </el-input>
+          <input type="hidden" v-model="form.deptId" />
+        </el-form-item>
+
+        <el-form-item label="用户名" prop="username" :rules="[
+            {required: true,message: '请输入账户'},
+            {min: 3,max: 20,message: '长度在 3 到 20 个字符'},
+            {validator:validateUnique}
+          ]">
+          <el-input v-model="form.username" placeholder="请输用户名"></el-input>
+        </el-form-item>
+
+        <el-form-item label="密码" prop="password" :rules="[{validator: validatePass}]">
+          <el-input type="password" v-model="form.password" :placeholder="this.dialogStatus == 'create' ? '请输入密码' : '若不修改密码，请留空'" ></el-input>
+        </el-form-item>
+
+        <el-form-item label="确认密码" placeholder="请再次输入密码" prop="confirmPassword" :rules="[{validator: validateConfirmPass}]">
+          <el-input type="password" v-model="form.confirmPassword"></el-input>
+        </el-form-item>
+
+        <el-form-item label="手机号" prop="phone" :rules="[{validator:validatePhone}]">
+          <el-input v-model="form.phone" placeholder="验证码登录使用"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email" :rules="[{ type: 'email',message: '请填写正确邮箱' }]">
+          <el-input v-model="form.email"></el-input>
+        </el-form-item>
+
+        <el-form-item label="角色" prop="roleIdList" :rules="[{required: true,message: '请选择角色' }]">
+          <CrudSelect v-model="form.roleIdList" :multiple="true" :filterable="true" :dic="rolesOptions"></CrudSelect>
+        </el-form-item>
+
+        <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
+          <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
+        </el-form-item>
+
+        <el-form-item label="备注" prop="description">
+          <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel()">取 消</el-button>
+        <el-button @click="resetForm()">重 置</el-button>
+        <el-button type="primary" @click="save()">保 存</el-button>
+      </div>
     </el-dialog>
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-    <el-form :model="form" ref="form" label-width="100px">
-<!--      <el-form-item label="头像" prop="avatar">-->
-<!--        <my-upload field="uploadFile" @crop-upload-success="cropUploadSuccess" v-model="showUpload"-->
-<!--                   :width="300" :height="300" :url="ctx+'/file/upload'" :headers="headers" img-format="png"></my-upload>-->
-<!--        <img :src="getFilePath(form.avatar)" class="header-img" />-->
-<!--        <input type="hidden" v-model="form.avatar" />-->
-<!--        <el-button type="primary" @click="showUpload = !showUpload" size="mini">选择-->
-<!--          <i class="el-icon-upload el-icon--right"></i>-->
-<!--        </el-button>-->
-<!--      </el-form-item>-->
-      <el-form-item label="所属部门" prop="deptName" :rules="[{required: true,message: '请选择部门', trigger: 'change'}]">
-        <el-input v-model="form.deptName" placeholder="选择部门" @focus="dialogDeptVisible=true" readonly>
-        </el-input>
-        <input type="hidden" v-model="form.deptId" />
-      </el-form-item>
-
-      <el-form-item label="用户名" prop="username" :rules="[
-          {required: true,message: '请输入账户'},
-          {min: 3,max: 20,message: '长度在 3 到 20 个字符'},
-          {validator:validateUnique}
-        ]">
-        <el-input v-model="form.username" placeholder="请输用户名"></el-input>
-      </el-form-item>
-
-      <el-form-item label="密码" prop="password" :rules="[{validator: validatePass}]">
-        <el-input type="password" v-model="form.password" :placeholder="this.dialogStatus == 'create' ? '请输入密码' : '若不修改密码，请留空'" ></el-input>
-      </el-form-item>
-
-      <el-form-item label="确认密码" placeholder="请再次输入密码" prop="confirmPassword" :rules="[{validator: validateConfirmPass}]">
-        <el-input type="password" v-model="form.confirmPassword"></el-input>
-      </el-form-item>
-
-      <el-form-item label="手机号" prop="phone" :rules="[{validator:validatePhone}]">
-        <el-input v-model="form.phone" placeholder="验证码登录使用"></el-input>
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email" :rules="[{ type: 'email',message: '请填写正确邮箱' }]">
-        <el-input v-model="form.email"></el-input>
-      </el-form-item>
-
-      <el-form-item label="角色" prop="roleIdList" :rules="[{required: true,message: '请选择角色' }]">
-        <CrudSelect v-model="form.roleIdList" :multiple="true" :filterable="true" :dic="rolesOptions"></CrudSelect>
-      </el-form-item>
-
-      <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
-        <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
-      </el-form-item>
-
-      <el-form-item label="备注" prop="description">
-        <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
-      </el-form-item>
-    </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="cancel()">取 消</el-button>
-      <el-button @click="resetForm()">重 置</el-button>
-      <el-button type="primary" @click="save()">保 存</el-button>
-    </div>
-  </el-dialog>
     </basic-container>
   </div>
 </template>
@@ -241,7 +241,7 @@
           description: undefined
         },
         validateUnique: (rule, value, callback) => {
-          isValidateUnique(rule, value, callback, '/admin/sys/user/checkByProperty?id='+toStr(this.form.id))
+          isValidateUnique(rule, value, callback, '/admin/user/checkByProperty?id='+toStr(this.form.id))
         },
         validatePhone: (rule, value, callback) => {
           isValidateMobile(rule, value, callback)
@@ -317,11 +317,11 @@
       },
       sortChange(column){
         if(column.order=="ascending"){
-          this.listQuery.asc=column.prop
-          this.listQuery.desc=undefined;
+          this.listQuery.ascs=column.prop
+          this.listQuery.descs=undefined;
         }else{
-          this.listQuery.desc=column.prop
-          this.listQuery.asc=undefined;
+          this.listQuery.descs=column.prop
+          this.listQuery.ascs=undefined;
         }
         this.getList()
       },

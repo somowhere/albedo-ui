@@ -19,7 +19,7 @@ import request from '@/router/axios'
 
 export function fetchMenuTree (query) {
   return request({
-    url: '/admin/sys/menu/tree',
+    url: '/admin/menu/tree',
     method: 'get',
     params: query
   })
@@ -27,7 +27,7 @@ export function fetchMenuTree (query) {
 
 export function pageMenu (query) {
   return request({
-    url: '/admin/sys/menu/',
+    url: '/admin/menu/',
     method: 'get',
     params: query
   })
@@ -35,7 +35,7 @@ export function pageMenu (query) {
 
 export function saveMenu (obj) {
   return request({
-    url: '/admin/sys/menu/',
+    url: '/admin/menu/',
     method: 'post',
     data: obj
   })
@@ -43,21 +43,21 @@ export function saveMenu (obj) {
 
 export function findMenu (id) {
   return request({
-    url: '/admin/sys/menu/' + id,
+    url: '/admin/menu/' + id,
     method: 'get'
   })
 }
 
 export function removeMenu (id) {
   return request({
-    url: '/admin/sys/menu/' + id,
+    url: '/admin/menu/' + id,
     method: 'delete'
   })
 }
 
 export function lockMenu (id) {
   return request({
-    url: '/admin/sys/menu/'+id,
+    url: '/admin/menu/'+id,
     method: 'put'
   })
 }

@@ -141,6 +141,7 @@ RouterPlugin.install = function (router, store) {
           this.routerList.push(aRouter[0][propsDefault.path])
         }
       } else {
+        console.log(aRouter)
         return aRouter
       }
     }
