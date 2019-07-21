@@ -81,14 +81,14 @@
                 <el-tag>{{scope.row.showText}}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="序号" width="100" prop="dict.sort" sortable="custom">
+            <el-table-column align="center" label="序号" width="100" prop="dictEntity.sort" sortable="custom">
               <template slot-scope="scope">
               <span>
                 {{scope.row.sort}}
               </span>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="创建时间" prop="dict.created_date" sortable="custom">
+            <el-table-column align="center" label="创建时间" prop="dictEntity.created_date" sortable="custom">
               <template slot-scope="scope">
                 <span>{{scope.row.createdDate}}</span>
               </template>

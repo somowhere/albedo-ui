@@ -8,8 +8,8 @@
         <el-col>
           <div class="filter-container" v-show="searchFilterVisible">
             <el-form :inline="true" :model="listQuery" ref="searchForm">
-              <el-form-item label="名称">
-                <el-input class="filter-item input-normal" size="small" v-model="listQuery.username"></el-input>
+              <el-form-item label="终端ID">
+                <el-input class="filter-item input-normal" size="small" v-model="listQuery.clientId"></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
@@ -134,7 +134,6 @@
   import {isValidateUnique,toStr,validateNotNull} from "@/util/validate";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
-  import {MSG_TYPE_SUCCESS} from "../../../const/common";
   export default {
     name: 'Client',
     components: {CrudSelect,CrudRadio},
