@@ -106,22 +106,18 @@
             <el-col :span="12">
               <el-form-item label="操作权限" prop="menuIdList">
                 <el-tree class="filter-tree" :data="treeMenuData" ref="treeMenu" node-key="id"
-                         show-checkbox default-expand-all :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData">
+                         show-checkbox :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData">
                 </el-tree>
               </el-form-item>
             </el-col>
-            <el-col :span="10" v-show="formTreeOrgDataVisible">
-              <el-form-item label="机构权限" prop="orgIdList" v-show="formTreeOrgDataVisible">
-                <el-tree class="filter-tree" ref="treeOrg" :data="treeOrgData" node-key="id"
-                         show-checkbox default-expand-all :default-checked-keys="form.orgIdList" @check="getNodeTreeOrgData">
+            <el-col :span="10" v-show="formTreeDeptDataVisible">
+              <el-form-item label="机构权限" prop="orgIdList" v-show="formTreeDeptDataVisible">
+                <el-tree class="filter-tree" ref="treeDept" :data="treeDeptData" node-key="id"
+                         show-checkbox default-expand-all :default-checked-keys="form.deptIdList" @check="getNodeTreeDeptData">
                 </el-tree>
               </el-form-item>
             </el-col>
           </el-row>
-
-
-
-
           <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
             <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
           </el-form-item>
@@ -147,7 +143,7 @@
   import {mapGetters } from 'vuex';
   import {fetchDeptTree} from "../dept/service";
   import {parseJsonItemForm,parseTreeData} from "@/util/util";
-  import {isValidateUnique,toStr,validateNotNull} from "@/util/validate";
+  import {objectToString,validateNotNull,validateNull} from "@/util/validate";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
   export default {
@@ -155,8 +151,9 @@
     components: {CrudSelect,CrudRadio},
     data() {
       return {
+        treeDept:[],
         treeMenuData:[],
-        treeOrgData: [],
+        treeDeptData: [],
         dialogFormVisible: false,
         searchFilterVisible: true,
         checkedKeys: [],
@@ -175,12 +172,13 @@
           dataScope: undefined,
           code: undefined,
           menuIdList: [],
+          deptIdList: [],
           remark: undefined,
           lockFlag: undefined,
           description: undefined
         },
-        dialogOrgVisible: false,
-        formTreeOrgDataVisible: false,
+        dialogDeptVisible: false,
+        formTreeDeptDataVisible: false,
         dialogStatus: 'create',
         textMap: {
           update: '编辑',
@@ -206,7 +204,7 @@
         this.treeMenuData = parseTreeData(rs.data);
       })
       fetchDeptTree().then(response => {
-        this.treeOrgData = parseTreeData(response.data);
+        this.treeDeptData = parseTreeData(response.data);
       })
     },
     computed: {
@@ -252,12 +250,6 @@
         this.listQuery.current = val;
         this.getList();
       },
-      // handleOrg() {
-      //   fetchOrgTree().then(response => {
-      //     this.treeOrgData = parseTreeData(response.data);
-      //     this.dialogOrgVisible = true;
-      //   })
-      // },
       handleEdit(row) {
         this.resetForm();
         this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
@@ -267,14 +259,14 @@
           findRole(row.id).then(response => {
             this.form = response.data;
             this.dialogFormVisible = true;
-            this.formTreeOrgDataVisible = (this.form.dataScope == 5);
-            if(validateNull(this.form.orgIdList)){
-              this.form.orgIdList = []
+            this.formTreeDeptDataVisible = (this.form.dataScope == 5);
+            if(validateNull(this.form.deptIdList)){
+              this.form.deptIdList = []
             }
+            this.form.dataScope=objectToString(this.form.dataScope)
             if(this.$refs.treeMenu){
-              // console.log(this.$refs.treeMenu);
-              // console.log(this.form.menuIdList);
-             // this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
+              this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
+              this.$refs.treeDept.setCheckedKeys(this.form.deptIdList);
             }
           });
         }
@@ -296,19 +288,18 @@
         })
       },
       handleDataScopeChange(value){
-        this.formTreeOrgDataVisible = (value == 5);
+        this.formTreeDeptDataVisible = (value == 5);
       },
       getNodeTreeMenuData(data, obj) {
         this.form.menuIdList = obj.checkedKeys;
       },
-      getNodeTreeOrgData(data, obj) {
-        this.form.orgIdList = obj.checkedKeys;
+      getNodeTreeDeptData(data, obj) {
+        this.form.deptIdList = obj.checkedKeys;
       },
       save() {
-        console.log(this.$refs['form'])
         this.$refs['form'].validate(valid => {
-          console.log(valid)
           console.log(this.form.menuIdList)
+          console.log(this.form.deptIdList)
           if (valid) {
             saveRole(this.form).then(() => {
               this.getList()
@@ -329,12 +320,15 @@
           dataScope: undefined,
           code: undefined,
           menuIdList: [],
+          deptIdList: [],
           remark: undefined,
           lockFlag: undefined,
           description: undefined
         }
         this.$refs['form']&&this.$refs['form'].resetFields();
-      },
+        // this.$refs.treeMenu.setCheckedKeys([]);
+        // this.$refs.treeDept.setCheckedKeys([]);
+      }
     }
   }
 </script>
