@@ -99,13 +99,29 @@
             <el-input v-model="form.code" placeholder="请输入角色标识"></el-input>
           </el-form-item>
           <el-form-item label="数据权限" prop="dataScope" :rules="[{required: true,message: '请选择' }]">
-            <CrudSelect v-model="form.dataScope" :dic="dataScopeOptions"></CrudSelect>
+            <CrudSelect v-model="form.dataScope" :dic="dataScopeOptions" @input="handleDataScopeChange"></CrudSelect>
           </el-form-item>
-            <el-form-item label="操作权限" prop="menuIdList">
-              <el-tree class="filter-tree" :data="treeMenuData" ref="treeMenu" node-key="id"
-                       show-checkbox default-expand-all :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData">
-              </el-tree>
-            </el-form-item>
+
+          <el-row :gutter="20" :span="24">
+            <el-col :span="12">
+              <el-form-item label="操作权限" prop="menuIdList">
+                <el-tree class="filter-tree" :data="treeMenuData" ref="treeMenu" node-key="id"
+                         show-checkbox default-expand-all :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData">
+                </el-tree>
+              </el-form-item>
+            </el-col>
+            <el-col :span="10" v-show="formTreeOrgDataVisible">
+              <el-form-item label="机构权限" prop="orgIdList" v-show="formTreeOrgDataVisible">
+                <el-tree class="filter-tree" ref="treeOrg" :data="treeOrgData" node-key="id"
+                         show-checkbox default-expand-all :default-checked-keys="form.orgIdList" @check="getNodeTreeOrgData">
+                </el-tree>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+
+
+
           <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
             <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
           </el-form-item>
@@ -129,6 +145,7 @@
   import {findRole, saveRole, removeRole, pageRole, lockRole} from "./service";
   import {fetchMenuTree} from "../menu/service";
   import {mapGetters } from 'vuex';
+  import {fetchDeptTree} from "../dept/service";
   import {parseJsonItemForm,parseTreeData} from "@/util/util";
   import {isValidateUnique,toStr,validateNotNull} from "@/util/validate";
   import CrudSelect from "@/views/avue/crud-select";
@@ -139,6 +156,7 @@
     data() {
       return {
         treeMenuData:[],
+        treeOrgData: [],
         dialogFormVisible: false,
         searchFilterVisible: true,
         checkedKeys: [],
@@ -161,7 +179,8 @@
           lockFlag: undefined,
           description: undefined
         },
-
+        dialogOrgVisible: false,
+        formTreeOrgDataVisible: false,
         dialogStatus: 'create',
         textMap: {
           update: '编辑',
@@ -185,6 +204,9 @@
       this.dataScopeOptions = this.dicts['sys_data_scope'];
       fetchMenuTree().then(rs => {
         this.treeMenuData = parseTreeData(rs.data);
+      })
+      fetchDeptTree().then(response => {
+        this.treeOrgData = parseTreeData(response.data);
       })
     },
     computed: {
@@ -230,6 +252,12 @@
         this.listQuery.current = val;
         this.getList();
       },
+      // handleOrg() {
+      //   fetchOrgTree().then(response => {
+      //     this.treeOrgData = parseTreeData(response.data);
+      //     this.dialogOrgVisible = true;
+      //   })
+      // },
       handleEdit(row) {
         this.resetForm();
         this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
@@ -239,6 +267,10 @@
           findRole(row.id).then(response => {
             this.form = response.data;
             this.dialogFormVisible = true;
+            this.formTreeOrgDataVisible = (this.form.dataScope == 5);
+            if(validateNull(this.form.orgIdList)){
+              this.form.orgIdList = []
+            }
             if(this.$refs.treeMenu){
               // console.log(this.$refs.treeMenu);
               // console.log(this.form.menuIdList);
@@ -263,8 +295,14 @@
           })
         })
       },
+      handleDataScopeChange(value){
+        this.formTreeOrgDataVisible = (value == 5);
+      },
       getNodeTreeMenuData(data, obj) {
         this.form.menuIdList = obj.checkedKeys;
+      },
+      getNodeTreeOrgData(data, obj) {
+        this.form.orgIdList = obj.checkedKeys;
       },
       save() {
         console.log(this.$refs['form'])
@@ -296,7 +334,7 @@
           description: undefined
         }
         this.$refs['form']&&this.$refs['form'].resetFields();
-      }
+      },
     }
   }
 </script>
