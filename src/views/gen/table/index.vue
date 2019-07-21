@@ -2,22 +2,29 @@
 <template>
   <div class="app-container calendar-list-container">
     <basic-container>
-      <div class="filter-container">
-        <el-form :inline="true">
-          <el-form-item label="表名">
-            <el-input class="filter-item input-normal" v-model="listQuery.name"></el-input>
+      <div class="filter-container" v-show="searchFilterVisible">
+        <el-form ref="searchForm"  :model="listQuery" :inline="true">
+          <el-form-item label="表名" prop="name">
+            <el-input class="filter-item input-normal" size="small" v-model="listQuery.name"></el-input>
           </el-form-item>
-          <el-form-item label="说明">
-            <el-input class="filter-item input-normal" v-model="listQuery.comments"></el-input>
+          <el-form-item label="说明" prop="comments">
+            <el-input class="filter-item input-normal" size="small" v-model="listQuery.comments"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
-            <el-button v-if="gen_table_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+            <el-button size="small" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+            <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
           </el-form-item>
         </el-form>
       </div>
-
-      <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">
+      <!-- 表格功能列 -->
+      <div class="table-menu">
+        <div class="table-menu-left"><el-button size="small" v-if="gen_table_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+        </div>
+        <div class="table-menu-right">
+          <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+        </div>
+      </div>
+      <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
 
         <el-table-column align="center" label="表名">
           <template slot-scope="scope">
@@ -56,17 +63,11 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" class-name="status-col" label="状态">
-          <template slot-scope="scope">
-            <el-tag>{{scope.row.statusText}}</el-tag>
-          </template>
-        </el-table-column>
-
         <el-table-column align="center" label="操作">
           <template slot-scope="scope">
             <el-button v-if="gen_table_edit" icon="icon-edit" title="编辑" type="text"  @click="handleEdit(scope.row)">
             </el-button>
-            <el-button v-if="gen_table_delete" icon="icon-delete" title="删除" type="text"  @click="handleDelete(scope.row)">
+            <el-button v-if="gen_table_del" icon="icon-delete" title="删除" type="text"  @click="handleDelete(scope.row)">
             </el-button>
           </template>
         </el-table-column>
@@ -81,7 +82,7 @@
       <el-dialog :title="'选择表'" :visible.sync="dialogBeforeFormVisible">
         <el-form :model="formSelect" ref="formSelect" label-width="100px">
           <el-form-item label="表名" prop="name" :rules="[{required: true,message: '请选择表名'}]">
-            <AvueCrudSelect v-model="formSelect.name" :filterable="true" :dic="selectTableList"></AvueCrudSelect>
+            <CrudSelect v-model="formSelect.name" :filterable="true" :dic="selectTableList"></CrudSelect>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -102,18 +103,15 @@
           <el-input v-model="form.className"></el-input>
         </el-form-item>
         <el-form-item label="父表表名" prop="parentTable">
-          <AvueCrudSelect v-model="form.parentTable" :dic="tableList"></AvueCrudSelect>
+          <CrudSelect v-model="form.parentTable" :dic="tableList"></CrudSelect>
         </el-form-item>
         <el-form-item label="当前表外键" prop="parentTableFk">
-          <AvueCrudSelect v-model="form.parentTableFk" :dic="columnList"></AvueCrudSelect>
-        </el-form-item>
-        <el-form-item label="状态" prop="status" :rules="[{required: true,message: '请选择状态' }]">
-          <AvueCrudRadio v-model="form.status" :dic="statusOptions"></AvueCrudRadio>
+          <CrudSelect v-model="form.parentTableFk" :dic="columnList"></CrudSelect>
         </el-form-item>
         <el-form-item label="备注" prop="description">
           <el-input type="textarea" v-model="form.description"></el-input>
         </el-form-item>
-        <table id="contentTable" class="el-table">
+        <table id="contentTable" class="el-table-padding">
           <thead>
           <tr>
             <th title="数据库字段名">列名</th>
@@ -137,7 +135,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for=" (column,i) in form.columnFormList" :class="column.status=='-1'? 'error':''" :title="column.status=='-1'? '已删除的列，保存之后消失！':''">
+          <tr v-for=" (column,i) in form.columnFormList" v-bind:key="column.id" :class="column.status=='-1'? 'error':''" :title="column.status=='-1'? '已删除的列，保存之后消失！':''">
             <td>
               <el-input v-model="form.columnFormList[i].name" readonly="readonly" class="input-small"></el-input>
             </td>
@@ -151,37 +149,37 @@
               <el-input v-model="form.columnFormList[i].jdbcType" class="input-small"></el-input>
             </td>
             <td>
-              <AvueCrudSelect v-model="form.columnFormList[i].javaType" class="input-mini" :dic="javaTypeList"></AvueCrudSelect>
+              <CrudSelect v-model="form.columnFormList[i].javaType" class="input-mini" :dic="javaTypeList"></CrudSelect>
             </td>
             <td>
               <el-input v-model="form.columnFormList[i].javaField" class="input-small"></el-input>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isPk" :checked="form.columnFormList[i].isPk==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].pk" :checked="form.columnFormList[i].pk" ></el-checkbox>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isNull" :checked="form.columnFormList[i].isNull==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].null" :checked="form.columnFormList[i].null" ></el-checkbox>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isUnique" :checked="form.columnFormList[i].isUnique==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].unique" :checked="form.columnFormList[i].unique" ></el-checkbox>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isInsert" :checked="form.columnFormList[i].isInsert==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].insert" :checked="form.columnFormList[i].insert" ></el-checkbox>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isEdit" :checked="form.columnFormList[i].isEdit==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].edit" :checked="form.columnFormList[i].edit" ></el-checkbox>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isList" :checked="form.columnFormList[i].isList==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].list" :checked="form.columnFormList[i].list" ></el-checkbox>
             </td>
             <td>
-              <el-checkbox v-model="form.columnFormList[i].isQuery" :checked="form.columnFormList[i].isQuery==1" ></el-checkbox>
+              <el-checkbox v-model="form.columnFormList[i].query" :checked="form.columnFormList[i].query" ></el-checkbox>
             </td>
             <td>
-              <AvueCrudSelect v-model="form.columnFormList[i].queryType" class="input-mini" :dic="queryTypeList"></AvueCrudSelect>
+              <CrudSelect v-model="form.columnFormList[i].queryType" class="input-mini" :dic="queryTypeList"></CrudSelect>
             </td>
             <td>
-              <AvueCrudSelect v-model="form.columnFormList[i].showType" class="input-mini" :dic="showTypeList"></AvueCrudSelect>
+              <CrudSelect v-model="form.columnFormList[i].showType" class="input-mini" :dic="showTypeList"></CrudSelect>
             </td>
             <td>
               <el-input v-model="form.columnFormList[i].dictType" class="input-small"></el-input>
@@ -204,24 +202,21 @@
 
 <script>
   import {pageTable, findTable, saveTable, removeTable, findSelectTable} from "./service";
-  import { mapGetters } from "vuex";
-  import ElRadioGroup from "element-ui/packages/radio/src/radio-group";
-  import ElOption from "element-ui/packages/select/src/option";
+  import { mapGetters } from 'vuex';
+  import CrudSelect from "@/views/avue/crud-select";
+  import CrudRadio from "@/views/avue/crud-radio";
   import {
     objectToString,
     validateNull
   } from "@/util/validate";
   import {parseJsonItemForm} from "@/util/util";
-  import {MSG_TYPE_SUCCESS} from "../../../const/common";
 
   export default {
-    components: {
-      ElOption,
-      ElRadioGroup
-    },
-    name: "table_get_table",
+    components: {CrudSelect,CrudRadio},
+    name: "Table",
     data() {
       return{
+        searchFilterVisible: true,
         list: null,
         total: null,
         listLoading: true,
@@ -246,7 +241,6 @@
           status: undefined,
           description: undefined
         },
-        statusOptions: [],
         dialogFormVisible: false,
         dialogBeforeFormVisible: false,
         dialogStatus: 'create',
@@ -262,13 +256,12 @@
       };
     },
     computed: {
-      ...mapGetters(["authorities","dicts"])
+      ...mapGetters(["permissions","dicts"])
     },
     created() {
       this.getList();
-      this.gen_table_edit = this.authorities.indexOf("gen_table_edit") !== -1;
-      this.gen_table_delete = this.authorities.indexOf("gen_table_delete") !== -1;
-      this.statusOptions = this.dicts["sys_status"];
+      this.gen_table_edit = this.permissions["gen_table_edit"];
+      this.gen_table_del = this.permissions["gen_table_del"];
     },
     methods: {
       getList() {
@@ -280,10 +273,14 @@
           fieldName: 'comments',value:this.listQuery.comments
         }])
         pageTable(this.listQuery).then(response => {
-          this.list = response.data;
-          this.total = response.total;
+          this.list = response.data.records;
+          this.total = response.data.total;
           this.listLoading = false;
         });
+      },
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
       },
       handleFilter() {
         this.listQuery.page = 1;
@@ -318,7 +315,6 @@
             this.showTypeList = data.showTypeList
             this.tableList = data.tableList
             this.columnList = data.columnList
-            this.form.status=objectToString(this.form.status)
             this.dialogBeforeFormVisible = false;
             this.dialogFormVisible = true;
         });

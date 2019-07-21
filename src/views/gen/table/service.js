@@ -27,14 +27,14 @@ export function findTable(query) {
 
 export function findSelectTable() {
   return request({
-    url: '/gen/table/tableList',
+    url: '/codegen/table/tableList',
     method: 'get'
   })
 }
 
 export function removeTable(id) {
   return request({
-    url: '/gen/table/' + id,
+    url: '/codegen/table/' + id,
     method: 'delete'
   })
 }

@@ -1,28 +1,36 @@
 
 <template>
   <div class="app-container calendar-list-container">
-    <div class="filter-container">
-      <el-form :inline="true">
-        <el-form-item label="名称">
-          <el-input class="filter-item input-normal" v-model="listQuery.name"></el-input>
+    <basic-container>
+    <div class="filter-container" v-show="searchFilterVisible">
+      <el-form ref="searchForm"  :model="listQuery" :inline="true">
+        <el-form-item label="名称" prop="name">
+          <el-input size="small" class="filter-item input-normal" v-model="listQuery.name"></el-input>
         </el-form-item>
-        <el-form-item label="表名">
-          <el-input class="filter-item input-normal" v-model="listQuery.genTableName"></el-input>
+        <el-form-item label="表名" ref="tableName">
+          <el-input size="small" class="filter-item input-normal" v-model="listQuery.tableName"></el-input>
         </el-form-item>
-        <el-form-item label="功能名称">
-          <el-input class="filter-item input-normal" v-model="listQuery.functionName"></el-input>
+        <el-form-item label="功能名称" prop="functionName">
+          <el-input size="small" class="filter-item input-normal" v-model="listQuery.functionName"></el-input>
         </el-form-item>
-        <el-form-item label="功能作者">
-          <el-input class="filter-item input-normal" v-model="listQuery.functionAuthor"></el-input>
+        <el-form-item label="功能作者" prop="functionAuthor">
+          <el-input size="small" class="filter-item input-normal" v-model="listQuery.functionAuthor"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
-          <el-button v-if="gen_genScheme_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+          <el-button size="small" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+          <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
         </el-form-item>
       </el-form>
     </div>
-
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">
+    <!-- 表格功能列 -->
+    <div class="table-menu">
+      <div class="table-menu-left"><el-button size="small" v-if="gen_scheme_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+      </div>
+      <div class="table-menu-right">
+        <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+      </div>
+    </div>
+    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
       <el-table-column align="center" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
@@ -61,18 +69,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" class-name="status-col" label="状态">
-        <template slot-scope="scope">
-          <el-tag>{{scope.row.statusText}}</el-tag>
-        </template>
-      </el-table-column>
-
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
-          <el-button v-if="gen_genScheme_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
+          <el-button v-if="gen_scheme_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
           </el-button>
-          <el-button v-if="gen_genScheme_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+          <el-button v-if="gen_table_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
           </el-button>
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              更多<i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-plus" @click="handleGenCode(scope.row, false)">生成代码</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-circle-plus" @click="handleGenCode(scope.row, true)">生成代码并覆盖</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </el-table-column>
 
@@ -92,7 +103,7 @@
         </el-form-item>
         <el-form-item label="模块分类" prop="category"
                       :rules="[{required: true,message: '请选择模块分类'}]">
-          <AvueCrudSelect v-model="form.category" :dic="categoryList" ></AvueCrudSelect>
+          <CrudSelect v-model="form.category" :dic="categoryList" ></CrudSelect>
         </el-form-item>
         <el-form-item label="生成包路径" prop="packageName"
                       :rules="[{required: true,message: '请输入生成包路径'}]">
@@ -119,7 +130,7 @@
         </el-form-item>
         <el-form-item label="业务表名" prop="genTableId"
                       :rules="[{required: true,message: '请选择业务表名'}]">
-          <AvueCrudSelect v-model="form.genTableId" :dic="tableList" ></AvueCrudSelect>
+          <CrudSelect v-model="form.genTableId" :dic="tableList" ></CrudSelect>
         </el-form-item>
         <el-form-item label="生成选项">
           <el-switch v-model="form.genCode" active-text="是否生成代码">
@@ -134,9 +145,6 @@
         <el-form-item label="功能模块" prop="parentModuleId" v-show="showModuleVisible">
           <el-input v-model="form.parentModuleName" placeholder="选择模块" @focus="handleModule()" readonly></el-input>
           <input type="hidden" v-model="form.parentModuleId" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status" :rules="[{required: true,message: '请选择状态' }]">
-          <AvueCrudRadio v-model="form.status" :dic="statusOptions"></AvueCrudRadio>
         </el-form-item>
         <el-form-item label="备注" prop="description">
           <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
@@ -157,23 +165,25 @@
                :filter-node-method="filterNode" default-expand-all>
       </el-tree>
     </el-dialog>
+    </basic-container>
   </div>
 </template>
 
 <script>
-  import {findGenScheme, pageGenScheme, removeGenScheme, saveGenScheme} from "./service";
+  import {findGenScheme, genCode, pageGenScheme, removeGenScheme, saveGenScheme} from "./service";
   import {mapGetters} from "vuex";
-  import {objectToString, validateNull, validateNotNull} from "@/util/validate";
-  import {MSG_TYPE_SUCCESS} from "@/const/common";
+  import { validateNull, validateNotNull} from "@/util/validate";
   import {parseJsonItemForm, parseTreeData} from "@/util/util";
   import {fetchMenuTree} from "../../admin/menu/service";
+  import CrudSelect from "@/views/avue/crud-select";
+  import CrudRadio from "@/views/avue/crud-radio";
 
   export default {
-  components: {
-  },
-  name: "table_gen_genScheme",
+    components: {CrudSelect,CrudRadio},
+  name: "Scheme",
   data() {
     return{
+      searchFilterVisible: true,
       treeModuleData: [],
       checkedKeys: [],
       defaultProps: {
@@ -213,9 +223,9 @@
       dialogFormVisible: false,
       dialogModuleVisible: false,
       showModuleVisible: false,
-      genSchemeAdd: false,
-      genSchemeUpd: false,
-      genSchemeDel: false,
+      schemeAdd: false,
+      schemeUpd: false,
+      schemeDel: false,
       dialogStatus: 'create',
       textMap: {
         update: '编辑',
@@ -229,7 +239,7 @@
     };
   },
   computed: {
-    ...mapGetters(["authorities","dicts"])
+    ...mapGetters(["permissions","dicts"])
   },
   watch: {
     filterFormText(val) {
@@ -238,9 +248,8 @@
   },
   created() {
     this.getList();
-    this.gen_genScheme_edit = this.authorities.indexOf("gen_genScheme_edit") !== -1;
-    this.gen_genScheme_delete = this.authorities.indexOf("gen_genScheme_delete") !== -1;
-    this.statusOptions = this.dicts["sys_status"];
+    this.gen_scheme_edit = this.permissions["gen_scheme_edit"];
+    this.gen_table_del = this.permissions["gen_scheme_del"];
   },
   methods: {
     getList() {
@@ -256,10 +265,14 @@
         fieldName: 'functionAuthor',value:this.listQuery.functionAuthor
       }])
       pageGenScheme(this.listQuery).then(response => {
-        this.list = response.data;
-        this.total = response.total;
+        this.list = response.data.records;
+        this.total = response.data.total;
         this.listLoading = false;
       });
+    },
+    //搜索清空
+    searchReset() {
+      this.$refs['searchForm'].resetFields();
     },
     getNodeData(data) {
       this.dialogModuleVisible = false;
@@ -288,6 +301,8 @@
       this.listQuery.page = val;
       this.getList();
     },
+
+
     handleEdit(row) {
       this.showModuleVisible=false
       this.dialogStatus = row && !validateNull(row.id)? "update" : "create";
@@ -300,10 +315,9 @@
           this.viewTypeList = data.viewTypeList
           this.categoryList = data.categoryList
           this.tableList = data.tableList
-          if(validateNotNull(data.genSchemeVo)){
+          if(validateNotNull(data.schemeVo)){
             this.resetForm();
-            this.form = data.genSchemeVo;
-            this.form.status = objectToString(this.form.status)
+            this.form = data.schemeVo;
             console.log(this.form)
             // this.form.genCode = true
             // this.form.replaceFile= false
@@ -330,9 +344,24 @@
         }
       });
     },
+    handleGenCode(row, replaceFile) {
+    this.$confirm(
+      "此操作将永久生效, 是否继续?",
+      "提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }
+    ).then(() => {
+      genCode({id:row.id, replaceFile: replaceFile}).then(response => {
+        this.getList();
+      });
+    });
+  },
     handleDelete(row) {
       this.$confirm(
-        "此操作将永久删除该用户(用户名:" + row.loginId + "), 是否继续?",
+        "此操作将永久删除该方案(" + row.name + "), 是否继续?",
         "提示",
         {
           confirmButtonText: "确定",

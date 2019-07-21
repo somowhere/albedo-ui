@@ -195,15 +195,12 @@
   import {parseJsonItemForm, parseTreeData} from "@/util/util";
   import {
     isValidateMobile,
-    isValidateUnique,
-    objectToString, toStr,
+    isValidateUnique,toStr,
     validateNull,
     validateNotNull
   } from "@/util/validate";
-  import {MSG_TYPE_SUCCESS} from "@/const/common";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
-  import {SYS_NO, SYS_YES} from "../../../const/common";
   export default {
     name: 'User',
     components: {CrudSelect,CrudRadio},

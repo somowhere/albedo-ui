@@ -92,7 +92,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column align="center" label="显示" width="80">
+            <el-table-column align="center" label="是否生效" width="80">
               <template slot-scope="scope">
                 <el-tag>{{scope.row.showText}}</el-tag>
               </template>
@@ -3339,7 +3339,7 @@
           <el-form-item label="前端URL" prop="path" >
             <el-input v-model="form.path"></el-input>
           </el-form-item>
-          <el-form-item label="是否显示" prop="show" :rules="[{required: true,message: '请选择' }]">
+          <el-form-item label="是否生效" prop="show" :rules="[{required: true,message: '请选择' }]">
             <CrudRadio v-model="form.show" :dic="flagOptions"></CrudRadio>
           </el-form-item>
           <el-form-item label="序号" prop="sort">
