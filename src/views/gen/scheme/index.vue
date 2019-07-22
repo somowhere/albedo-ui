@@ -39,7 +39,7 @@
 
       <el-table-column align="center" label="表名">
         <template slot-scope="scope">
-          <span>{{scope.row.genTableName}}</span>
+          <span>{{scope.row.tableName}}</span>
         </template>
       </el-table-column>
 
@@ -75,13 +75,13 @@
           </el-button>
           <el-button v-if="gen_table_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
           </el-button>
-          <el-dropdown>
+          <el-dropdown style="margin-left: 10px">
             <span class="el-dropdown-link">
               更多<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-plus" @click="handleGenCode(scope.row, false)">生成代码</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-circle-plus" @click="handleGenCode(scope.row, true)">生成代码并覆盖</el-dropdown-item>
+              <el-dropdown-item @click="handleGenCode(scope.row, false)">生成代码</el-dropdown-item>
+              <el-dropdown-item @click="handleGenCode(scope.row, true)">生成代码并覆盖</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -113,8 +113,8 @@
                       :rules="[{required: true,message: '请输入生成模块名'}]">
           <el-input v-model="form.moduleName"></el-input>
         </el-form-item>
-        <el-form-item label="生成子模块名" prop="subModuleName">
-          <el-input v-model="form.subModuleName"></el-input>
+        <el-form-item label="生成子模块名" prop="subMenuName">
+          <el-input v-model="form.subMenuName"></el-input>
         </el-form-item>
         <el-form-item label="生成功能描述" prop="functionName"
                       :rules="[{required: true,message: '请输入生成功能描述'}]">
@@ -128,9 +128,9 @@
                       :rules="[{required: true,message: '请输入生成功能作者'}]">
           <el-input v-model="form.functionAuthor"></el-input>
         </el-form-item>
-        <el-form-item label="业务表名" prop="genTableId"
+        <el-form-item label="业务表名" prop="tableId"
                       :rules="[{required: true,message: '请选择业务表名'}]">
-          <CrudSelect v-model="form.genTableId" :dic="tableList" ></CrudSelect>
+          <CrudSelect v-model="form.tableId" :dic="tableList" ></CrudSelect>
         </el-form-item>
         <el-form-item label="生成选项">
           <el-switch v-model="form.genCode" active-text="是否生成代码">
@@ -138,13 +138,13 @@
           <el-switch v-model="form.replaceFile" active-text="是否替换现有文件">
           </el-switch>
         </el-form-item>
-        <el-form-item label="同步模块" prop="syncModule">
-          <el-switch v-model="form.syncModule" @change="showModuleVisible = form.syncModule" active-text="是否同步模块数据">
+        <el-form-item label="同步模块" prop="syncMenu">
+          <el-switch v-model="form.syncMenu" @change="showMenuVisible = form.syncMenu" active-text="是否同步模块数据">
           </el-switch>
         </el-form-item>
-        <el-form-item label="功能模块" prop="parentModuleId" v-show="showModuleVisible">
-          <el-input v-model="form.parentModuleName" placeholder="选择模块" @focus="handleModule()" readonly></el-input>
-          <input type="hidden" v-model="form.parentModuleId" />
+        <el-form-item label="功能模块" prop="parentMenuId" v-show="showMenuVisible">
+          <el-input v-model="form.parentMenuName" placeholder="选择模块" @focus="handleMenu()" readonly></el-input>
+          <input type="hidden" v-model="form.parentMenuId" />
         </el-form-item>
         <el-form-item label="备注" prop="description">
           <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
@@ -156,11 +156,11 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="选择模块" :visible.sync="dialogModuleVisible">
+    <el-dialog title="选择模块" :visible.sync="dialogMenuVisible">
       <el-input placeholder="输入关键字进行过滤"
                 v-model="filterFormText">
       </el-input>
-      <el-tree class="filter-tree" ref="formTree" :data="treeModuleData"
+      <el-tree class="filter-tree" ref="formTree" :data="treeMenuData"
                check-strictly node-key="id" highlight-current @node-click="getNodeData"
                :filter-node-method="filterNode" default-expand-all>
       </el-tree>
@@ -184,7 +184,7 @@
   data() {
     return{
       searchFilterVisible: true,
-      treeModuleData: [],
+      treeMenuData: [],
       checkedKeys: [],
       defaultProps: {
         children: "children",
@@ -202,27 +202,27 @@
       tableList:[],
       form: {
         name: undefined,
-        genTableName: undefined,
+        tableName: undefined,
         packageName: undefined,
         moduleName: undefined,
-        subModuleName: undefined,
+        subMenuName: undefined,
         functionName: undefined,
         functionNameSimple: undefined,
         functionAuthor: undefined,
-        genTableId: undefined,
+        tableId: undefined,
         genCode: undefined,
         replaceFile: undefined,
-        syncModule: undefined,
-        parentModuleName: undefined,
-        parentModuleId: undefined,
+        syncMenu: undefined,
+        parentMenuName: undefined,
+        parentMenuId: undefined,
         status: undefined,
         description: undefined
       },
       statusOptions: [],
       filterFormText: '',
       dialogFormVisible: false,
-      dialogModuleVisible: false,
-      showModuleVisible: false,
+      dialogMenuVisible: false,
+      showMenuVisible: false,
       schemeAdd: false,
       schemeUpd: false,
       schemeDel: false,
@@ -258,7 +258,7 @@
       this.listQuery.queryConditionJson = parseJsonItemForm([{
         fieldName: 'name',value:this.listQuery.name
       },{
-        fieldName: 'genTable.name',value:this.listQuery.genTableName
+        fieldName: 'table.name',value:this.listQuery.tableName
       },{
         fieldName: 'functionName',value:this.listQuery.functionName
       },{
@@ -275,18 +275,18 @@
       this.$refs['searchForm'].resetFields();
     },
     getNodeData(data) {
-      this.dialogModuleVisible = false;
-      this.form.parentModuleId = data.id;
-      this.form.parentModuleName = data.label;
+      this.dialogMenuVisible = false;
+      this.form.parentMenuId = data.id;
+      this.form.parentMenuName = data.label;
     },
     filterNode(value, data) {
       if (!value) return true
       return data.label.indexOf(value) !== -1
     },
-    handleModule() {
+    handleMenu() {
       fetchMenuTree({extId: this.form.id}).then(response => {
-        this.treeModuleData = parseTreeData(response.data);
-        this.dialogModuleVisible = true;
+        this.treeMenuData = parseTreeData(response.data);
+        this.dialogMenuVisible = true;
       })
     },
     handleFilter() {
@@ -304,7 +304,7 @@
 
 
     handleEdit(row) {
-      this.showModuleVisible=false
+      this.showMenuVisible=false
       this.dialogStatus = row && !validateNull(row.id)? "update" : "create";
       var params;
       if(this.dialogStatus == "update"){
@@ -318,10 +318,11 @@
           if(validateNotNull(data.schemeVo)){
             this.resetForm();
             this.form = data.schemeVo;
+            this.showMenuVisible=this.form.syncMenu;
             console.log(this.form)
             // this.form.genCode = true
             // this.form.replaceFile= false
-            // this.form.syncModule=  false
+            // this.form.syncMenu=  false
           }
           this.dialogFormVisible = true;
       });
@@ -377,19 +378,19 @@
     resetForm() {
       this.form = {
         name: undefined,
-        genTableName: undefined,
+        tableName: undefined,
         packageName: undefined,
         moduleName: undefined,
-        subModuleName: undefined,
+        subMenuName: undefined,
         functionName: undefined,
         functionNameSimple: undefined,
         functionAuthor: undefined,
-        genTableId: undefined,
+        tableId: undefined,
         genCode: false,
         replaceFile: false,
-        syncModule: false,
-        parentModuleName: undefined,
-        parentModuleId: undefined,
+        syncMenu: false,
+        parentMenuName: undefined,
+        parentMenuId: undefined,
         status: undefined,
         description: undefined
       };
