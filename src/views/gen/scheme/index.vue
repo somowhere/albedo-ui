@@ -79,9 +79,13 @@
             <span class="el-dropdown-link">
               更多<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click="handleGenCode(scope.row, false)">生成代码</el-dropdown-item>
-              <el-dropdown-item @click="handleGenCode(scope.row, true)">生成代码并覆盖</el-dropdown-item>
+            <el-dropdown-menu slot="dropdown" trigger="click">
+              <el-dropdown-item>
+                <el-button type="text" @click="handleGenCode(scope.row, false)">生成代码</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button type="text" @click="handleGenCode(scope.row, true)">生成代码并覆盖</el-button>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -346,8 +350,9 @@
       });
     },
     handleGenCode(row, replaceFile) {
+      console.log(row)
     this.$confirm(
-      "此操作将永久生效, 是否继续?",
+      "确定要生成代码?",
       "提示",
       {
         confirmButtonText: "确定",
