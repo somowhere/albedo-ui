@@ -103,7 +103,7 @@
           <el-input v-model="form.className"></el-input>
         </el-form-item>
         <el-form-item label="父表表名" prop="parentTable">
-          <CrudSelect v-model="form.parentTable" :dic="tableList"></CrudSelect>
+          <CrudSelect v-model="form.parentTable" clearable :dic="tableList"></CrudSelect>
         </el-form-item>
         <el-form-item label="当前表外键" prop="parentTableFk">
           <CrudSelect v-model="form.parentTableFk" :dic="columnList"></CrudSelect>

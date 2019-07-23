@@ -75,19 +75,9 @@
           </el-button>
           <el-button v-if="gen_table_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
           </el-button>
-          <el-dropdown style="margin-left: 10px">
-            <span class="el-dropdown-link">
-              更多<i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown" trigger="click">
-              <el-dropdown-item>
-                <el-button type="text" @click="handleGenCode(scope.row, false)">生成代码</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button type="text" @click="handleGenCode(scope.row, true)">生成代码并覆盖</el-button>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+
+          <el-button v-if="gen_table_del" icon="icon-block" title="生成代码" type="text" @click="handleGenCodeDialog(scope.row)">
+          </el-button>
         </template>
       </el-table-column>
 
@@ -169,6 +159,16 @@
                :filter-node-method="filterNode" default-expand-all>
       </el-tree>
     </el-dialog>
+
+      <el-dialog title="系统提示" :visible.sync="dialogGenCodeVisible"
+                 width="30%">
+        <span>确认要继续操作吗?</span>
+        <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogGenCodeVisible = false">取 消</el-button>
+    <el-button type="primary" @click="handleGenCode(false)">生成代码</el-button>
+    <el-button type="primary" @click="handleGenCode(true)">生成代码并覆盖</el-button>
+  </span>
+      </el-dialog>
     </basic-container>
   </div>
 </template>
@@ -227,6 +227,8 @@
       dialogFormVisible: false,
       dialogMenuVisible: false,
       showMenuVisible: false,
+      dialogGenCodeVisible: false,
+      currentRow: {},
       schemeAdd: false,
       schemeUpd: false,
       schemeDel: false,
@@ -349,22 +351,16 @@
         }
       });
     },
-    handleGenCode(row, replaceFile) {
-      console.log(row)
-    this.$confirm(
-      "确定要生成代码?",
-      "提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }
-    ).then(() => {
-      genCode({id:row.id, replaceFile: replaceFile}).then(response => {
+    handleGenCodeDialog(row) {
+    this.currentRow = row;
+    this.dialogGenCodeVisible=true;
+  },
+    handleGenCode(replaceFile) {
+      genCode({id:this.currentRow.id, replaceFile: replaceFile}).then(response => {
+        this.dialogGenCodeVisible=false;
         this.getList();
       });
-    });
-  },
+    },
     handleDelete(row) {
       this.$confirm(
         "此操作将永久删除该方案(" + row.name + "), 是否继续?",
