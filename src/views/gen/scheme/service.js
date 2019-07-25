@@ -17,10 +17,17 @@ export function saveGenScheme(obj) {
   })
 }
 
+export function genMenu(obj) {
+  return request({
+    url: '/codegen/scheme/gen-menu',
+    method: 'post',
+    data: obj
+  })
+}
 
 export function genCode(obj) {
   return request({
-    url: '/codegen/scheme/genCode',
+    url: '/codegen/scheme/gen-code',
     method: 'put',
     data: obj
   })

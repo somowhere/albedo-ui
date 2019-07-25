@@ -18,10 +18,10 @@
       </div>
       <!-- 表格功能列 -->
       <div class="table-menu">
-        <div class="table-menu-left"><el-button size="small" v-if="gen_table_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+        <div class="table-menu-left"><el-button size="mini" v-if="gen_table_edit" class="filter-item" @click="handleEdit" type="primary" icon="el-icon-plus">添加</el-button>
         </div>
         <div class="table-menu-right">
-          <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+          <el-button icon="el-icon-search" circle size="mini" @click="searchFilterVisible= !searchFilterVisible"></el-button>
         </div>
       </div>
       <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>

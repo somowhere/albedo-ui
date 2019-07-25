@@ -57,6 +57,12 @@ axios.interceptors.response.use(res => {
     })
     return Promise.reject(new Error(message))
   }
+  if (status === 200 && (res.data && res.data.code === MSG_TYPE_SUCCESS) && validateNotNull(res.data.message)) {
+    Message({
+      message: res.data.message,
+      type: 'success'
+    })
+  }
   return res.data
 }, error => {
   NProgress.done()

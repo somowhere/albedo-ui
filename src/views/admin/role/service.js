@@ -74,6 +74,6 @@ export function fetchRoleTree (roleName) {
 export function lockRole (id) {
   return request({
     url: '/admin/role/'+id,
-    method: 'get'
+    method: 'put'
   })
 }

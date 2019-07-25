@@ -43,10 +43,10 @@
           <!-- 表格功能列 -->
           <div class="table-menu">
             <div class="table-menu-left">
-              <el-button size="small" v-if="sys_menu_edit" class="filter-item" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+              <el-button size="mini" v-if="sys_menu_edit" @click="handleEdit" type="primary" icon="el-icon-plus">添加</el-button>
             </div>
             <div class="table-menu-right">
-              <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+              <el-button icon="el-icon-search" circle size="mini" @click="searchFilterVisible= !searchFilterVisible"></el-button>
             </div>
           </div>
           <el-table  shadow="hover" :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
