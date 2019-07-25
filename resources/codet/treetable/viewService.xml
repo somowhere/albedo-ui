@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+    <name>viewComponentTs</name>
+  <filePath>src/views/${moduleName}/${subModuleName}/${className}</filePath>
+    <fileName>service.js</fileName>
+    <content><![CDATA[
+
+import request from '@/router/axios'
+
+
+export function fetch${ClassName}Tree(query) {
+  return request({
+    url: '/${urlPrefix}/findTreeData',
+    method: 'get',
+    params: query
+  })
+}
+export function page${ClassName}(query) {
+  return request({
+    url: '/${urlPrefix}/',
+    method: 'get',
+    params: query
+  })
+}
+
+export function save${ClassName}(obj) {
+  return request({
+    url: '/${urlPrefix}/',
+    method: 'post',
+    data: obj
+  })
+}
+
+export function find${ClassName}(id) {
+  return request({
+    url: '/${urlPrefix}/' + id,
+    method: 'get'
+  })
+}
+
+export function remove${ClassName}(id) {
+  return request({
+    url: '/${urlPrefix}/' + id,
+    method: 'delete'
+  })
+}
+export function lock${ClassName}(id) {
+  return request({
+    url: '/${urlPrefix}/' + id,
+    method: 'put'
+  })
+}
+
+]]>
+    </content>
+</template>
