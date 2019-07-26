@@ -19,7 +19,7 @@ export function saveTable(obj) {
 
 export function findTable(query) {
   return request({
-    url: '/gen/table/formData',
+    url: '/gen/table/form-data',
     method: 'get',
     params: query
   })
@@ -27,7 +27,7 @@ export function findTable(query) {
 
 export function findSelectTable() {
   return request({
-    url: '/gen/table/tableList',
+    url: '/gen/table/table-list',
     method: 'get'
   })
 }

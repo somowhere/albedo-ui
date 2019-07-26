@@ -36,7 +36,7 @@ export function genCode(obj) {
 
 export function findGenScheme(query) {
   return request({
-    url: '/gen/scheme/formData',
+    url: '/gen/scheme/form-data',
     method: 'get',
     params: query
   })
