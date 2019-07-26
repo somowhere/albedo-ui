@@ -3,7 +3,7 @@ import request from '@/router/axios'
 
 export function pageGenScheme(query) {
   return request({
-    url: '/codegen/scheme/',
+    url: '/gen/scheme/',
     method: 'get',
     params: query
   })
@@ -11,7 +11,7 @@ export function pageGenScheme(query) {
 
 export function saveGenScheme(obj) {
   return request({
-    url: '/codegen/scheme/',
+    url: '/gen/scheme/',
     method: 'post',
     data: obj
   })
@@ -19,7 +19,7 @@ export function saveGenScheme(obj) {
 
 export function genMenu(obj) {
   return request({
-    url: '/codegen/scheme/gen-menu',
+    url: '/gen/scheme/gen-menu',
     method: 'post',
     data: obj
   })
@@ -27,7 +27,7 @@ export function genMenu(obj) {
 
 export function genCode(obj) {
   return request({
-    url: '/codegen/scheme/gen-code',
+    url: '/gen/scheme/gen-code',
     method: 'put',
     data: obj
   })
@@ -36,7 +36,7 @@ export function genCode(obj) {
 
 export function findGenScheme(query) {
   return request({
-    url: '/codegen/scheme/formData',
+    url: '/gen/scheme/formData',
     method: 'get',
     params: query
   })
@@ -44,7 +44,7 @@ export function findGenScheme(query) {
 
 export function removeGenScheme(id) {
   return request({
-    url: '/codegen/scheme/' + id,
+    url: '/gen/scheme/' + id,
     method: 'delete'
   })
 }

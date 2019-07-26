@@ -33,7 +33,7 @@ export function isURL (s) {
 }
 
 export function isvalidUsername (str) {
-  const valid_map = ['admin', 'editor']
+  const valid_map = ['sys', 'editor']
   return valid_map.indexOf(str.trim()) >= 0
 }
 
@@ -216,20 +216,46 @@ export function validateName (name) {
   if (!regName.test(name)) return false
   return true
 }
-
 /**
  * 判断是否为整数
  */
-export function validateNum (num, type) {
-  let regName = /[^\d.]/g
-  if (type == 1) {
-    if (!regName.test(num)) return false
-  } else if (type == 2) {
-    regName = /[^\d]/g
-    if (!regName.test(num)) return false
+export function isValidateDigits(rule, value, callback){
+  if(validateNotNull(value)){
+    var rs = validateDigits(value);
+    if(rs){
+      callback(new Error(validateNotNull(rule.message) ? rule.message : "请输入整数"))
+      return;
+    }
   }
-  return true
+  callback()
 }
+/**
+ * 判断是否为整数
+ */
+export function validateDigits(num) {
+  let  regName = /[^\d]/g;
+  if (!regName.test(num)) return false;
+  return true;
+};
+
+export function isValidateNumber(rule, value, callback){
+  if(validateNotNull(value)){
+    var rs = validateNumber(value);
+    if(rs){
+      callback(new Error(validateNotNull(rule.message) ? rule.message : "请输入数字"))
+      return;
+    }
+  }
+  callback()
+}
+/**
+ * 判断是否为小数
+ */
+export function validateNumber(num) {
+  let regName = /[^\d.]/g;
+  if (!regName.test(num)) return false;
+  return true;
+};
 
 /**
  * 判断是否为小数
@@ -287,7 +313,6 @@ export function isValidateUnique(rule, value, callback, url){
     validateUniqueField(url).then(rs => {
       beforeValue[rule.field] = value;
       if(!rs){
-        console.log(rs)
         callback(new Error(validateNotNull(rule.message) ? rule.message : "已存在，请修正"))
       }else{
         callback()

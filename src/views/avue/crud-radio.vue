@@ -28,7 +28,6 @@
     },
     watch: {
       value: function(n, o) {
-        console.log(this.value)
         this.text = this.value;
       }
     },

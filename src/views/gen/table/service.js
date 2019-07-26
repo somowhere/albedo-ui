@@ -3,7 +3,7 @@ import request from '@/router/axios'
 
 export function pageTable(query) {
   return request({
-    url: '/codegen/table/',
+    url: '/gen/table/',
     method: 'get',
     params: query
   })
@@ -11,7 +11,7 @@ export function pageTable(query) {
 
 export function saveTable(obj) {
   return request({
-    url: '/codegen/table/',
+    url: '/gen/table/',
     method: 'post',
     data: obj
   })
@@ -19,7 +19,7 @@ export function saveTable(obj) {
 
 export function findTable(query) {
   return request({
-    url: '/codegen/table/formData',
+    url: '/gen/table/formData',
     method: 'get',
     params: query
   })
@@ -27,14 +27,14 @@ export function findTable(query) {
 
 export function findSelectTable() {
   return request({
-    url: '/codegen/table/tableList',
+    url: '/gen/table/tableList',
     method: 'get'
   })
 }
 
 export function removeTable(id) {
   return request({
-    url: '/codegen/table/' + id,
+    url: '/gen/table/' + id,
     method: 'delete'
   })
 }

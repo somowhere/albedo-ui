@@ -5,19 +5,20 @@
     <fileName>service.js</fileName>
     <content><![CDATA[
 
-import request from '@/router/axios'
+import request from '@/router/axios';
+import {isValidateUnique, toStr} from "@/util/validate";
 
-
+let gateway="/codegen";
 export function fetch${ClassName}Tree(query) {
   return request({
-    url: '/${urlPrefix}/findTreeData',
+    url: gateway+'/${urlPrefix}/tree',
     method: 'get',
     params: query
   })
 }
 export function page${ClassName}(query) {
   return request({
-    url: '/${urlPrefix}/',
+    url: gateway+'/${urlPrefix}/',
     method: 'get',
     params: query
   })
@@ -25,7 +26,7 @@ export function page${ClassName}(query) {
 
 export function save${ClassName}(obj) {
   return request({
-    url: '/${urlPrefix}/',
+    url: gateway+'/${urlPrefix}/',
     method: 'post',
     data: obj
   })
@@ -33,23 +34,22 @@ export function save${ClassName}(obj) {
 
 export function find${ClassName}(id) {
   return request({
-    url: '/${urlPrefix}/' + id,
+    url: gateway+'/${urlPrefix}/' + id,
     method: 'get'
   })
 }
 
 export function remove${ClassName}(id) {
   return request({
-    url: '/${urlPrefix}/' + id,
+    url: gateway+'/${urlPrefix}/' + id,
     method: 'delete'
   })
 }
-export function lock${ClassName}(id) {
-  return request({
-    url: '/${urlPrefix}/' + id,
-    method: 'put'
-  })
+
+export function validateUnique${ClassName}(rule, value, callback, id) {
+  isValidateUnique(rule, value, callback, gateway+'/${urlPrefix}/checkByProperty?id='+toStr(id))
 }
+
 
 ]]>
     </content>

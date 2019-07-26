@@ -47,14 +47,14 @@ export const refreshToken = (refresh_token) => {
 
 export const getUserInfo = () => {
   return request({
-    url: '/admin/user/info',
+    url: '/sys/user/info',
     method: 'get'
   })
 }
 
 export const getDicts = () => {
   return request({
-    url: '/admin/dict/codes',
+    url: '/sys/dict/codes',
     method: 'get'
   })
 }

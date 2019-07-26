@@ -37,7 +37,7 @@ export const tableOption = {
     label: '类型',
     prop: 'type',
     type: 'select',
-    dicUrl: '/admin/dict/type/log_type',
+    dicUrl: '/sys/dict/type/log_type',
     search: true
   }, {
     label: '标题',

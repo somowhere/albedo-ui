@@ -34,7 +34,7 @@ export default {
   },
   methods: {
     openMenu(item) {
-      this.$store.dispatch("GetMenu", item.parentId).then(response => {
+      this.$store.dispatch("GetUserMenu", item.parentId).then(response => {
         if (response.length !== 0) {
           this.$router.$avueRouter.formatRoutes(response, true);
         }

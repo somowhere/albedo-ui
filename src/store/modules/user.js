@@ -3,7 +3,7 @@ import {isURL} from '@/util/validate'
 import {getUserInfo, getDicts, loginByUsername, logout, refreshToken} from '@/api/login'
 import {deepClone, encryption} from '@/util/util'
 import webiste from '@/const/website'
-import {GetMenu} from '@/api/admin/menu'
+import {GetUserMenu} from '@/views/sys/menu/service'
 
 function addPath(ele, first) {
   const propsConfig = webiste.menu.props
@@ -70,8 +70,6 @@ const user = {
       return new Promise((resolve, reject) => {
         getUserInfo().then((res) => {
           const data = res.data || {}
-          console.log("getUserInfo")
-          console.log(data)
           commit('SET_USERIFNO', data.user)
           commit('SET_ROLES', data.roles || [])
           commit('SET_PERMISSIONS', data.permissions || [])
@@ -139,11 +137,11 @@ const user = {
       })
     },
     // 获取系统菜单
-    GetMenu({
+    GetUserMenu({
               commit
             }) {
       return new Promise(resolve => {
-        GetMenu().then((res) => {
+        GetUserMenu().then((res) => {
           const data = res.data
           let menu = deepClone(data)
           menu.forEach(ele => {

@@ -6,17 +6,17 @@
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>测试树书</span>
-            <el-button type="text" style="float: right; padding: 3px 0" icon="icon-filesearch" title="搜索" @click="searchTree=(searchTree ? false:true)"></el-button>
-            <el-button type="text" style="float: right; padding: 3px 0" icon="icon-reload" title="刷新" @click="getTree()"></el-button>
+            <el-button type="text" class="card-heard-btn" icon="icon-filesearch" title="搜索" @click="searchTree=(searchTree ? false:true)"></el-button>
+            <el-button type="text" class="card-heard-btn" icon="icon-reload" title="刷新" @click="getTestTreeBookTree()"></el-button>
           </div>
           <el-input v-show="searchTree"
             placeholder="输入关键字进行过滤"
-            v-model="filterText">
+            v-model="filterTreeTestTreeBookText">
           </el-input>
           <el-tree
             class="filter-tree"
-            :data="treeData"
-            ref="leftTree"
+            :data="treeTestTreeBookData"
+            ref="leftTestTreeBookTree"
             node-key="id"
             highlight-current
             :expand-on-click-node="false"
@@ -27,23 +27,35 @@
       </el-col>
       <el-col :span="19">
         <div class="filter-container">
-            <el-form :inline="true">
-              <el-form-item label="部门名称">
-                    <el-input class="filter-item input-normal" v-model="listQuery.name"></el-input>
-              </el-form-item>
-              <el-form-item label="作者">
-                    <el-input class="filter-item input-normal" v-model="listQuery.author"></el-input>
-              </el-form-item>
-              <el-form-item label="邮箱">
-                    <el-input class="filter-item input-normal" v-model="listQuery.email"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
-                <el-button v-if="test_testTreeBook_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
-              </el-form-item>
-            </el-form>
+          <el-form :inline="true"  :model="listQuery" ref="searchTestTreeBookForm" v-show="searchFilterVisible">
+            <el-form-item label="部门名称" prop="name">
+              <el-input class="filter-item input-normal" v-model="listQuery.name"></el-input>
+            </el-form-item>
+            <el-form-item label="作者" prop="author">
+              <el-input class="filter-item input-normal" v-model="listQuery.author"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input class="filter-item input-normal" v-model="listQuery.email"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
+              <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
+            </el-form-item>
+          </el-form>
         </div>
-        <el-table :data="list" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">
+      <!-- 表格功能列 -->
+      <div class="table-menu">
+        <div class="table-menu-left">
+          <el-button-group>
+            <el-button size="mini" v-if="test_testTreeBook_edit" class="filter-item" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+          </el-button-group>
+        </div>
+        <div class="table-menu-right">
+          <el-button icon="el-icon-search" circle size="mini" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+        </div>
+      </div>
+        <el-table :data="list" @sort-change="sortChange" v-loading="listLoading" element-loading-text="加载中..." border fit highlight-current-row style="width: 99%">
+          <el-table-column type="index" fixed="left" width="60"></el-table-column>
           <el-table-column align="center" label="部门名称">
             <template slot-scope="scope">
               <span>{{scope.row.name}}</span>
@@ -99,13 +111,11 @@
               <span>{{scope.row.resetDate}}</span>
             </template>
           </el-table-column>
-          <el-table-column align="center" fixed="right" label="操作" v-if="test_testTreeBook_edit || test_testTreeBook_lock || test_testTreeBook_delete">
+          <el-table-column align="center" fixed="right" label="操作" v-if="test_testTreeBook_edit || test_testTreeBook_del">
             <template slot-scope="scope">
             <el-button v-if="test_testTreeBook_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
             </el-button>
-            <el-button v-if="test_testTreeBook_lock" :icon="scope.row.status=='正常' ? 'icon-lock' : 'icon-unlock'" :title="scope.row.status=='正常' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">
-            </el-button>
-            <el-button v-if="test_testTreeBook_delete" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+            <el-button v-if="test_testTreeBook_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
             </el-button>
             </template>
           </el-table-column>
@@ -119,9 +129,9 @@
     </el-row>
     <el-dialog title="选择测试树书" :visible.sync="dialogTestTreeBookVisible">
       <el-input placeholder="输入关键字进行过滤"
-                v-model="filterFormText">
+                v-model="filterParentTreeTestTreeBookText">
       </el-input>
-      <el-tree class="filter-tree" ref="formTree" :data="treeTestTreeBookData"
+      <el-tree class="filter-tree" ref="selectParentTestTreeBookTree" :data="treeTestTreeBookSelectData"
                check-strictly node-key="id" highlight-current @node-click="getNodeFormData"
                :filter-node-method="filterNode" default-expand-all>
       </el-tree>
@@ -129,13 +139,13 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :label-position="labelPosition" label-width="80px" :model="form" ref="form">
         <el-form-item label="上级测试树书" prop="parentName">
-          <el-input v-model="form.parentName" placeholder="选择测试树书" @focus="handleTestTreeBook()" readonly></el-input>
+          <el-input v-model="form.parentName" placeholder="选择测试树书" @focus="handleParentTestTreeBookTree()" :disabled="disableSelectTestTreeBookParent" readonly></el-input>
           <input type="hidden" v-model="form.parentId" />
         </el-form-item>
         <el-form-item label="部门名称" prop="name" :rules="[{min: 0,max: 50,message: '长度在 0 到 50 个字符'},]">
                 <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="排序" prop="sort" :rules="[{validator:validateDigits},{min: 0,max: 11,message: '长度在 0 到 11 个字符'},]">
+        <el-form-item label="排序" prop="sort" :rules="[{validator:validateDigits},]">
                 <el-input v-model="form.sort"></el-input>
         </el-form-item>
         <el-form-item label="作者" prop="author" :rules="[{required: true,message: '请输入作者'},{min: 0,max: 50,message: '长度在 0 到 50 个字符'},]">
@@ -144,13 +154,13 @@
         <el-form-item label="邮箱" prop="email" :rules="[{min: 0,max: 100,message: '长度在 0 到 100 个字符'},]">
                 <el-input v-model="form.email"></el-input>
         </el-form-item>
-        <el-form-item label="手机" prop="phone" :rules="[{min: 0,max: 32,message: '长度在 0 到 32 个字符'},]">
+        <el-form-item label="手机" prop="phone" :rules="[{min: 0,max: 32,message: '长度在 0 到 32 个字符'},{validator:validateUnique}]">
                 <el-input v-model="form.phone"></el-input>
         </el-form-item>
-        <el-form-item label="activated_" prop="activated" :rules="[{required: true,message: '请输入activated_'},{validator:validateDigits},{min: 0,max: 1,message: '长度在 0 到 1 个字符'},]">
-                <el-input v-model="form.activated"></el-input>
+        <el-form-item label="activated_" prop="activated" :rules="[{required: true,message: '请输入activated_'},{validator:validateDigits},]">
+              <CrudRadio v-model="form.activated" :dic="activatedOptions"></CrudRadio>
         </el-form-item>
-        <el-form-item label="key" prop="number" :rules="[{validator:validateDigits},{min: 0,max: 11,message: '长度在 0 到 11 个字符'},]">
+        <el-form-item label="key" prop="number" :rules="[{validator:validateDigits},]">
                 <el-input v-model="form.number"></el-input>
         </el-form-item>
         <el-form-item label="money_" prop="money" :rules="[{ validator:validateNumber},]">
@@ -159,7 +169,7 @@
         <el-form-item label="amount_" prop="amount" :rules="[{ validator:validateNumber},]">
                 <el-input v-model="form.amount"></el-input>
         </el-form-item>
-        <el-form-item label="reset_date" prop="resetDate" :rules="[{min: 0,max: 3,message: '长度在 0 到 3 个字符'},]">
+        <el-form-item label="reset_date" prop="resetDate" :rules="[]">
               <el-date-picker v-model="form.resetDate" type="datetime" >
               </el-date-picker>
         </el-form-item>
@@ -177,19 +187,25 @@
 </template>
 
 <script>
-  import {fetchTestTreeBookTree, findTestTreeBook, saveTestTreeBook, removeTestTreeBook, pageTestTreeBook} from "./service";
-  import { mapGetters } from 'vuex'
+  import {fetchTestTreeBookTree, findTestTreeBook, saveTestTreeBook, removeTestTreeBook, pageTestTreeBook, validateUniqueTestTreeBook} from "./service";
+  import { mapGetters } from "vuex";
+  import {isValidateUnique, isValidateNumber, isValidateDigits, objectToString, validateNotNull} from "@/util/validate";
   import {parseJsonItemForm, parseTreeData} from "@/util/util";
-  import {dictCodes} from "@/api/dataSystem";
-  import {isValidateUnique, isValidateNumber, isValidateDigits, objectToString, toStr, validateNotNull} from "@/util/validate";
-  import {MSG_TYPE_SUCCESS} from "@/const/common";
+  import CrudSelect from "@/views/avue/crud-select";
+  import CrudCheckbox from "@/views/avue/crud-checkbox";
+  import CrudRadio from "@/views/avue/crud-radio";
+
   export default {
-    name: 'module',
+    name: "table_test_testTreeBook",
+    components: {CrudSelect, CrudCheckbox, CrudRadio},
     data() {
       return {
-        treeTestTreeBookData: [],
         dialogTestTreeBookVisible: false,
+        disableSelectTestTreeBookParent: false,
+        treeTestTreeBookData: [],
+        treeTestTreeBookSelectData: [],
         dialogFormVisible: false,
+        searchFilterVisible: true,
         list: null,
         total: null,
         listLoading: true,
@@ -198,14 +214,10 @@
           size: 20
         },
         formEdit: true,
-        filterText: '',
-        filterFormText: '',
+        filterTreeTestTreeBookText: '',
+        filterParentTreeTestTreeBookText: '',
         formStatus: '',
-        statusOptions: [],
-        typeOptions: [],
-        methodOptions: [],
         searchTree: false,
-        treeData: [],
         labelPosition: 'right',
         form: {
         name: undefined,
@@ -221,7 +233,7 @@
         description: undefined,
         },
         validateUnique: (rule, value, callback) => {
-          isValidateUnique(rule, value, callback, '/test/testTree/checkByProperty?id='+toStr(this.form.id))
+          validateUniqueTestTreeBook(rule, value, callback, this.form.id)
         },
         validateNumber: (rule, value, callback) => {
           isValidateNumber(rule, value, callback)
@@ -229,6 +241,7 @@
         validateDigits: (rule, value, callback) => {
           isValidateDigits(rule, value, callback)
         },
+      activatedOptions: undefined,delFlagOptions: undefined,
         dialogStatus: 'create',
         textMap: {
           update: '编辑测试树书',
@@ -238,28 +251,23 @@
       }
     },
     watch: {
-      filterText(val) {
-        this.$refs['leftTree'].filter(val);
+      filterTreeTestTreeBookText(val) {
+        this.$refs['leftTestTreeBookTree'].filter(val);
       },
-      filterFormText(val) {
-        this.$refs['formTree'].filter(val);
+      filterParentTreeTestTreeBookText(val) {
+        this.$refs['selectParentTestTreeBookTree'].filter(val);
       }
     },
     created() {
-      this.getTree()
+      this.getTestTreeBookTree()
       this.getList()
-      this.test_testTreeBook_edit = this.authorities.indexOf("test_testTreeBook_edit") !== -1;
-      this.test_testTreeBook_lock = this.authorities.indexOf("test_testTreeBook_lock") !== -1;
-      this.test_testTreeBook_delete = this.authorities.indexOf("test_testTreeBook_delete") !== -1;
-
-      dictCodes({codes:'sys_flag,'}).then(response => {
-      this.delFlagOptions = response.data[0];
-      });
+      this.test_testTreeBook_edit = this.permissions["test_testTreeBook_edit"];
+      this.test_testTreeBook_del = this.permissions["test_testTreeBook_del"];
+      this.activatedOptions = this.dicts["sys_flag"];
+      this.delFlagOptions = this.dicts["sys_flag"];
     },
     computed: {
-      ...mapGetters([
-        'authorities'
-      ])
+      ...mapGetters(["permissions","dicts"])
     },
     methods: {
       getList() {
@@ -272,14 +280,24 @@
         {fieldName: 'parentId',value:this.listQuery.parentId, attrType:'eq'},
         ])
         pageTestTreeBook(this.listQuery).then(response => {
-          this.list = response.data;
-          this.total = response.total;
+        this.list = response.data.records;
+        this.total = response.data.total;
           this.listLoading = false;
         });
       },
-      getTree() {
+      sortChange(column){
+        if(column.order=="ascending"){
+          this.listQuery.ascs=column.prop
+          this.listQuery.descs=undefined;
+        }else{
+          this.listQuery.descs=column.prop
+          this.listQuery.ascs=undefined;
+        }
+        this.getList()
+      },
+      getTestTreeBookTree() {
         fetchTestTreeBookTree({all:true}).then(response => {
-          this.treeData = parseTreeData(response.data);
+          this.treeTestTreeBookData = parseTreeData(response.data);
         })
       },
       filterNode(value, data) {
@@ -287,7 +305,7 @@
         return data.label.indexOf(value) !== -1
       },
       getNodeData(data) {
-        this.listQuery.parentId = data.id
+        this.searchForm.parentId = data.id
         this.currentNode = data;
         this.getList()
       },
@@ -296,7 +314,12 @@
         this.form.parentId = data.id;
         this.form.parentName = data.label;
       },
-
+      searchReset() {
+        this.$refs['searchTestTreeBookForm'].resetFields();
+        this.searchForm.parentId = undefined;
+        this.$refs['leftTestTreeBookTree'].setCurrentKey(null);
+        this.currentNode=undefined;
+      },
       handleFilter() {
         this.listQuery.page = 1;
         this.getList();
@@ -319,22 +342,19 @@
         }else{
           findTestTreeBook(row.id).then(response => {
             this.form = response.data;
-            this.form.status=objectToString(this.form.status)
+            this.form.activated=objectToString(this.form.activated);
+            
+            this.form.delFlag=objectToString(this.form.delFlag);
+            this.disableSelectTestTreeBookParent = this.form.parentName ? false : true;
             this.dialogFormVisible = true;
           });
         }
       },
-      handleLock: function (row) {
-        lockTestTreeBook(row.id).then((data) => {
-          if (data.status == MSG_TYPE_SUCCESS) {
-            this.getList();
-          }
-        });
-      },
-      handleTestTreeBook() {
+      handleParentTestTreeBookTree() {
         fetchTestTreeBookTree({extId: this.form.id}).then(response => {
-          this.treeTestTreeBookData = parseTreeData(response.data);
+          this.treeTestTreeBookSelectData = parseTreeData(response.data);
           this.dialogTestTreeBookVisible = true;
+          setTimeout(()=>{this.$refs['selectParentTestTreeBookTree'].setCurrentKey(this.form.parentId ? this.form.parentId : null);}, 100)
         })
       },
       handleDelete(row) {
@@ -344,9 +364,7 @@
           type: 'warning'
         }).then(() => {
           removeTestTreeBook(row.id).then(() => {
-            if (data.status == MSG_TYPE_SUCCESS) {
-              this.getList();
-            }
+            this.getList();
           })
         })
       },
@@ -356,7 +374,7 @@
           if (valid) {
             saveTestTreeBook(this.form).then(() => {
               this.getList()
-              this.dialogFormVisible = false;
+              this.cancel()
             })
           } else {
             return false;

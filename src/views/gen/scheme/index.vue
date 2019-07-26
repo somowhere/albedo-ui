@@ -3,18 +3,18 @@
   <div class="app-container calendar-list-container">
     <basic-container>
     <div class="filter-container" v-show="searchFilterVisible">
-      <el-form ref="searchForm"  :model="listQuery" :inline="true">
+      <el-form ref="searchForm" :model="searchForm" :inline="true">
         <el-form-item label="名称" prop="name">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.name"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.name"></el-input>
         </el-form-item>
         <el-form-item label="表名" ref="tableName">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.tableName"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.tableName"></el-input>
         </el-form-item>
         <el-form-item label="功能名称" prop="functionName">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.functionName"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.functionName"></el-input>
         </el-form-item>
         <el-form-item label="功能作者" prop="functionAuthor">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.functionAuthor"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.functionAuthor"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button size="small" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
@@ -27,7 +27,7 @@
       <div class="table-menu-left">
         <el-button-group>
           <el-button size="mini" v-if="gen_scheme_edit" @click="handleEdit" type="primary" icon="el-icon-plus">添加</el-button>
-          <el-button size="mini" v-if="gen_scheme_menu"@click="handleGenMenuDialog" type="primary" icon="icon-filesync" >生成菜单</el-button>
+          <el-button size="mini" v-if="gen_scheme_menu" @click="handleGenMenuDialog" type="primary" icon="icon-filesync" >生成菜单</el-button>
         </el-button-group>
       </div>
       <div class="table-menu-right">
@@ -141,8 +141,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel()">取 消</el-button>
-        <el-button type="primary" @click="save()">保 存</el-button>
+        <el-button size="small" @click="cancel()">取 消</el-button>
+        <el-button size="small" type="primary" @click="save()">保 存</el-button>
       </div>
     </el-dialog>
 
@@ -151,9 +151,9 @@
                  width="30%">
         <span>确认要继续操作吗?</span>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogGenCodeVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleGenCode(false)">生成代码</el-button>
-          <el-button type="primary" @click="handleGenCode(true)">生成代码并覆盖</el-button>
+          <el-button size="small" @click="dialogGenCodeVisible = false">取 消</el-button>
+          <el-button size="small" type="primary" @click="handleGenCode(false)">生成代码</el-button>
+          <el-button size="small" type="primary" @click="handleGenCode(true)">生成代码并覆盖</el-button>
         </span>
       </el-dialog>
 
@@ -169,15 +169,15 @@
 
       <el-dialog title="生成菜单" :visible.sync="dialogGenMenuVisible"
                  width="30%">
-        <el-form :model="genMenuForm":inline="true" ref="genMenuForm">
-          <el-form-item label="上级菜单" prop="parentMenuId":rules="[{required: true,message: '请选择上级菜单'}]">
+        <el-form :model="genMenuForm" :inline="true" ref="genMenuForm">
+          <el-form-item label="上级菜单" prop="parentMenuId" :rules="[{required: true,message: '请选择上级菜单'}]">
             <el-input v-model="genMenuForm.parentMenuName" placeholder="选择菜单" @focus="handleMenu()" readonly></el-input>
             <input type="hidden" v-model="genMenuForm.parentMenuId" />
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelGenMenu">取 消</el-button>
-          <el-button type="primary" @click="handleGenMenu">生成菜单</el-button>
+          <el-button size="small" @click="cancelGenMenu">取 消</el-button>
+          <el-button size="small" type="primary" @click="handleGenMenu">生成菜单</el-button>
         </span>
       </el-dialog>
 
@@ -190,7 +190,7 @@
   import {mapGetters} from "vuex";
   import { validateNull, validateNotNull} from "@/util/validate";
   import {parseJsonItemForm, parseTreeData} from "@/util/util";
-  import {fetchMenuTree} from "../../admin/menu/service";
+  import {fetchMenuTree} from "../../sys/menu/service";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
 
@@ -209,6 +209,7 @@
       list: null,
       total: null,
       listLoading: true,
+      searchForm: {},
       listQuery: {
         page: 1,
         size: 20
@@ -276,15 +277,14 @@
   methods: {
     getList() {
       this.listLoading = true;
-      this.listQuery.isAsc = false;
       this.listQuery.queryConditionJson = parseJsonItemForm([{
-        fieldName: 'name',value:this.listQuery.name
+        fieldName: 'name',value:this.searchForm.name
       },{
-        fieldName: 'table.name',value:this.listQuery.tableName
+        fieldName: 'table.name',value:this.searchForm.tableName
       },{
-        fieldName: 'functionName',value:this.listQuery.functionName
+        fieldName: 'functionName',value:this.searchForm.functionName
       },{
-        fieldName: 'functionAuthor',value:this.listQuery.functionAuthor
+        fieldName: 'functionAuthor',value:this.searchForm.functionAuthor
       }])
       pageGenScheme(this.listQuery).then(response => {
         this.list = response.data.records;
@@ -327,7 +327,7 @@
       this.currentRow = row;
     },
     handleGenMenu(){
-      if(!this.currentRow || validateNull(this.currentRow.id)){
+      if(validateNull(this.currentRow) || validateNull(this.currentRow.id)){
         this.$message({
           message:'请选择方案',
           type: 'warning'
@@ -348,7 +348,7 @@
       });
     },
     handleGenMenuDialog() {
-      if(!this.currentRow || validateNull(this.currentRow.id)){
+      if(validateNull(this.currentRow) || validateNull(this.currentRow.id)){
         this.$message({
           message:'请选择方案',
           type: 'warning'
@@ -374,7 +374,6 @@
           if(validateNotNull(data.schemeVo)){
             this.resetForm();
             this.form = data.schemeVo;
-            console.log(this.form)
             // this.form.genCode = true
             // this.form.replaceFile= false
             // this.form.syncMenu=  false
@@ -409,7 +408,7 @@
       this.dialogGenCodeVisible=true;
     },
     handleGenCode(replaceFile) {
-      if(!this.currentRow || validateNull(this.currentRow.id)){
+      if(validateNull(this.currentRow) || validateNull(this.currentRow.id)){
         this.$message({
           message:'无法获取选中信息',
           type: 'warning'
