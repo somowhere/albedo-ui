@@ -4,15 +4,15 @@
    <img src="https://img.shields.io/badge/Spring%20Boot-2.0.8.RELEASE-blue.svg" alt="Downloads">
  </p>  
  
-**Pig Microservice Architecture**   
-   
-- 基于 Spring Cloud Finchley 、Spring Security OAuth2 的RBAC权限管理系统  
+**albedo-cloud Microservice Architecture**   
+- 基于<a href="https://github.com/somewhereMrli" target="_blank">pix</a>开源版本（保持更新）二次开发(同时借鉴<a href="https://www.jhipster.tech/" target="_blank">jhipster</a>)
+- 基于 Spring Cloud Greenwich.SR2 、Spring Security OAuth2 的RBAC权限管理系统  
 - 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手  
 - 提供对常见容器化支持 Docker、Kubernetes、Rancher2 支持  
 - 提供 lambda 、stream api 、webflux 的生产实践   
 
-
-<a href="https://pig4cloud.com/#/doc/pig" target="_blank">部署文档</a> | <a target="_blank" href="http://preview.pig4cloud.com"> 在线体验</a> | <a target="_blank" href="https://avue.top"> 前端解决方案</a> | <a target="_blank" href="https://gitee.com/log4j/pig/releases/v1.3.2"> 1.0  版本</a>
+    
+<a href="https://pig4cloud.com/#/doc/pig" target="_blank">部署文档</a> | <a target="_blank" href="http://preview.pig4cloud.com"> 在线体验</a> | <a target="_blank" href="https://avue.top"> 前端解决方案</a> | <a target="_blank" href="https://github.com/somewhereMrli/releases/v1.3.2"> 1.0  版本</a>
     
   
 
@@ -36,7 +36,7 @@ Avue | 1.5.0
 #### 模块说明
 ```lua
 pig
-├── pig-ui -- 前端工程[8080]
+├── albedo-ui -- 前端工程[8080]
 ├── pig-auth -- 授权服务提供[3000]
 └── pig-common -- 系统公共模块 
      ├── pig-common-core -- 公共工具类核心包

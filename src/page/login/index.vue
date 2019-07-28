@@ -12,6 +12,11 @@
       <div class="login-border">
         <div class="login-main">
           <userLogin v-if="activeName==='user'"></userLogin>
+          <div class="login-menu">
+            <a href="http://albedo-gateway:9999/swagger-ui.html" target="_blank">swagger api</a>
+            <a href="http://localhost:5002/zipkin/" target="_blank">zipkin</a>
+            <a href="http://localhost:5001" target="_blank">monitor</a>
+          </div>
         </div>
       </div>
     </div>

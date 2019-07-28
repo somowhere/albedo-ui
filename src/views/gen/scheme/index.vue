@@ -3,18 +3,18 @@
   <div class="app-container calendar-list-container">
     <basic-container>
     <div class="filter-container" v-show="searchFilterVisible">
-      <el-form ref="searchForm"  :model="listQuery" :inline="true">
+      <el-form ref="searchForm" :model="searchForm" :inline="true">
         <el-form-item label="名称" prop="name">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.name"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.name"></el-input>
         </el-form-item>
         <el-form-item label="表名" ref="tableName">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.tableName"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.tableName"></el-input>
         </el-form-item>
         <el-form-item label="功能名称" prop="functionName">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.functionName"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.functionName"></el-input>
         </el-form-item>
         <el-form-item label="功能作者" prop="functionAuthor">
-          <el-input size="small" class="filter-item input-normal" v-model="listQuery.functionAuthor"></el-input>
+          <el-input size="small" class="filter-item input-normal" v-model="searchForm.functionAuthor"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button size="small" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
@@ -24,13 +24,18 @@
     </div>
     <!-- 表格功能列 -->
     <div class="table-menu">
-      <div class="table-menu-left"><el-button size="small" v-if="gen_scheme_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+      <div class="table-menu-left">
+        <el-button-group>
+          <el-button size="mini" v-if="gen_scheme_edit" @click="handleEdit" type="primary" icon="el-icon-plus">添加</el-button>
+          <el-button size="mini" v-if="gen_scheme_menu" @click="handleGenMenuDialog" type="primary" icon="icon-filesync" >生成菜单</el-button>
+        </el-button-group>
       </div>
       <div class="table-menu-right">
-        <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+        <el-button icon="el-icon-search" circle size="mini" @click="searchFilterVisible= !searchFilterVisible"></el-button>
       </div>
     </div>
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
+    <el-table :key='tableKey' :data="list" v-loading="listLoading"
+              @current-change="handleSelect" element-loading-text="加载中..." fit highlight-current-row>
       <el-table-column align="center" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
@@ -73,10 +78,9 @@
         <template slot-scope="scope">
           <el-button v-if="gen_scheme_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
           </el-button>
-          <el-button v-if="gen_table_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+          <el-button v-if="gen_scheme_edit" icon="icon-block" title="生成代码" type="text" @click="handleGenCodeDialog(scope.row)">
           </el-button>
-
-          <el-button v-if="gen_table_del" icon="icon-block" title="生成代码" type="text" @click="handleGenCodeDialog(scope.row)">
+          <el-button v-if="gen_scheme_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
           </el-button>
         </template>
       </el-table-column>
@@ -132,53 +136,61 @@
           <el-switch v-model="form.replaceFile" active-text="是否替换现有文件">
           </el-switch>
         </el-form-item>
-        <el-form-item label="同步模块" prop="syncMenu">
-          <el-switch v-model="form.syncMenu" @change="showMenuVisible = form.syncMenu" active-text="是否同步模块数据">
-          </el-switch>
-        </el-form-item>
-        <el-form-item label="功能模块" prop="parentMenuId" v-show="showMenuVisible">
-          <el-input v-model="form.parentMenuName" placeholder="选择模块" @focus="handleMenu()" readonly></el-input>
-          <input type="hidden" v-model="form.parentMenuId" />
-        </el-form-item>
         <el-form-item label="备注" prop="description">
           <el-input type="textarea" v-model="form.description" placeholder=""></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel()">取 消</el-button>
-        <el-button type="primary" @click="save()">保 存</el-button>
+        <el-button size="small" @click="cancel()">取 消</el-button>
+        <el-button size="small" type="primary" @click="save()">保 存</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog title="选择模块" :visible.sync="dialogMenuVisible">
-      <el-input placeholder="输入关键字进行过滤"
-                v-model="filterFormText">
-      </el-input>
-      <el-tree class="filter-tree" ref="formTree" :data="treeMenuData"
-               check-strictly node-key="id" highlight-current @node-click="getNodeData"
-               :filter-node-method="filterNode" default-expand-all>
-      </el-tree>
-    </el-dialog>
 
       <el-dialog title="系统提示" :visible.sync="dialogGenCodeVisible"
                  width="30%">
         <span>确认要继续操作吗?</span>
         <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogGenCodeVisible = false">取 消</el-button>
-    <el-button type="primary" @click="handleGenCode(false)">生成代码</el-button>
-    <el-button type="primary" @click="handleGenCode(true)">生成代码并覆盖</el-button>
-  </span>
+          <el-button size="small" @click="dialogGenCodeVisible = false">取 消</el-button>
+          <el-button size="small" type="primary" @click="handleGenCode(false)">生成代码</el-button>
+          <el-button size="small" type="primary" @click="handleGenCode(true)">生成代码并覆盖</el-button>
+        </span>
       </el-dialog>
+
+      <el-dialog title="选择菜单" :visible.sync="dialogMenuVisible">
+        <el-input placeholder="输入关键字进行过滤"
+                  v-model="filterFormText">
+        </el-input>
+        <el-tree class="filter-tree" ref="formTree" :data="treeMenuData"
+                 check-strictly node-key="id" highlight-current @node-click="getNodeData"
+                 :filter-node-method="filterNode">
+        </el-tree>
+      </el-dialog>
+
+      <el-dialog title="生成菜单" :visible.sync="dialogGenMenuVisible"
+                 width="30%">
+        <el-form :model="genMenuForm" :inline="true" ref="genMenuForm">
+          <el-form-item label="上级菜单" prop="parentMenuId" :rules="[{required: true,message: '请选择上级菜单'}]">
+            <el-input v-model="genMenuForm.parentMenuName" placeholder="选择菜单" @focus="handleMenu()" readonly></el-input>
+            <input type="hidden" v-model="genMenuForm.parentMenuId" />
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="small" @click="cancelGenMenu">取 消</el-button>
+          <el-button size="small" type="primary" @click="handleGenMenu">生成菜单</el-button>
+        </span>
+      </el-dialog>
+
     </basic-container>
   </div>
 </template>
 
 <script>
-  import {findGenScheme, genCode, pageGenScheme, removeGenScheme, saveGenScheme} from "./service";
+  import {findGenScheme, genCode, genMenu, pageGenScheme, removeGenScheme, saveGenScheme} from "./service";
   import {mapGetters} from "vuex";
   import { validateNull, validateNotNull} from "@/util/validate";
   import {parseJsonItemForm, parseTreeData} from "@/util/util";
-  import {fetchMenuTree} from "../../admin/menu/service";
+  import {fetchMenuTree} from "../../sys/menu/service";
   import CrudSelect from "@/views/avue/crud-select";
   import CrudRadio from "@/views/avue/crud-radio";
 
@@ -197,6 +209,7 @@
       list: null,
       total: null,
       listLoading: true,
+      searchForm: {},
       listQuery: {
         page: 1,
         size: 20
@@ -217,17 +230,20 @@
         genCode: undefined,
         replaceFile: undefined,
         syncMenu: undefined,
-        parentMenuName: undefined,
-        parentMenuId: undefined,
         status: undefined,
         description: undefined
+      },
+      genMenuForm:{
+        id: undefined,
+        parentMenuName: undefined,
+        parentMenuId: undefined,
       },
       statusOptions: [],
       filterFormText: '',
       dialogFormVisible: false,
       dialogMenuVisible: false,
-      showMenuVisible: false,
       dialogGenCodeVisible: false,
+      dialogGenMenuVisible: false,
       currentRow: {},
       schemeAdd: false,
       schemeUpd: false,
@@ -254,21 +270,21 @@
   },
   created() {
     this.getList();
+    this.gen_scheme_menu = this.permissions["gen_scheme_menu"];
     this.gen_scheme_edit = this.permissions["gen_scheme_edit"];
-    this.gen_table_del = this.permissions["gen_scheme_del"];
+    this.gen_scheme_del = this.permissions["gen_scheme_del"];
   },
   methods: {
     getList() {
       this.listLoading = true;
-      this.listQuery.isAsc = false;
       this.listQuery.queryConditionJson = parseJsonItemForm([{
-        fieldName: 'name',value:this.listQuery.name
+        fieldName: 'name',value:this.searchForm.name
       },{
-        fieldName: 'table.name',value:this.listQuery.tableName
+        fieldName: 'table.name',value:this.searchForm.tableName
       },{
-        fieldName: 'functionName',value:this.listQuery.functionName
+        fieldName: 'functionName',value:this.searchForm.functionName
       },{
-        fieldName: 'functionAuthor',value:this.listQuery.functionAuthor
+        fieldName: 'functionAuthor',value:this.searchForm.functionAuthor
       }])
       pageGenScheme(this.listQuery).then(response => {
         this.list = response.data.records;
@@ -282,8 +298,8 @@
     },
     getNodeData(data) {
       this.dialogMenuVisible = false;
-      this.form.parentMenuId = data.id;
-      this.form.parentMenuName = data.label;
+      this.genMenuForm.parentMenuId = data.id;
+      this.genMenuForm.parentMenuName = data.label;
     },
     filterNode(value, data) {
       if (!value) return true
@@ -307,12 +323,46 @@
       this.listQuery.page = val;
       this.getList();
     },
-
-
+    handleSelect(row){
+      this.currentRow = row;
+    },
+    handleGenMenu(){
+      if(validateNull(this.currentRow) || validateNull(this.currentRow.id)){
+        this.$message({
+          message:'请选择方案',
+          type: 'warning'
+        })
+        return;
+      }
+      this.genMenuForm.id=this.currentRow.id;
+      const set = this.$refs;
+      set['genMenuForm'].validate(valid => {
+        if (valid) {
+          genMenu(this.genMenuForm).then(response => {
+            this.getList();
+            this.cancelGenMenu()
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    handleGenMenuDialog() {
+      if(validateNull(this.currentRow) || validateNull(this.currentRow.id)){
+        this.$message({
+          message:'请选择方案',
+          type: 'warning'
+        })
+        return;
+      }
+      this.genMenuForm.id=undefined;
+      this.genMenuForm.parentMenuId=undefined;
+      this.genMenuForm.parentMenuName=undefined;
+      this.dialogGenMenuVisible=true;
+    },
     handleEdit(row) {
-      this.showMenuVisible=false
       this.dialogStatus = row && !validateNull(row.id)? "update" : "create";
-      var params;
+      let params;
       if(this.dialogStatus == "update"){
         params ={id:row.id};
       }
@@ -324,14 +374,16 @@
           if(validateNotNull(data.schemeVo)){
             this.resetForm();
             this.form = data.schemeVo;
-            this.showMenuVisible=this.form.syncMenu;
-            console.log(this.form)
             // this.form.genCode = true
             // this.form.replaceFile= false
             // this.form.syncMenu=  false
           }
           this.dialogFormVisible = true;
       });
+    },
+    cancelGenMenu() {
+      this.dialogGenMenuVisible = false;
+      this.$refs['genMenuForm'].resetFields();
     },
     cancel() {
       this.dialogFormVisible = false;
@@ -344,7 +396,7 @@
           // this.form.password = undefined;
           saveGenScheme(this.form).then(response => {
               this.getList();
-              this.cancel('form')
+              this.cancel()
           });
         } else {
           return false;
@@ -352,10 +404,17 @@
       });
     },
     handleGenCodeDialog(row) {
-    this.currentRow = row;
-    this.dialogGenCodeVisible=true;
-  },
+      this.currentRow = row;
+      this.dialogGenCodeVisible=true;
+    },
     handleGenCode(replaceFile) {
+      if(validateNull(this.currentRow) || validateNull(this.currentRow.id)){
+        this.$message({
+          message:'无法获取选中信息',
+          type: 'warning'
+        })
+        return;
+      }
       genCode({id:this.currentRow.id, replaceFile: replaceFile}).then(response => {
         this.dialogGenCodeVisible=false;
         this.getList();

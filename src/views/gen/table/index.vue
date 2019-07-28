@@ -3,12 +3,12 @@
   <div class="app-container calendar-list-container">
     <basic-container>
       <div class="filter-container" v-show="searchFilterVisible">
-        <el-form ref="searchForm"  :model="listQuery" :inline="true">
+        <el-form ref="searchForm"  :model="searchForm" :inline="true">
           <el-form-item label="表名" prop="name">
-            <el-input class="filter-item input-normal" size="small" v-model="listQuery.name"></el-input>
+            <el-input class="filter-item input-normal" size="small" v-model="searchForm.name"></el-input>
           </el-form-item>
           <el-form-item label="说明" prop="comments">
-            <el-input class="filter-item input-normal" size="small" v-model="listQuery.comments"></el-input>
+            <el-input class="filter-item input-normal" size="small" v-model="searchForm.comments"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button size="small" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
@@ -18,10 +18,10 @@
       </div>
       <!-- 表格功能列 -->
       <div class="table-menu">
-        <div class="table-menu-left"><el-button size="small" v-if="gen_table_edit" class="filter-item" style="margin-left: 10px;" @click="handleEdit" type="primary" icon="edit">添加</el-button>
+        <div class="table-menu-left"><el-button size="mini" v-if="gen_table_edit" class="filter-item" @click="handleEdit" type="primary" icon="el-icon-plus">添加</el-button>
         </div>
         <div class="table-menu-right">
-          <el-button icon="el-icon-search" circle size="small" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+          <el-button icon="el-icon-search" circle size="mini" @click="searchFilterVisible= !searchFilterVisible"></el-button>
         </div>
       </div>
       <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
@@ -86,8 +86,8 @@
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="this.dialogBeforeFormVisible = false;">取 消</el-button>
-          <el-button type="primary" @click="showNextForm()">下一步</el-button>
+          <el-button size="small" @click="this.dialogBeforeFormVisible = false;">取 消</el-button>
+          <el-button size="small" type="primary" @click="showNextForm()">下一步</el-button>
         </div>
       </el-dialog>
 
@@ -192,8 +192,8 @@
         </table>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel()">取 消</el-button>
-        <el-button type="primary" @click="save()">保 存</el-button>
+        <el-button size="small" @click="cancel()">取 消</el-button>
+        <el-button size="small" type="primary" @click="save()">保 存</el-button>
       </div>
     </el-dialog>
     </basic-container>
@@ -220,6 +220,7 @@
         list: null,
         total: null,
         listLoading: true,
+        searchForm: {},
         listQuery: {
           page: 1,
           size: 20
@@ -266,11 +267,10 @@
     methods: {
       getList() {
         this.listLoading = true;
-        this.listQuery.isAsc = false;
         this.listQuery.queryConditionJson = parseJsonItemForm([{
-          fieldName: 'name',value:this.listQuery.name
+          fieldName: 'name',value:this.searchForm.name
         },{
-          fieldName: 'comments',value:this.listQuery.comments
+          fieldName: 'comments',value:this.searchForm.comments
         }])
         pageTable(this.listQuery).then(response => {
           this.list = response.data.records;

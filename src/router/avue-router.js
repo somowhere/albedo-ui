@@ -16,7 +16,7 @@ RouterPlugin.install = function (router, store) {
   this.$router.$avueRouter = {
     // 全局配置
     $website: this.$store.getters.website,
-    $defaultTitle: 'Pig微服务快速开发框架',
+    $defaultTitle: 'Albedo微服务快速开发框架',
     routerList: [],
     group: '',
     safe: this,
