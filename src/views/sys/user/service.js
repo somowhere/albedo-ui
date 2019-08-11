@@ -17,7 +17,7 @@
 
 import request from '@/router/axios'
 
-export function pageUser (query) {
+export function pageUser(query) {
   return request({
     url: '/sys/user/',
     method: 'get',
@@ -25,7 +25,7 @@ export function pageUser (query) {
   })
 }
 
-export function saveUser (obj) {
+export function saveUser(obj) {
   return request({
     url: '/sys/user/',
     method: 'post',
@@ -33,23 +33,23 @@ export function saveUser (obj) {
   })
 }
 
-export function findUser (id) {
+export function findUser(id) {
   return request({
     url: '/sys/user/' + id,
     method: 'get'
   })
 }
 
-export function removeUser (id) {
+export function removeUser(id) {
   return request({
     url: '/sys/user/' + id,
     method: 'delete'
   })
 }
 
-export function lockUser (id) {
+export function lockUser(id) {
   return request({
-    url: '/sys/user/'+id,
+    url: '/sys/user/' + id,
     method: 'put'
   })
 }

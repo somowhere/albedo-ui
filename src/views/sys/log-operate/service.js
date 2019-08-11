@@ -17,17 +17,25 @@
 
 import request from '@/router/axios'
 
-export function pageLog (query) {
+export function pageLog(query) {
   return request({
-    url: '/sys/log/',
+    url: '/sys/log-operate/',
     method: 'get',
     params: query
   })
 }
 
-export function removeLog (id) {
+export function exportLog(query) {
   return request({
-    url: '/sys/log/' + id,
+    url: '/sys/log-operate/export',
+    method: 'get',
+    params: query
+  })
+}
+
+export function removeLog(id) {
+  return request({
+    url: '/sys/log-operate/' + id,
     method: 'delete'
   })
 }

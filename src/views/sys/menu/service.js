@@ -17,14 +17,14 @@
 
 import request from '@/router/axios'
 
-export function GetUserMenu () {
+export function GetUserMenu() {
   return request({
     url: '/sys/menu/user-menu',
     method: 'get'
   })
 }
 
-export function fetchMenuTree (query) {
+export function fetchMenuTree(query) {
   return request({
     url: '/sys/menu/tree',
     method: 'get',
@@ -32,7 +32,7 @@ export function fetchMenuTree (query) {
   })
 }
 
-export function pageMenu (query) {
+export function pageMenu(query) {
   return request({
     url: '/sys/menu/',
     method: 'get',
@@ -40,7 +40,7 @@ export function pageMenu (query) {
   })
 }
 
-export function saveMenu (obj) {
+export function saveMenu(obj) {
   return request({
     url: '/sys/menu/',
     method: 'post',
@@ -48,23 +48,23 @@ export function saveMenu (obj) {
   })
 }
 
-export function findMenu (id) {
+export function findMenu(id) {
   return request({
     url: '/sys/menu/' + id,
     method: 'get'
   })
 }
 
-export function removeMenu (id) {
+export function removeMenu(id) {
   return request({
     url: '/sys/menu/' + id,
     method: 'delete'
   })
 }
 
-export function lockMenu (id) {
+export function lockMenu(id) {
   return request({
-    url: '/sys/menu/'+id,
+    url: '/sys/menu/' + id,
     method: 'put'
   })
 }

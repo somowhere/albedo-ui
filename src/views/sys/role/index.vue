@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="app-container calendar-list-container">
     <basic-container>
@@ -13,7 +11,7 @@
               </el-form-item>
               <el-form-item>
                 <el-button size="small" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
-                <el-button size="small" @click="searchReset" icon="el-icon-delete" >清空</el-button>
+                <el-button size="small" @click="searchReset" icon="icon-rest">重置</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -21,13 +19,16 @@
 
           <div class="table-menu">
             <div class="table-menu-left">
-              <el-button size="mini" v-if="sys_role_edit" @click="handleEdit" type="primary" icon="el-icon-plus">添加</el-button>
+              <el-button size="mini" v-if="sys_role_edit" @click="handleEdit" type="primary" icon="el-icon-plus">添加
+              </el-button>
             </div>
             <div class="table-menu-right">
-              <el-button icon="el-icon-search" circle size="mini" @click="searchFilterVisible= !searchFilterVisible"></el-button>
+              <el-button icon="el-icon-search" circle size="mini"
+                         @click="searchFilterVisible= !searchFilterVisible"></el-button>
             </div>
           </div>
-          <el-table :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading" element-loading-text="加载中..." fit highlight-current-row>
+          <el-table :key='tableKey' @sort-change="sortChange" :data="list" v-loading="listLoading"
+                    element-loading-text="加载中..." fit highlight-current-row>
             <el-table-column
               type="index" fixed="left" width="50">
             </el-table-column>
@@ -57,9 +58,9 @@
               </template>
             </el-table-column>
 
-            <el-table-column align="center" label="锁定" width="80">
+            <el-table-column align="center" label="是否可用" width="80">
               <template slot-scope="scope">
-                <el-tag>{{scope.row.lockFlagText}}</el-tag>
+                <el-tag>{{scope.row.availableText}}</el-tag>
               </template>
             </el-table-column>
             <el-table-column align="center" label="创建时间" prop="a.created_date" sortable="custom">
@@ -69,20 +70,26 @@
             </el-table-column>
 
 
-            <el-table-column align="center" label="操作" fixed="right" width="130" v-if="sys_role_edit || sys_role_lock || sys_role_del">
+            <el-table-column align="center" label="操作" fixed="right" width="130"
+                             v-if="sys_role_edit || sys_role_lock || sys_role_del">
               <template slot-scope="scope">
                 <el-button v-if="sys_role_edit" icon="icon-edit" title="编辑" type="text" @click="handleEdit(scope.row)">
                 </el-button>
-                <el-button v-if="sys_role_lock" :icon="scope.row.lockFlag == '0' ? 'icon-lock' : 'icon-unlock'" :title="scope.row.lockFlag == '0' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">
+                <el-button v-if="sys_role_lock" :icon="scope.row.available == '0' ? 'icon-lock' : 'icon-unlock'"
+                           :title="scope.row.available == '0' ? '锁定' : '解锁'" type="text" @click="handleLock(scope.row)">
                 </el-button>
-                <el-button v-if="sys_role_del" icon="icon-delete" title="删除" type="text" @click="handleDelete(scope.row)">
+                <el-button v-if="sys_role_del" icon="icon-delete" title="删除" type="text"
+                           @click="handleDelete(scope.row)">
                 </el-button>
               </template>
             </el-table-column>
 
           </el-table>
           <div v-show="!listLoading" class="pagination-container">
-            <el-pagination class="pull-right" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-sizes="[10,20,30, 50]" :page-size="listQuery.size" layout="total, sizes, prev, pager, next, jumper" :total="total">
+            <el-pagination class="pull-right" background @size-change="handleSizeChange"
+                           @current-change="handleCurrentChange" :current-page.sync="listQuery.current"
+                           :page-sizes="[10,20,30, 50]" :page-size="listQuery.size"
+                           layout="total, sizes, prev, pager, next, jumper" :total="total">
             </el-pagination>
           </div>
         </el-col>
@@ -113,13 +120,14 @@
             <el-col :span="10" v-show="formTreeDeptDataVisible">
               <el-form-item label="机构权限" prop="orgIdList" v-show="formTreeDeptDataVisible">
                 <el-tree class="filter-tree" ref="treeDept" :data="treeDeptData" node-key="id"
-                         show-checkbox default-expand-all :default-checked-keys="form.deptIdList" @check="getNodeTreeDeptData">
+                         show-checkbox default-expand-all :default-checked-keys="form.deptIdList"
+                         @check="getNodeTreeDeptData">
                 </el-tree>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="锁定" prop="lockFlag" :rules="[{required: true,message: '请选择' }]">
-            <CrudRadio v-model="form.lockFlag" :dic="flagOptions"></CrudRadio>
+          <el-form-item label="是否可用" prop="available" :rules="[{required: true,message: '请选择' }]">
+            <CrudRadio v-model="form.available" :dic="flagOptions"></CrudRadio>
           </el-form-item>
           <el-form-item label="角色描述" prop="remark" :rules="[{required: true, message: '请输入角色描述'}]">
             <el-input v-model="form.remark"></el-input>
@@ -138,197 +146,198 @@
 </template>
 
 <script>
-  import {findRole, saveRole, removeRole, pageRole, lockRole} from "./service";
-  import {fetchMenuTree} from "../menu/service";
-  import {mapGetters } from 'vuex';
-  import {fetchDeptTree} from "../dept/service";
-  import {parseJsonItemForm,parseTreeData} from "@/util/util";
-  import {objectToString,validateNotNull,validateNull} from "@/util/validate";
-  import CrudSelect from "@/views/avue/crud-select";
-  import CrudRadio from "@/views/avue/crud-radio";
-  export default {
-    name: 'Role',
-    components: {CrudSelect,CrudRadio},
-    data() {
-      return {
-        treeDept:[],
-        treeMenuData:[],
-        treeDeptData: [],
-        dialogFormVisible: false,
-        searchFilterVisible: true,
-        checkedKeys: [],
-        list: null,
-        total: null,
-        listLoading: true,
-        searchForm: {},
-        listQuery: {
-          current: 1,
-          size: 20
-        },
-        formEdit: true,
-        flagOptions: [],
-        dataScopeOptions:[],
-        form: {
-          name: undefined,
-          dataScope: undefined,
-          code: undefined,
-          menuIdList: [],
-          deptIdList: [],
-          remark: undefined,
-          lockFlag: undefined,
-          description: undefined
-        },
-        dialogDeptVisible: false,
-        formTreeDeptDataVisible: false,
-        dialogStatus: 'create',
-        textMap: {
-          update: '编辑',
-          create: '创建'
-        },
-        sys_role_edit: false,
-        sys_role_lock: false,
-        sys_role_del: false,
-        currentNode: {},
-        tableKey: 0
-      }
-    },
-    watch: {
-    },
-    created() {
-      this.getList()
-      this.sys_role_edit = this.permissions["sys_role_edit"];
-      this.sys_role_lock = this.permissions["sys_role_lock"];
-      this.sys_role_del = this.permissions["sys_role_del"];
-      this.flagOptions = this.dicts['sys_flag'];
-      this.dataScopeOptions = this.dicts['sys_data_scope'];
-      fetchMenuTree().then(rs => {
-        this.treeMenuData = parseTreeData(rs.data);
-      })
-      fetchDeptTree().then(response => {
-        this.treeDeptData = parseTreeData(response.data);
-      })
-    },
-    computed: {
-      ...mapGetters([
-        "permissions","dicts"
-      ])
-    },
-    methods: {
-      getList() {
-        this.listLoading = true;
-        this.listQuery.queryConditionJson = parseJsonItemForm([{
-          fieldName: 'name',value:this.searchForm.name}])
-        pageRole(this.listQuery).then(response => {
-          this.list = response.data.records;
-          this.total = response.data.total;
-          this.listLoading = false;
-        });
-      },
-      sortChange(column){
-        if(column.order=="ascending"){
-          this.listQuery.ascs=column.prop
-          this.listQuery.descs=undefined;
-        }else{
-          this.listQuery.descs=column.prop
-          this.listQuery.ascs=undefined;
-        }
-        this.getList()
-      },
+    import {findRole, lockRole, pageRole, removeRole, saveRole} from "./service";
+    import {fetchMenuTree} from "../menu/service";
+    import {mapGetters} from 'vuex';
+    import {fetchDeptTree} from "../dept/service";
+    import {parseJsonItemForm, parseTreeData} from "@/util/util";
+    import {objectToString, validateNotNull, validateNull} from "@/util/validate";
+    import CrudSelect from "@/views/avue/crud-select";
+    import CrudRadio from "@/views/avue/crud-radio";
 
-      //搜索清空
-      searchReset() {
-        this.$refs['searchForm'].resetFields();
-      },
-      handleFilter() {
-        this.listQuery.current = 1;
-        this.getList();
-      },
-      handleSizeChange(val) {
-        this.listQuery.size = val;
-        this.getList();
-      },
-      handleCurrentChange(val) {
-        this.listQuery.current = val;
-        this.getList();
-      },
-      handleEdit(row) {
-        this.resetForm();
-        this.dialogStatus = row && validateNotNull(row.id)? "update" : "create";
-        if(this.dialogStatus == "create"){
-          this.dialogFormVisible = true;
-        }else{
-          findRole(row.id).then(response => {
-            this.form = response.data;
-            this.dialogFormVisible = true;
-            this.formTreeDeptDataVisible = (this.form.dataScope == 5);
-            if(validateNull(this.form.deptIdList)){
-              this.form.deptIdList = []
+    export default {
+        name: 'Role',
+        components: {CrudSelect, CrudRadio},
+        data() {
+            return {
+                treeDept: [],
+                treeMenuData: [],
+                treeDeptData: [],
+                dialogFormVisible: false,
+                searchFilterVisible: true,
+                checkedKeys: [],
+                list: null,
+                total: null,
+                listLoading: true,
+                searchForm: {},
+                listQuery: {
+                    current: 1,
+                    size: 20
+                },
+                formEdit: true,
+                flagOptions: [],
+                dataScopeOptions: [],
+                form: {
+                    name: undefined,
+                    dataScope: undefined,
+                    code: undefined,
+                    menuIdList: [],
+                    deptIdList: [],
+                    remark: undefined,
+                    available: undefined,
+                    description: undefined
+                },
+                dialogDeptVisible: false,
+                formTreeDeptDataVisible: false,
+                dialogStatus: 'create',
+                textMap: {
+                    update: '编辑',
+                    create: '创建'
+                },
+                sys_role_edit: false,
+                sys_role_lock: false,
+                sys_role_del: false,
+                currentNode: {},
+                tableKey: 0
             }
-            this.form.dataScope=objectToString(this.form.dataScope)
-            if(this.$refs.treeMenu){
-              this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
-              this.$refs.treeDept.setCheckedKeys(this.form.deptIdList);
-            }
-          });
-        }
-      },
-      handleLock: function (row) {
-        lockRole(row.id).then(response =>{
-          this.getList();
-        });
-      },
-      handleDelete(row) {
-        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          removeRole(row.id).then((rs) => {
-            this.getList();
-          })
-        })
-      },
-      handleDataScopeChange(value){
-        this.formTreeDeptDataVisible = (value == 5);
-      },
-      getNodeTreeMenuData(data, obj) {
-        this.form.menuIdList = obj.checkedKeys;
-      },
-      getNodeTreeDeptData(data, obj) {
-        this.form.deptIdList = obj.checkedKeys;
-      },
-      save() {
-        this.$refs['form'].validate(valid => {
-          if (valid) {
-            saveRole(this.form).then(() => {
-              this.getList()
-              this.dialogFormVisible = false;
+        },
+        watch: {},
+        created() {
+            this.getList()
+            this.sys_role_edit = this.permissions["sys_role_edit"];
+            this.sys_role_lock = this.permissions["sys_role_lock"];
+            this.sys_role_del = this.permissions["sys_role_del"];
+            this.flagOptions = this.dicts['sys_flag'];
+            this.dataScopeOptions = this.dicts['sys_data_scope'];
+            fetchMenuTree().then(rs => {
+                this.treeMenuData = parseTreeData(rs.data);
             })
-          } else {
-            return false;
-          }
-        });
-      },
-      cancel() {
-        this.dialogFormVisible = false;
-        this.$refs['form'].resetFields();
-      },
-      resetForm() {
-        this.form = {
-          name: undefined,
-          dataScope: undefined,
-          code: undefined,
-          menuIdList: [],
-          deptIdList: [],
-          remark: undefined,
-          lockFlag: undefined,
-          description: undefined
+            fetchDeptTree().then(response => {
+                this.treeDeptData = parseTreeData(response.data);
+            })
+        },
+        computed: {
+            ...mapGetters([
+                "permissions", "dicts"
+            ])
+        },
+        methods: {
+            getList() {
+                this.listLoading = true;
+                this.listQuery.queryConditionJson = parseJsonItemForm([{
+                    fieldName: 'name', value: this.searchForm.name
+                }])
+                pageRole(this.listQuery).then(response => {
+                    this.list = response.data.records;
+                    this.total = response.data.total;
+                    this.listLoading = false;
+                });
+            },
+            sortChange(column) {
+                if (column.order == "ascending") {
+                    this.listQuery.ascs = column.prop
+                    this.listQuery.descs = undefined;
+                } else {
+                    this.listQuery.descs = column.prop
+                    this.listQuery.ascs = undefined;
+                }
+                this.getList()
+            },
+
+            //搜索清空
+            searchReset() {
+                this.$refs['searchForm'].resetFields();
+            },
+            handleFilter() {
+                this.listQuery.current = 1;
+                this.getList();
+            },
+            handleSizeChange(val) {
+                this.listQuery.size = val;
+                this.getList();
+            },
+            handleCurrentChange(val) {
+                this.listQuery.current = val;
+                this.getList();
+            },
+            handleEdit(row) {
+                this.resetForm();
+                this.dialogStatus = row && validateNotNull(row.id) ? "update" : "create";
+                if (this.dialogStatus == "create") {
+                    this.dialogFormVisible = true;
+                } else {
+                    findRole(row.id).then(response => {
+                        this.form = response.data;
+                        this.dialogFormVisible = true;
+                        this.formTreeDeptDataVisible = (this.form.dataScope == 5);
+                        if (validateNull(this.form.deptIdList)) {
+                            this.form.deptIdList = []
+                        }
+                        this.form.dataScope = objectToString(this.form.dataScope)
+                        if (this.$refs.treeMenu) {
+                            this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
+                            this.$refs.treeDept.setCheckedKeys(this.form.deptIdList);
+                        }
+                    });
+                }
+            },
+            handleLock: function (row) {
+                lockRole(row.id).then(response => {
+                    this.getList();
+                });
+            },
+            handleDelete(row) {
+                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    removeRole(row.id).then((rs) => {
+                        this.getList();
+                    })
+                })
+            },
+            handleDataScopeChange(value) {
+                this.formTreeDeptDataVisible = (value == 5);
+            },
+            getNodeTreeMenuData(data, obj) {
+                this.form.menuIdList = obj.checkedKeys;
+            },
+            getNodeTreeDeptData(data, obj) {
+                this.form.deptIdList = obj.checkedKeys;
+            },
+            save() {
+                this.$refs['form'].validate(valid => {
+                    if (valid) {
+                        saveRole(this.form).then(() => {
+                            this.getList()
+                            this.dialogFormVisible = false;
+                        })
+                    } else {
+                        return false;
+                    }
+                });
+            },
+            cancel() {
+                this.dialogFormVisible = false;
+                this.$refs['form'].resetFields();
+            },
+            resetForm() {
+                this.form = {
+                    name: undefined,
+                    dataScope: undefined,
+                    code: undefined,
+                    menuIdList: [],
+                    deptIdList: [],
+                    remark: undefined,
+                    available: undefined,
+                    description: undefined
+                }
+                this.$refs['form'] && this.$refs['form'].resetFields();
+                // this.$refs.treeMenu.setCheckedKeys([]);
+                // this.$refs.treeDept.setCheckedKeys([]);
+            }
         }
-        this.$refs['form']&&this.$refs['form'].resetFields();
-        // this.$refs.treeMenu.setCheckedKeys([]);
-        // this.$refs.treeDept.setCheckedKeys([]);
-      }
     }
-  }
 </script>
 

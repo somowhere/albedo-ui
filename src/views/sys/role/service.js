@@ -17,7 +17,7 @@
 
 import request from '@/router/axios'
 
-export function pageRole (query) {
+export function pageRole(query) {
   return request({
     url: '/sys/role/',
     method: 'get',
@@ -25,21 +25,21 @@ export function pageRole (query) {
   })
 }
 
-export function deptRoleList () {
+export function deptRoleList() {
   return request({
     url: '/sys/role/combo-data',
     method: 'get'
   })
 }
 
-export function findRole (id) {
+export function findRole(id) {
   return request({
     url: '/sys/role/' + id,
     method: 'get'
   })
 }
 
-export function saveRole (obj) {
+export function saveRole(obj) {
   return request({
     url: '/sys/role',
     method: 'post',
@@ -47,14 +47,14 @@ export function saveRole (obj) {
   })
 }
 
-export function removeRole (id) {
+export function removeRole(id) {
   return request({
     url: '/sys/role/' + id,
     method: 'delete'
   })
 }
 
-export function permissionUpd (roleId, menuIds) {
+export function permissionUpd(roleId, menuIds) {
   return request({
     url: '/sys/role/menu',
     method: 'put',
@@ -65,15 +65,16 @@ export function permissionUpd (roleId, menuIds) {
   })
 }
 
-export function fetchRoleTree (roleName) {
+export function fetchRoleTree(roleName) {
   return request({
     url: '/sys/menu/tree/' + roleName,
     method: 'get'
   })
 }
-export function lockRole (id) {
+
+export function lockRole(id) {
   return request({
-    url: '/sys/role/'+id,
+    url: '/sys/role/' + id,
     method: 'put'
   })
 }
