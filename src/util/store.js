@@ -1,4 +1,4 @@
-import {validateNull} from '@/util/validate'
+import validate from '@/util/validate'
 import website from '@/const/website'
 
 const keyName = website.key + '-';
@@ -11,16 +11,16 @@ export const setStore = (params = {}) => {
     content,
     type,
   } = params;
-  name = keyName + name
+  name = keyName + name;
   let obj = {
     dataType: typeof (content),
     content: content,
     type: type,
     datetime: new Date().getTime()
-  }
+  };
   if (type) window.sessionStorage.setItem(name, JSON.stringify(obj));
   else window.localStorage.setItem(name, JSON.stringify(obj));
-}
+};
 /**
  * 获取localStorage
  */
@@ -30,15 +30,15 @@ export const getStore = (params = {}) => {
     name,
     debug
   } = params;
-  name = keyName + name
+  name = keyName + name;
   let obj = {},
     content;
   obj = window.sessionStorage.getItem(name);
-  if (validateNull(obj)) obj = window.localStorage.getItem(name);
-  if (validateNull(obj)) return;
+  if (validate.checkNull(obj)) obj = window.localStorage.getItem(name);
+  if (validate.checkNull(obj)) return;
   try {
     obj = JSON.parse(obj);
-  } catch{
+  } catch {
     return obj;
   }
   if (debug) {
@@ -54,7 +54,7 @@ export const getStore = (params = {}) => {
     content = obj.content;
   }
   return content;
-}
+};
 /**
  * 删除localStorage
  */
@@ -63,14 +63,14 @@ export const removeStore = (params = {}) => {
     name,
     type
   } = params;
-  name = keyName + name
+  name = keyName + name;
   if (type) {
     window.sessionStorage.removeItem(name);
   } else {
     window.localStorage.removeItem(name);
   }
 
-}
+};
 
 /**
  * 获取全部localStorage
@@ -103,17 +103,17 @@ export const getAllStore = (params = {}) => {
   }
   return list;
 
-}
+};
 
 /**
  * 清空全部localStorage
  */
 export const clearStore = (params = {}) => {
-  let { type } = params;
+  let {type} = params;
   if (type) {
     window.sessionStorage.clear();
   } else {
     window.localStorage.clear()
   }
 
-}
+};

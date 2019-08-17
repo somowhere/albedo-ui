@@ -1,25 +1,25 @@
 import {getStore, setStore} from '@/util/store'
-import {isURL} from '@/util/validate'
-import {getUserInfo, getDicts, loginByUsername, logout, refreshToken} from '@/api/login'
-import {deepClone, encryption} from '@/util/util'
+import validate from '@/util/validate'
+import loginApi from '@/api/login'
+import util from '@/util/util'
 import webiste from '@/const/website'
-import {GetUserMenu} from '@/views/sys/menu/service'
+import menuService from '@/views/sys/menu/menu-service'
 
 function addPath(ele, first) {
-  const propsConfig = webiste.menu.props
+  const propsConfig = webiste.menu.props;
   const propsDefault = {
     label: propsConfig.label || 'label',
     path: propsConfig.path || 'path',
     icon: propsConfig.icon || 'icon',
     children: propsConfig.children || 'children'
-  }
-  const isChild = ele[propsDefault.children] && ele[propsDefault.children].length !== 0
+  };
+  const isChild = ele[propsDefault.children] && ele[propsDefault.children].length !== 0;
   if (!isChild && first) {
-    ele[propsDefault.path] = ele[propsDefault.path] + '/index'
+    ele[propsDefault.path] = ele[propsDefault.path] + '/index';
     return
   }
   ele[propsDefault.children].forEach(child => {
-    if (!isURL(child[propsDefault.path])) {
+    if (!validate.isURL(child[propsDefault.path])) {
       child[propsDefault.path] = `${ele[propsDefault.path]}/${child[propsDefault.path] ? child[propsDefault.path] : 'index'}`
     }
     addPath(child)
@@ -28,10 +28,18 @@ function addPath(ele, first) {
 
 const user = {
   state: {
-    userInfo: {},
-    permissions: {},
-    dicts: [],
-    roles: [],
+    user: getStore({
+      name: 'user'
+    }) || {},
+    permissions: getStore({
+      name: 'permissions'
+    }) || {},
+    dicts: getStore({
+      name: 'dicts'
+    }) || [],
+    roles: getStore({
+      name: 'roles'
+    }) || [],
     menu: getStore({
       name: 'menu'
     }) || [],
@@ -48,38 +56,31 @@ const user = {
   },
   actions: {
     // 根据用户名登录
-    LoginByUsername({commit}, userInfo) {
-      const user = encryption({
-        data: userInfo,
+    loginByUsername({commit}, user) {
+      const params = util.encryption({
+        data: user,
         key: 'somewhere-albedo',
         param: ['password']
-      })
+      });
       return new Promise((resolve, reject) => {
-        loginByUsername(user.username, user.password, user.code, user.randomStr).then(response => {
+        loginApi.loginByUsername(params).then(response => {
           commit('SET_ACCESS_TOKEN', response.access_token)
           commit('SET_REFRESH_TOKEN', response.refresh_token)
           commit('SET_EXPIRES_IN', response.expires_in)
-          commit('CLEAR_LOCK')
+          commit('CLEAR_LOCK');
           resolve()
         }).catch(error => {
           reject(error)
         })
       })
     },
-    GetUserInfo({commit}) {
+    getUser({commit}) {
       return new Promise((resolve, reject) => {
-        getUserInfo().then((res) => {
-          const data = res.data || {}
-          commit('SET_USERIFNO', data.user)
-          commit('SET_ROLES', data.roles || [])
-          commit('SET_PERMISSIONS', data.permissions || [])
-          resolve(data)
-        }).catch((err) => {
-          reject()
-        })
-        getDicts().then((res) => {
-          const data = res.data || {}
-          commit('SET_DICTS', data)
+        loginApi.getUser().then((res) => {
+          const data = res.data || {};
+          commit('SET_USERVO', data.user);
+          commit('SET_ROLES', data.roles || []);
+          commit('SET_PERMISSIONS', data.permissions || []);
           resolve(data)
         }).catch((err) => {
           reject()
@@ -87,14 +88,14 @@ const user = {
       })
     },
     // 刷新token
-    RefreshToken({commit, state}) {
+    refreshToken({commit, state}) {
       return new Promise((resolve, reject) => {
-        refreshToken(state.refresh_token).then(response => {
-          const data = response.data
-          commit('SET_ACCESS_TOKEN', data.access_token)
+        loginApi.refreshToken(state.refresh_token).then(response => {
+          const data = response.data;
+          commit('SET_ACCESS_TOKEN', data.access_token);
           commit('SET_REFRESH_TOKEN', data.refresh_token)
-          commit('SET_EXPIRES_IN', data.expires_in)
-          commit('CLEAR_LOCK')
+          commit('SET_EXPIRES_IN', data.expires_in);
+          commit('CLEAR_LOCK');
           resolve()
         }).catch(error => {
           reject(error)
@@ -102,19 +103,19 @@ const user = {
       })
     },
     // 登出
-    LogOut({commit}) {
+    logOut({commit}) {
       return new Promise((resolve, reject) => {
-        logout().then(() => {
-          commit('SET_MENU', [])
-          commit('SET_DICTS', [])
-          commit('SET_PERMISSIONS', [])
-          commit('SET_USER_INFO', {})
-          commit('SET_ACCESS_TOKEN', '')
+        loginApi.logout().then(() => {
+          commit('SET_MENU', []);
+          commit('SET_DICTS', []);
+          commit('SET_PERMISSIONS', []);
+          commit('SET_USERVO', {});
+          commit('SET_ACCESS_TOKEN', '');
           commit('SET_REFRESH_TOKEN', '')
-          commit('SET_EXPIRES_IN', '')
-          commit('SET_ROLES', [])
-          commit('DEL_ALL_TAG')
-          commit('CLEAR_LOCK')
+          commit('SET_EXPIRES_IN', '');
+          commit('SET_ROLES', []);
+          commit('DEL_ALL_TAG');
+          commit('CLEAR_LOCK');
           resolve()
         }).catch(error => {
           reject(error)
@@ -122,41 +123,46 @@ const user = {
       })
     },
     // 注销session
-    FedLogOut({commit}) {
+    fedLogOut({commit}) {
       return new Promise(resolve => {
-        commit('SET_MENU', [])
-        commit('SET_DICTS', [])
-        commit('SET_PERMISSIONS', [])
-        commit('SET_USER_INFO', {})
-        commit('SET_ACCESS_TOKEN', '')
-        commit('SET_REFRESH_TOKEN', '')
-        commit('SET_ROLES', [])
-        commit('DEL_ALL_TAG')
-        commit('CLEAR_LOCK')
+        commit('SET_MENU', []);
+        commit('SET_DICTS', []);
+        commit('SET_PERMISSIONS', []);
+        commit('SET_USERVO', {});
+        commit('SET_ACCESS_TOKEN', '');
+        commit('SET_REFRESH_TOKEN', '');
+        commit('SET_ROLES', []);
+        commit('DEL_ALL_TAG');
+        commit('CLEAR_LOCK');
         resolve()
       })
     },
     // 获取系统菜单
-    GetUserMenu({
-              commit
-            }) {
+    getUserMenu({
+                  commit
+                }) {
       return new Promise(resolve => {
-        GetUserMenu().then((res) => {
-          const data = res.data
-          let menu = deepClone(data)
+        menuService.getUser().then((res) => {
+          const data = res.data;
+          let menu = util.deepClone(data);
           menu.forEach(ele => {
             addPath(ele)
-          })
-          commit('SET_MENU', menu)
+          });
+          commit('SET_MENU', menu);
           resolve(menu)
         })
       })
+    },
+    // 获取系统菜单
+    async getDicts({commit}) {
+      let res = await loginApi.getDicts();
+      commit('SET_DICTS', res.data)
     }
 
   },
   mutations: {
     SET_ACCESS_TOKEN: (state, access_token) => {
-      state.access_token = access_token
+      state.access_token = access_token;
       setStore({
         name: 'access_token',
         content: state.access_token,
@@ -164,7 +170,7 @@ const user = {
       })
     },
     SET_EXPIRES_IN: (state, expires_in) => {
-      state.expires_in = expires_in
+      state.expires_in = expires_in;
       setStore({
         name: 'expires_in',
         content: state.expires_in,
@@ -172,21 +178,31 @@ const user = {
       })
     },
     SET_REFRESH_TOKEN: (state, rfToken) => {
-      state.refresh_token = rfToken
+      state.refresh_token = rfToken;
       setStore({
         name: 'refresh_token',
         content: state.refresh_token,
         type: 'session'
       })
     },
-    SET_USERIFNO: (state, userInfo) => {
-      state.userInfo = userInfo
+    SET_USERVO: (state, user) => {
+      state.user = user;
+      setStore({
+        name: 'user',
+        content: state.user,
+        type: 'session'
+      })
     },
     SET_DICTS: (state, dicts) => {
-      state.dicts = dicts
+      state.dicts = dicts;
+      setStore({
+        name: 'dicts',
+        content: state.dicts,
+        type: 'session'
+      })
     },
     SET_MENU: (state, menu) => {
-      state.menu = menu
+      state.menu = menu;
       setStore({
         name: 'menu',
         content: state.menu,
@@ -197,16 +213,26 @@ const user = {
       state.menuAll = menuAll
     },
     SET_ROLES: (state, roles) => {
-      state.roles = roles
+      state.roles = roles;
+      setStore({
+        name: 'roles',
+        content: state.roles,
+        type: 'session'
+      })
     },
     SET_PERMISSIONS: (state, permissions) => {
-      const list = {}
+      const list = {};
       for (let i = 0; i < permissions.length; i++) {
         list[permissions[i]] = true
       }
-      state.permissions = list
+      state.permissions = list;
+      setStore({
+        name: 'permissions',
+        content: state.permissions,
+        type: 'session'
+      })
     }
   }
 
-}
+};
 export default user

@@ -17,39 +17,57 @@
 
 import request from '@/router/axios'
 
-export function pageUser(query) {
-  return request({
-    url: '/sys/user/',
-    method: 'get',
-    params: query
-  })
-}
+const menuService = {
+  getUser() {
+    return request({
+      url: '/sys/menu/user-menu',
+      method: 'get'
+    })
+  },
 
-export function saveUser(obj) {
-  return request({
-    url: '/sys/user/',
-    method: 'post',
-    data: obj
-  })
-}
+  fetchTree(query) {
+    return request({
+      url: '/sys/menu/tree',
+      method: 'get',
+      params: query
+    })
+  },
 
-export function findUser(id) {
-  return request({
-    url: '/sys/user/' + id,
-    method: 'get'
-  })
-}
+  page(query) {
+    return request({
+      url: '/sys/menu/',
+      method: 'get',
+      params: query
+    })
+  },
 
-export function removeUser(id) {
-  return request({
-    url: '/sys/user/' + id,
-    method: 'delete'
-  })
-}
+  save(obj) {
+    return request({
+      url: '/sys/menu/',
+      method: 'post',
+      data: obj
+    })
+  },
 
-export function lockUser(id) {
-  return request({
-    url: '/sys/user/' + id,
-    method: 'put'
-  })
-}
+  find(id) {
+    return request({
+      url: '/sys/menu/' + id,
+      method: 'get'
+    })
+  },
+
+  remove(id) {
+    return request({
+      url: '/sys/menu/' + id,
+      method: 'delete'
+    })
+  },
+
+  lock(id) {
+    return request({
+      url: '/sys/menu/' + id,
+      method: 'put'
+    })
+  }
+};
+export default menuService

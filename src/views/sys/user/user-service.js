@@ -17,25 +17,42 @@
 
 import request from '@/router/axios'
 
-export function pageLog(query) {
-  return request({
-    url: '/sys/log-operate/',
-    method: 'get',
-    params: query
-  })
-}
+const userService = {
+  page(query) {
+    return request({
+      url: '/sys/user/',
+      method: 'get',
+      params: query
+    })
+  },
 
-export function exportLog(query) {
-  return request({
-    url: '/sys/log-operate/export',
-    method: 'get',
-    params: query
-  })
-}
+  save(obj) {
+    return request({
+      url: '/sys/user/',
+      method: 'post',
+      data: obj
+    })
+  },
 
-export function removeLog(id) {
-  return request({
-    url: '/sys/log-operate/' + id,
-    method: 'delete'
-  })
-}
+  find(id) {
+    return request({
+      url: '/sys/user/' + id,
+      method: 'get'
+    })
+  },
+
+  remove(id) {
+    return request({
+      url: '/sys/user/' + id,
+      method: 'delete'
+    })
+  },
+
+  lock(id) {
+    return request({
+      url: '/sys/user/' + id,
+      method: 'put'
+    })
+  }
+};
+export default userService

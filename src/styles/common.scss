@@ -17,18 +17,22 @@
 //通用配置
 @import './normalize.scss';
 
-a{
+a {
   text-decoration: none;
-  color:#333;
+  color: #333;
 }
-*{
+
+* {
   outline: none;
 }
 
-.box-card .card-heard-btn{float: right; padding: 0px 3px;}
+.box-card .card-heard-btn {
+  float: right;
+  padding: 0px 3px;
+}
+
 .pull-right {
-  float: right !important;
-;
+  float: right !important;;
 }
 
 .pull-left {
@@ -67,9 +71,10 @@ a{
   color: #fff;
 }
 
-.pagination-container{
+.pagination-container {
   margin-top: 10px;
 }
+
 .table-menu {
   position: relative;
   width: 100%;
@@ -78,53 +83,68 @@ a{
   overflow: hidden;
   margin-bottom: 12px;
 }
+
 .table-menu-left {
   position: absolute;
   height: auto;
   overflow: hidden;
   left: 0;
 }
+
 .table-menu-right {
   position: absolute;
   height: auto;
   overflow: hidden;
   right: 0;
 }
-.avue-view .el-table th{
+
+.avue-view .el-table th {
   word-break: break-word;
-  color: rgba(0,0,0,.85);
+  color: rgba(0, 0, 0, .85);
   background-color: #fafafa;
 }
 
-.icon_lists{
+.icon_lists {
   //width: 100% !important;
   overflow: hidden;
 }
-.icon_lists li{
-  float:left;
+
+.icon_lists li {
+  float: left;
   width: 100px;
-  height:180px;
+  height: 180px;
   text-align: center;
   list-style: none !important;
 }
-.icon_lists .icon{
+
+.icon_lists .icon {
   font-size: 42px;
   line-height: 100px;
   margin: 10px 0;
-  color:#333;
+  color: #333;
   -webkit-transition: font-size 0.25s ease-out 0s;
   -moz-transition: font-size 0.25s ease-out 0s;
   transition: font-size 0.25s ease-out 0s;
 
 }
-.icon_lists .icon:hover{
+
+.icon_lists .icon:hover {
   font-size: 100px;
 }
 
-.el-table{margin-bottom: 20px;}
-.el-table-padding td{padding-right: 8px;}
+.el-table {
+  margin-bottom: 20px;
+}
+
+.el-table-padding td {
+  padding-right: 8px;
+}
+
 .el-dropdown-link {
   cursor: pointer;
   color: #409eff;
 }
-.el-button--mini [class^="icon-"], .el-button--small [class^="icon-"]{font-size: 12px !important; }
+
+.el-button--mini [class^="icon-"], .el-button--small [class^="icon-"] {
+  font-size: 12px !important;
+}

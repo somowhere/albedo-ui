@@ -4,11 +4,12 @@
  */
 import router from './router/router'
 import store from '@/store'
-import {validateNull} from '@/util/validate'
+import validate from '@/util/validate'
 import NProgress from 'nprogress' // progress bar
-import 'nprogress/nprogress.css' // progress bar style
-NProgress.configure({showSpinner: false})
-const lockPage = store.getters.website.lockPage // 锁屏页
+import 'nprogress/nprogress.css'
+
+NProgress.configure({showSpinner: false});
+const lockPage = store.getters.website.lockPage; // 锁屏页
 
 /**
  * 导航守卫，相关内容可以参考:
@@ -21,54 +22,67 @@ router.beforeEach((to, from, next) => {
   })) {
     to.meta.$keepAlive = true
   } else {
-    NProgress.start()
-    if (to.meta.keepAlive === true && validateNull(to.meta.$keepAlive)) {
+    NProgress.start();
+    if (to.meta.keepAlive === true && validate.checkNull(to.meta.$keepAlive)) {
       to.meta.$keepAlive = true
     } else {
       to.meta.$keepAlive = false
     }
   }
-  const meta = to.meta || {}
-  if (store.getters.access_token) {
-   if (to.path === '/login') {
-      next({path: '/'})
-    } else {
-     // console.log("permissions")
-     // console.log(store.getters.permissions)
-      if (validateNull(store.getters.permissions)) {
-        store.dispatch('GetUserInfo').then(() => {
-          next({...to, replace: true})
-        }).catch(() => {
-          store.dispatch('FedLogOut').then(() => {
-            next({path: '/login'})
-          })
-        })
-      } else {
-        const value = to.query.src || to.fullPath
-        const label = to.query.name || to.name
-        if (meta.isTab !== false && !validateNull(value) && !validateNull(label)) {
-          store.commit('ADD_TAG', {
-            label: label,
-            value: value,
-            params: to.params,
-            query: to.query,
-            group: router.$avueRouter.group || []
-          })
+  const meta = to.meta || {};
+  let addTag = function () {
+    const value = to.query.src || to.fullPath;
+    const label = to.query.label || to.name;
+    if (meta.isTab !== false && !validate.checkNull(value) && !validate.checkNull(label)) {
+      store.commit('ADD_TAG', {
+        label: label,
+        value: value,
+        params: to.params,
+        query: to.query,
+        group: router.$avueRouter.group || []
+      })
+    }
+  };
+  if (!(to.path === '/login')) {
+    if (validate.checkNull(store.getters.user)) {
+      store.dispatch('getUser').then(() => {
+        if (validate.checkNotNull(store.getters.user)) {
+          if (to.path === '/login') {
+            next({path: '/'})
+          } else {
+            addTag();
+            next()
+          }
+        } else {
+          if (meta.isAuth === false) {
+            addTag();
+            next()
+          } else {
+            next('/login')
+          }
         }
-        next()
-      }
+      }).catch((e) => {
+        store.dispatch('fedLogOut').then(() => {
+          next({path: '/login'})
+        })
+      })
+    } else {
+      addTag();
+      next()
     }
   } else {
-    if (meta.isAuth === false) {
+    if (validate.checkNull(store.getters.user)) {
+      addTag();
       next()
     } else {
-      next('/login')
+      next({path: '/'})
     }
   }
-})
+
+});
 
 router.afterEach(() => {
-  NProgress.done()
-  const title = store.getters.tag.label
+  NProgress.done();
+  const title = store.getters.tag.label;
   router.$avueRouter.setTitle(title)
-})
+});

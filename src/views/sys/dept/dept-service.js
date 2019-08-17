@@ -17,47 +17,51 @@
 
 import request from '@/router/axios'
 
-export function fetchDictTree (query) {
-  return request({
-    url: '/sys/dict/tree',
-    method: 'get',
-    params: query
-  })
-}
+const deptService = {
+  fetchTreeUser(query) {
+    return request({
+      url: '/sys/dept/user-tree',
+      method: 'get',
+      params: query
+    })
+  },
 
-export function pageDict (query) {
-  return request({
-    url: '/sys/dict/',
-    method: 'get',
-    params: query
-  })
-}
+  fetchTree(query) {
+    return request({
+      url: '/sys/dept/tree',
+      method: 'get',
+      params: query
+    })
+  },
 
-export function saveDict (obj) {
-  return request({
-    url: '/sys/dict/',
-    method: 'post',
-    data: obj
-  })
-}
+  save(obj) {
+    return request({
+      url: '/sys/dept/',
+      method: 'post',
+      data: obj
+    })
+  },
 
-export function findDict (id) {
-  return request({
-    url: '/sys/dict/' + id,
-    method: 'get'
-  })
-}
+  get(id) {
+    return request({
+      url: '/sys/dept/' + id,
+      method: 'get'
+    })
+  },
 
-export function removeDict (id) {
-  return request({
-    url: '/sys/dict/' + id,
-    method: 'delete'
-  })
-}
+  remove(id) {
+    return request({
+      url: '/sys/dept/' + id,
+      method: 'delete'
+    })
+  },
 
-export function lockDict (id) {
-  return request({
-    url: '/sys/dict/'+id,
-    method: 'put'
-  })
-}
+  lock(obj) {
+    return request({
+      url: '/sys/dept',
+      method: 'put',
+      data: obj
+    })
+  }
+};
+export default deptService

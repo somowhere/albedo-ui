@@ -14,54 +14,59 @@
  * this software without specific prior written permission.
  * Author: lengleng (wangiegie@gmail.com)
  */
+
 import request from '@/router/axios'
 
-const scope = 'server'
-const loginApi = {
-  loginByUsername (user) {
-    const username = user.username, password = user.password, code= user.code, randomStr= user.randomStr, grant_type = 'password'
+const roleService = {
+  page(query) {
     return request({
-      url: '/auth/oauth/token',
-      headers: {
-        isToken: false,
-        'Authorization': 'Basic YWxiZWRvOmFsYmVkbw=='
-      },
-      method: 'post',
-      params: {username, password, randomStr, code, grant_type, scope}
+      url: '/sys/role/',
+      method: 'get',
+      params: query
     })
   },
 
-  refreshToken (refresh_token) {
-    const grant_type = 'refresh_token'
+  deptRoleList() {
     return request({
-      url: '/auth/oauth/token',
-      headers: {
-        'isToken': false,
-        'Authorization': 'Basic YWxiZWRvOmFsYmVkbw==',
-      },
-      method: 'post',
-      params: {refresh_token, grant_type, scope}
-    })
-  },
-
-  getUser() {
-    return request({
-      url: '/sys/user/info',
+      url: '/sys/role/combo-data',
       method: 'get'
     })
   },
 
-  getDicts() {
+  find(id) {
     return request({
-      url: '/sys/dict/codes',
+      url: '/sys/role/' + id,
       method: 'get'
     })
   },
-  logout() {
+
+  save(obj) {
     return request({
-      url: '/auth/token/logout',
+      url: '/sys/role',
+      method: 'post',
+      data: obj
+    })
+  },
+
+  remove(id) {
+    return request({
+      url: '/sys/role/' + id,
       method: 'delete'
     })
   },
-}
-export default loginApi
+
+  fetchRoleTree(roleName) {
+    return request({
+      url: '/sys/menu/tree/' + roleName,
+      method: 'get'
+    })
+  },
+
+  lock(id) {
+    return request({
+      url: '/sys/role/' + id,
+      method: 'put'
+    })
+  }
+};
+export default roleService

@@ -1,7 +1,7 @@
 const getters = {
   tag: state => state.tags.tag,
   website: state => state.common.website,
-  userInfo: state => state.user.userInfo,
+  user: state => state.user.user,
   theme: state => state.common.theme,
   themeName: state => state.common.themeName,
   isShade: state => state.common.isShade,
@@ -21,5 +21,5 @@ const getters = {
   dicts: state => state.user.dicts,
   menu: state => state.user.menu,
   menuAll: state => state.user.menuAll
-}
+};
 export default getters

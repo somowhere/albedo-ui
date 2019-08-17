@@ -17,17 +17,20 @@
 
 import request from '@/router/axios'
 
-export function pageToken (query) {
-  return request({
-    url: '/sys/token/',
-    method: 'get',
-    params: query
-  })
-}
+const tokenService = {
+  page(query) {
+    return request({
+      url: '/sys/token/',
+      method: 'get',
+      params: query
+    })
+  },
 
-export function removeToken (id) {
-  return request({
-    url: '/sys/token/' + id,
-    method: 'delete'
-  })
-}
+  remove(id) {
+    return request({
+      url: '/sys/token/' + id,
+      method: 'delete'
+    })
+  }
+};
+export default tokenService
