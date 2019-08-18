@@ -30,7 +30,7 @@
           <el-table :data="list" :key='tableKey' @sort-change="sortChange" element-loading-text="加载中..."
                     fit highlight-current-row v-loading="listLoading">
             <el-table-column
-              fixed="left" type="index" width="50">
+              fixed="left" type="index" width="20">
             </el-table-column>
             <el-table-column align="center" label="角色名称" width="100">
               <template slot-scope="scope">
@@ -115,7 +115,7 @@
           <el-row :gutter="20" :span="24">
             <el-col :span="12">
               <el-form-item label="操作权限" prop="menuIdList">
-                <el-tree :data="treeMenuData" :default-checked-keys="form.menuIdList" @check="getNodeTreeMenuData"
+                <el-tree :data="treeMenuData" @check="getNodeTreeMenuData"
                          class="filter-tree"
                          node-key="id" ref="treeMenu" show-checkbox>
                 </el-tree>
@@ -123,7 +123,7 @@
             </el-col>
             <el-col :span="10" v-show="formTreeDeptDataVisible">
               <el-form-item label="机构权限" prop="orgIdList" v-show="formTreeDeptDataVisible">
-                <el-tree :data="treeDeptData" :default-checked-keys="form.deptIdList" @check="getNodeTreeDeptData"
+                <el-tree :data="treeDeptData" @check="getNodeTreeDeptData"
                          class="filter-tree"
                          default-expand-all node-key="id" ref="treeDept"
                          show-checkbox>
@@ -157,8 +157,8 @@
     import {mapGetters} from 'vuex';
     import util from "@/util/util";
     import validate from "@/util/validate";
-    import CrudSelect from "@/views/avue/crud-select";
-    import CrudRadio from "@/views/avue/crud-radio";
+    import CrudSelect from "@/components/avue/crud-select";
+    import CrudRadio from "@/components/avue/crud-radio";
 
     export default {
         name: 'Role',
@@ -278,10 +278,20 @@
                         if (validate.checkNull(this.form.deptIdList)) {
                             this.form.deptIdList = []
                         }
-                        this.form.dataScope = validate.objectToString(this.form.dataScope);
+                        this.form.dataScope = util.objToStr(this.form.dataScope);
+                        let checkTree = function(tree, idList){
+                            idList.forEach(id=>{
+                                tree.setChecked(id,true,false);
+                            })
+                        }
                         if (this.$refs.treeMenu) {
-                            this.$refs.treeMenu.setCheckedKeys(this.form.menuIdList);
-                            this.$refs.treeDept.setCheckedKeys(this.form.deptIdList);
+                            checkTree(this.$refs.treeMenu, this.form.menuIdList)
+                            checkTree(this.$refs.treeDept, this.form.deptIdList)
+                        }else{
+                            setTimeout(()=>{
+                                checkTree(this.$refs.treeMenu, this.form.menuIdList)
+                                checkTree(this.$refs.treeDept, this.form.deptIdList)
+                            },100)
                         }
                     });
                 }

@@ -36,7 +36,9 @@
     import tags from './tags'
     import top from './top/'
     import sidebar from './sidebar/'
-    import admin from '@/util/admin';
+    import admin from '@/util/admin'
+    import storeApi from '@/util/store'
+    import validate from "../../util/validate";
 
     export default {
         components: {
@@ -82,12 +84,12 @@
             // 实时检测刷新token
             refreshToken() {
               this.refreshTime = setInterval(() => {
-                const persistentToken = getStore({
+                const persistentToken = storeApi.get({
                   name: 'access_token',
                   debug: true,
                 });
 
-                if (checkNull(persistentToken)) {
+                if (validate.checkNull(persistentToken)) {
                   return;
                 }
 

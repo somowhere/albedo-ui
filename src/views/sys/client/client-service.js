@@ -34,7 +34,7 @@ const clientService = {
   },
 
   validateUnique(rule, value, callback, id) {
-    validate.isUnique(rule, value, callback, gateway + '/client/checkByProperty?id=' + validate.toStr(id))
+    validate.isUnique(rule, value, callback, gateway + '/client/checkByProperty?id=' + util.objToStr(id))
   }
 };
 export default clientService

@@ -158,9 +158,10 @@
     import jobService from "./job-service";
     import {mapGetters} from "vuex";
     import util from "@/util/util";
-    import CrudSelect from "@/views/avue/crud-select";
-    import CrudCheckbox from "@/views/avue/crud-checkbox";
-    import CrudRadio from "@/views/avue/crud-radio";
+    import CrudSelect from "@/components/avue/crud-select";
+    import CrudCheckbox from "@/components/avue/crud-checkbox";
+    import CrudRadio from "@/components/avue/crud-radio";
+    import validate from "../../../util/validate";
 
     export default {
         name: "table_quartz_job",
@@ -258,16 +259,16 @@
             },
             handleEdit(row) {
                 this.resetForm();
-                this.dialogStatus = row && !checkNull(row.id) ? "update" : "create";
+                this.dialogStatus = row && !validate.checkNull(row.id) ? "update" : "create";
                 if (this.dialogStatus == "create") {
                     this.dialogFormVisible = true;
                 } else {
                     jobService.find(row.id).then(response => {
                         this.form = response.data;
-                        this.form.misfirePolicy = objectToString(this.form.misfirePolicy);
-                        this.form.concurrent = objectToString(this.form.concurrent);
-                        this.form.available = objectToString(this.form.available);
-                        this.form.delFlag = objectToString(this.form.delFlag);
+                        this.form.misfirePolicy = util.objToStr(this.form.misfirePolicy);
+                        this.form.concurrent = util.objToStr(this.form.concurrent);
+                        this.form.available = util.objToStr(this.form.available);
+                        this.form.delFlag = util.objToStr(this.form.delFlag);
                         this.dialogFormVisible = true;
                     });
                 }

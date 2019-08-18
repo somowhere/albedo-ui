@@ -176,8 +176,8 @@
     import {mapGetters} from 'vuex';
     import util from "@/util/util";
     import validate from "@/util/validate";
-    import CrudSelect from "@/views/avue/crud-select";
-    import CrudRadio from "@/views/avue/crud-radio";
+    import CrudSelect from "@/components/avue/crud-select";
+    import CrudRadio from "@/components/avue/crud-radio";
 
     export default {
         name: 'Dict',
@@ -219,7 +219,7 @@
                     description: undefined
                 },
                 validateUnique: (rule, value, callback) => {
-                    validate.isUnique(rule, value, callback, '/sys/dict/checkByProperty?id=' + validate.toStr(this.form.id))
+                    validate.isUnique(rule, value, callback, '/sys/dict/checkByProperty?id=' + util.objToStr(this.form.id))
                 },
                 dialogStatus: 'create',
                 textMap: {
@@ -342,7 +342,7 @@
                     dictService.find(row.id).then(response => {
                         this.form = response.data;
                         this.disableSelectParent = this.form.parentName ? false : true;
-                        this.form.show = validate.objectToString(this.form.show);
+                        this.form.show = util.objToStr(this.form.show);
                         this.dialogFormVisible = true;
                     });
                 }

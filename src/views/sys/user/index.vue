@@ -209,8 +209,8 @@
     import {mapGetters} from 'vuex';
     import util from "@/util/util";
     import validate from "@/util/validate";
-    import CrudSelect from "@/views/avue/crud-select";
-    import CrudRadio from "@/views/avue/crud-radio";
+    import CrudSelect from "@/components/avue/crud-select";
+    import CrudRadio from "@/components/avue/crud-radio";
 
     export default {
         name: 'User',
@@ -250,7 +250,7 @@
                     description: undefined
                 },
                 validateUnique: (rule, value, callback) => {
-                    validate.isUnique(rule, value, callback, '/sys/user/checkByProperty?id=' + toStr(this.form.id))
+                    validate.isUnique(rule, value, callback, '/sys/user/checkByProperty?id=' + util.objToStr(this.form.id))
                 },
                 validatePhone: (rule, value, callback) => {
                     validate.isMobile(rule, value, callback)

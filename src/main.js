@@ -18,8 +18,8 @@ import Avue from '@smallwei/avue/lib/index.js'
 // 引入avue的样式文件
 import '@smallwei/avue/lib/theme-chalk/index.css'
 import basicContainer from './components/basic-container/main'
-
 import validate from '@/util/validate'
+import ace from 'ace-builds'
 
 Vue.prototype.checkNull = validate.checkNull;
 
@@ -28,6 +28,8 @@ Vue.use(Avue, {menuType: 'text'});
 Vue.use(router);
 
 Vue.use(VueAxios, axios);
+
+Vue.use(ace)
 
 // 注册全局容器
 Vue.component('basicContainer', basicContainer);

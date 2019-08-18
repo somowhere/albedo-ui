@@ -328,14 +328,6 @@ const validate = {
     } else {
       callback()
     }
-  },
-
-  objectToString(val) {
-    return this.checkNotNull(val) ? val.toString() : val;
-  },
-
-  toStr(val) {
-    return this.checkNotNull(val) ? val.toString() : '';
-  },
+  }
 };
 export default validate
