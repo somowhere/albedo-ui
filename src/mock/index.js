@@ -1,4 +1,4 @@
-import user from './user';
+import api from './api';
 import menu from './menu';
 import admin from './admin';
 
@@ -8,7 +8,7 @@ import admin from './admin';
  * mock是否开启模拟数据拦截
  */
 
-user({mock: true});
+api({mock: true});
 
 menu({mock: true});
 

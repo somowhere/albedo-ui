@@ -68,6 +68,7 @@ axios.interceptors.response.use(res => {
       type: 'success'
     })
   }
+  console.log(res.request.custom.options.url)
   console.log(res.data)
   return res.data
 }, error => {
