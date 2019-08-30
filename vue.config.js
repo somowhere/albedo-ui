@@ -26,38 +26,42 @@ module.exports = {
     entry
       .add('classlist-polyfill')
       .end()
+    entry
+      .add('@/mock')
+      .end()
   },
   // 配置转发代理
   devServer: {
-    proxy: {
-      '/auth': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/auth': '/auth'
-        }
-      },
-      '/sys': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/sys': '/sys'
-        }
-      },
-      '/code': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/code': '/code'
-        }
-      },
-      '/gen': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/gen': '/gen'
-        }
-      }
-    }
+    port: 8989,
+    // proxy: {
+    //   '/auth': {
+    //     target: url,
+    //     ws: true,
+    //     pathRewrite: {
+    //       '^/auth': '/auth'
+    //     }
+    //   },
+    //   '/sys': {
+    //     target: url,
+    //     ws: true,
+    //     pathRewrite: {
+    //       '^/sys': '/sys'
+    //     }
+    //   },
+    //   '/code': {
+    //     target: url,
+    //     ws: true,
+    //     pathRewrite: {
+    //       '^/code': '/code'
+    //     }
+    //   },
+    //   '/gen': {
+    //     target: url,
+    //     ws: true,
+    //     pathRewrite: {
+    //       '^/gen': '/gen'
+    //     }
+    //   }
+    // }
   }
 }

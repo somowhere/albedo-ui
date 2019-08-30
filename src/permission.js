@@ -44,8 +44,10 @@ router.beforeEach((to, from, next) => {
     }
   };
   if (!(to.path === '/login')) {
+    console.log(store.getters.user)
     if (validate.checkNull(store.getters.user)) {
       store.dispatch('getUser').then(() => {
+        console.log(store.getters.user)
         if (validate.checkNotNull(store.getters.user)) {
           if (to.path === '/login') {
             next({path: '/'})
