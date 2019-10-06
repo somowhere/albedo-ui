@@ -13,26 +13,44 @@ import * as urls from '@/config/env'
 import {iconfontUrl, iconfontVersion} from '@/config/env'
 import * as filters from './filters' // 全局filter
 import './styles/common.scss'
-// 引入avue的包
-import Avue from '@smallwei/avue/lib/index.js'
-// 引入avue的样式文件
-import '@smallwei/avue/lib/theme-chalk/index.css'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import Avue from '@smallwei/avue'
+import '@smallwei/avue/lib/index.css'
 import basicContainer from './components/basic-container/main'
+import crudSelect from "./components/form/crud-select";
+import crudRadio from "./components/form/crud-radio";
+import crudDate from "./components/form/crud-date";
+import crudCheckbox from "./components/form/crud-checkbox";
+
 import validate from '@/util/validate'
+
 import ace from 'ace-builds'
+
 
 Vue.prototype.checkNull = validate.checkNull;
 
-Vue.use(Avue, {menuType: 'text'});
+Vue.use(ElementUI, {
+  size: 'medium',
+  menuType: 'text'
+})
+Vue.use(Avue, {
+  size: 'medium',
+  menuType: 'text'
+});
 
 Vue.use(router);
 
 Vue.use(VueAxios, axios);
 
-Vue.use(ace)
+Vue.use(ace);
 
 // 注册全局容器
 Vue.component('basicContainer', basicContainer);
+Vue.component('crudSelect', crudSelect);
+Vue.component('crudRadio', crudRadio);
+Vue.component('crudCheckbox', crudCheckbox);
+Vue.component('crudDate', crudDate);
 
 // 加载相关url地址
 Object.keys(urls).forEach(key => {

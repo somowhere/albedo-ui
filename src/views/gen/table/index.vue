@@ -70,9 +70,9 @@
 
         <el-table-column align="center" label="操作">
           <template slot-scope="scope">
-            <el-button @click="handleEdit(scope.row)" icon="icon-edit" title="编辑" type="text" v-if="gen_table_edit">
+            <el-button @click="handleEdit(scope.row)" icon="icon-edit" type="primary" title="编辑" size="mini" circle  v-if="gen_table_edit">
             </el-button>
-            <el-button @click="handleDelete(scope.row)" icon="icon-delete" title="删除" type="text" v-if="gen_table_del">
+            <el-button @click="handleDelete(scope.row)" icon="icon-delete" type="danger" title="删除" size="mini" circle  v-if="gen_table_del">
             </el-button>
           </template>
         </el-table-column>
@@ -89,7 +89,7 @@
       <el-dialog :title="'选择表'" :visible.sync="dialogBeforeFormVisible">
         <el-form :model="formSelect" label-width="100px" ref="formSelect">
           <el-form-item :rules="[{required: true,message: '请选择表名'}]" label="表名" prop="name">
-            <CrudSelect :dic="selectTableList" :filterable="true" v-model="formSelect.name"></CrudSelect>
+            <crud-select :dic="selectTableList" :filterable="true" v-model="formSelect.name"></crud-select>
           </el-form-item>
         </el-form>
         <div class="dialog-footer" slot="footer">
@@ -110,10 +110,10 @@
             <el-input v-model="form.className"></el-input>
           </el-form-item>
           <el-form-item label="父表表名" prop="parentTable">
-            <CrudSelect :dic="tableList" clearable v-model="form.parentTable"></CrudSelect>
+            <crud-select :dic="tableList" clearable v-model="form.parentTable"></crud-select>
           </el-form-item>
           <el-form-item label="当前表外键" prop="parentTableFk">
-            <CrudSelect :dic="columnList" v-model="form.parentTableFk"></CrudSelect>
+            <crud-select :dic="columnList" v-model="form.parentTableFk"></crud-select>
           </el-form-item>
           <el-form-item label="备注" prop="description">
             <el-input type="textarea" v-model="form.description"></el-input>
@@ -157,8 +157,8 @@
                 <el-input class="input-small" v-model="form.columnFormList[i].jdbcType"></el-input>
               </td>
               <td>
-                <CrudSelect :dic="javaTypeList" class="input-mini"
-                            v-model="form.columnFormList[i].javaType"></CrudSelect>
+                <crud-select :dic="javaTypeList" class="input-mini"
+                             v-model="form.columnFormList[i].javaType"></crud-select>
               </td>
               <td>
                 <el-input class="input-small" v-model="form.columnFormList[i].javaField"></el-input>
@@ -188,12 +188,12 @@
                              v-model="form.columnFormList[i].query"></el-checkbox>
               </td>
               <td>
-                <CrudSelect :dic="queryTypeList" class="input-mini"
-                            v-model="form.columnFormList[i].queryType"></CrudSelect>
+                <crud-select :dic="queryTypeList" class="input-mini"
+                             v-model="form.columnFormList[i].queryType"></crud-select>
               </td>
               <td>
-                <CrudSelect :dic="showTypeList" class="input-mini"
-                            v-model="form.columnFormList[i].showType"></CrudSelect>
+                <crud-select :dic="showTypeList" class="input-mini"
+                             v-model="form.columnFormList[i].showType"></crud-select>
               </td>
               <td>
                 <el-input class="input-small" v-model="form.columnFormList[i].dictType"></el-input>
@@ -215,139 +215,138 @@
 </template>
 
 <script>
-    import tableService from "./table-service";
-    import {mapGetters} from 'vuex';
-    import CrudSelect from "@/components/avue/crud-select";
-    import CrudRadio from "@/components/avue/crud-radio";
-    import validate from "@/util/validate";
-    import util from "@/util/util";
+  import tableService from "./table-service";
+  import {mapGetters} from 'vuex';
+  import validate from "@/util/validate";
+  import util from "@/util/util";
 
-    export default {
-        components: {CrudSelect, CrudRadio},
-        name: "Table",
-        data() {
-            return {
-                searchFilterVisible: true,
-                list: null,
-                total: null,
-                listLoading: true,
-                searchForm: {},
-                listQuery: {
-                    page: 1,
-                    size: 20
-                },
-                javaTypeList: [],
-                queryTypeList: [],
-                showTypeList: [],
-                tableList: [],
-                selectTableList: [],
-                columnList: [],
-                formSelect: {name: null},
-                form: {
-                    name: undefined,
-                    comments: undefined,
-                    className: undefined,
-                    parentTable: undefined,
-                    parentTableFk: undefined,
-                    columnFormList: [],
-                    status: undefined,
-                    description: undefined
-                },
-                dialogFormVisible: false,
-                dialogBeforeFormVisible: false,
-                dialogStatus: 'create',
-                textMap: {
-                    update: '编辑表',
-                    create: '创建表'
-                },
-                isDisabled: {
-                    0: false,
-                    1: true
-                },
-                tableKey: 0
-            };
+  export default {
+    name: "Table",
+    data() {
+      return {
+        searchFilterVisible: true,
+        list: null,
+        total: null,
+        listLoading: true,
+        needRefresh: false,
+        searchForm: {},
+        listQuery: {
+          page: 1,
+          size: 20
         },
-        computed: {
-            ...mapGetters(["permissions", "dicts"])
+        javaTypeList: [],
+        queryTypeList: [],
+        showTypeList: [],
+        tableList: [],
+        selectTableList: [],
+        columnList: [],
+        formSelect: {name: null},
+        form: {
+          name: undefined,
+          comments: undefined,
+          className: undefined,
+          parentTable: undefined,
+          parentTableFk: undefined,
+          columnFormList: [],
+          status: undefined,
+          description: undefined
         },
-        created() {
-            this.getList();
-            this.gen_table_edit = this.permissions["gen_table_edit"];
-            this.gen_table_del = this.permissions["gen_table_del"];
+        dialogFormVisible: false,
+        dialogBeforeFormVisible: false,
+        dialogStatus: 'create',
+        textMap: {
+          update: '编辑表',
+          create: '创建表'
         },
-        methods: {
-            getList() {
-                this.listLoading = true;
-                this.listQuery.queryConditionJson = util.parseJsonItemForm([{
-                    fieldName: 'name', value: this.searchForm.name
-                }, {
-                    fieldName: 'comments', value: this.searchForm.comments
-                }]);
-                tableService.page(this.listQuery).then(response => {
-                    this.list = response.data.records;
-                    this.total = response.data.total;
-                    this.listLoading = false;
-                });
-            },
-            //搜索清空
-            searchReset() {
-                this.$refs['searchForm'].resetFields();
-            },
-            handleFilter() {
-                this.listQuery.page = 1;
-                this.getList();
-            },
-            handleSizeChange(val) {
-                this.listQuery.size = val;
-                this.getList();
-            },
-            handleCurrentChange(val) {
-                this.listQuery.page = val;
-                this.getList();
-            },
-            handleEdit(row) {
-                this.dialogStatus = row && !validate.checkNull(row.id) ? "update" : "create";
-                if (this.dialogStatus == "create") {
-                    tableService.findSelect().then(response => {
-                        this.selectTableList = response.data;
-                        this.dialogBeforeFormVisible = true;
-                    });
-                } else {
-                    this.showEditForm({id: row.id})
-                }
-            },
-            showEditForm(params) {
-                this.dialogBeforeFormVisible = false;
-                this.dialogFormVisible = false;
-                this.$router.push({path: '/gen/edit', query: params})
-            },
-            showNextForm() {
-                const set = this.$refs;
-                set['formSelect'].validate(valid => {
-                    if (valid) {
-                        this.showEditForm({name: this.formSelect.name})
-                    }
-                });
-            },
-            cancel() {
-                this.dialogFormVisible = false;
-                this.$refs['form'].resetFields();
-            },
-            handleDelete(row) {
-                this.$confirm(
-                    "此操作将永久删除该表(表名:" + row.name + "), 是否继续?",
-                    "提示",
-                    {
-                        confirmButtonText: "确定",
-                        cancelButtonText: "取消",
-                        type: "warning"
-                    }
-                ).then(() => {
-                    tableService.remove(row.id).then(response => {
-                        this.getList();
-                    });
-                });
-            }
+        isDisabled: {
+          0: false,
+          1: true
+        },
+        tableKey: 0
+      };
+    },
+    computed: {
+      ...mapGetters(["permissions", "dicts"])
+    },
+    created() {
+      this.getList();
+      this.gen_table_edit = this.permissions["gen_table_edit"];
+      this.gen_table_del = this.permissions["gen_table_del"];
+    },
+    methods: {
+      getList() {
+        this.listLoading = true;
+        this.listQuery.queryConditionJson = util.parseJsonItemForm([{
+          fieldName: 'name', value: this.searchForm.name
+        }, {
+          fieldName: 'comments', value: this.searchForm.comments
+        }]);
+        tableService.page(this.listQuery).then(response => {
+          this.list = response.data.records;
+          this.total = response.data.total;
+          this.listLoading = false;
+        });
+      },
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
+      },
+      handleFilter() {
+        this.listQuery.page = 1;
+        this.getList();
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.page = val;
+        this.getList();
+      },
+      handleEdit(row) {
+        this.needRefresh=true
+        this.dialogStatus = row && !validate.checkNull(row.id) ? "update" : "create";
+        if (this.dialogStatus == "create") {
+          tableService.findSelect().then(response => {
+            this.selectTableList = response.data;
+            this.dialogBeforeFormVisible = true;
+          });
+        } else {
+          this.showEditForm({id: row.id})
         }
-    };
+      },
+      showEditForm(params) {
+        this.dialogBeforeFormVisible = false;
+        this.dialogFormVisible = false;
+        this.$router.push({path: '/gen/edit', query: params})
+      },
+      showNextForm() {
+        const set = this.$refs;
+        set['formSelect'].validate(valid => {
+          if (valid) {
+            this.showEditForm({name: this.formSelect.name})
+          }
+        });
+      },
+      cancel() {
+        this.dialogFormVisible = false;
+        this.$refs['form'].resetFields();
+      },
+      handleDelete(row) {
+        this.$confirm(
+          "此操作将永久删除该表(表名:" + row.name + "), 是否继续?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        ).then(() => {
+          tableService.remove(row.id).then(response => {
+            this.getList();
+          });
+        });
+      }
+    }
+  };
 </script>
