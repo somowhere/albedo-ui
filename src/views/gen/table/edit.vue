@@ -14,10 +14,10 @@
               <el-input v-model="form.className"></el-input>
             </el-form-item>
             <el-form-item label="父表表名" prop="parentTable">
-              <CrudSelect :dic="tableList" clearable v-model="form.parentTable"></CrudSelect>
+              <crud-select :dic="tableList" clearable v-model="form.parentTable"></crud-select>
             </el-form-item>
             <el-form-item label="当前表外键" prop="parentTableFk">
-              <CrudSelect :dic="columnList" v-model="form.parentTableFk"></CrudSelect>
+              <crud-select :dic="columnList" v-model="form.parentTableFk"></crud-select>
             </el-form-item>
             <el-form-item label="备注" prop="description">
               <el-input type="textarea" v-model="form.description"></el-input>
@@ -63,8 +63,8 @@
                   <el-input class="input-small" v-model="form.columnFormList[i].jdbcType"></el-input>
                 </td>
                 <td>
-                  <CrudSelect :dic="javaTypeList" class="input-mini"
-                              v-model="form.columnFormList[i].javaType"></CrudSelect>
+                  <crud-select :dic="javaTypeList" class="input-mini"
+                               v-model="form.columnFormList[i].javaType"></crud-select>
                 </td>
                 <td>
                   <el-input class="input-small" v-model="form.columnFormList[i].javaField"></el-input>
@@ -97,12 +97,12 @@
                                v-model="form.columnFormList[i].query"></el-checkbox>
                 </td>
                 <td>
-                  <CrudSelect :dic="queryTypeList" class="input-mini"
-                              v-model="form.columnFormList[i].queryType"></CrudSelect>
+                  <crud-select :dic="queryTypeList" class="input-mini"
+                               v-model="form.columnFormList[i].queryType"></crud-select>
                 </td>
                 <td>
-                  <CrudSelect :dic="showTypeList" class="input-mini"
-                              v-model="form.columnFormList[i].showType"></CrudSelect>
+                  <crud-select :dic="showTypeList" class="input-mini"
+                               v-model="form.columnFormList[i].showType"></crud-select>
                 </td>
                 <td>
                   <el-input class="input-small" v-model="form.columnFormList[i].dictType"></el-input>
@@ -132,100 +132,103 @@
 </template>
 
 <script>
-    import tableService from "./table-service";
-    import {mapGetters} from 'vuex';
-    import CrudSelect from "@/components/avue/crud-select";
-    import CrudRadio from "@/components/avue/crud-radio";
+  import tableService from "./table-service";
+  import {mapGetters} from 'vuex';
 
-    export default {
-        components: {CrudSelect, CrudRadio},
-        name: "Table",
-        data() {
-            return {
-                searchFilterVisible: true,
-                javaTypeList: [],
-                queryTypeList: [],
-                showTypeList: [],
-                tableList: [],
-                selectTableList: [],
-                columnList: [],
-                formSelect: {name: null},
-                form: {
-                    name: undefined,
-                    comments: undefined,
-                    className: undefined,
-                    parentTable: undefined,
-                    parentTableFk: undefined,
-                    columnFormList: [],
-                    status: undefined,
-                    description: undefined
-                },
-                dialogFormVisible: false,
-                dialogBeforeFormVisible: false,
-                dialogStatus: 'create',
-                textMap: {
-                    update: '编辑表',
-                    create: '创建表'
-                },
-                isDisabled: {
-                    0: false,
-                    1: true
-                },
-                tableKey: 0,
-                activeName: 'first'
-            };
+  export default {
+    name: "Table",
+    data() {
+      return {
+        searchFilterVisible: true,
+        javaTypeList: [],
+        queryTypeList: [],
+        showTypeList: [],
+        tableList: [],
+        selectTableList: [],
+        columnList: [],
+        formSelect: {name: null},
+        form: {
+          name: undefined,
+          comments: undefined,
+          className: undefined,
+          parentTable: undefined,
+          parentTableFk: undefined,
+          columnFormList: [],
+          status: undefined,
+          description: undefined
         },
-        computed: {
-            ...mapGetters(["permissions", "dicts"])
+        dialogFormVisible: false,
+        dialogBeforeFormVisible: false,
+        dialogStatus: 'create',
+        textMap: {
+          update: '编辑表',
+          create: '创建表'
         },
-        created() {
-            this.showEditForm(this.$route.query)
+        isDisabled: {
+          0: false,
+          1: true
         },
-        methods: {
-            showEditForm(params) {
-                tableService.find(params).then(response => {
-                    let data = response.data;
-                    this.form = data.tableVo;
-                    this.javaTypeList = data.javaTypeList;
-                    this.queryTypeList = data.queryTypeList;
-                    this.showTypeList = data.showTypeList;
-                    this.tableList = data.tableList;
-                    this.columnList = data.columnList
-                });
-            },
-            cancel() {
-                this.dialogFormVisible = false;
-                this.$refs['form'].resetFields();
-            },
-            save() {
-                const set = this.$refs;
-                set['form'].validate(valid => {
-                    if (valid) {
-                        // this.form.password = undefined;
-                        tableService.save(this.form).then(response => {
-                            this.cancel('form');
-                            this.$store.commit("DEL_TAG", this.$store.getters.tag);
-                            this.$router.push({path: '/gen/table'})
-                        });
-                    } else {
-                        this.activeName = 'first';
-                        return false;
-                    }
-                });
-            },
-            resetForm() {
-                this.form = {
-                    name: undefined,
-                    comments: undefined,
-                    className: undefined,
-                    parentTable: undefined,
-                    parentTableFk: undefined,
-                    columnFormList: [],
-                    status: undefined,
-                    description: undefined
-                };
-                this.$refs['form'] && this.$refs['form'].resetFields();
-            }
-        }
-    };
+        tableKey: 0,
+        activeName: 'first'
+      };
+    },
+    computed: {
+      ...mapGetters(["permissions", "dicts"])
+    },
+    created() {
+      this.showEditForm(this.$route.query)
+    },
+    methods: {
+      showEditForm(params) {
+        tableService.find(params).then(response => {
+          let data = response.data;
+          this.form = data.tableVo;
+          this.javaTypeList = data.javaTypeList;
+          this.queryTypeList = data.queryTypeList;
+          this.showTypeList = data.showTypeList;
+          this.tableList = data.tableList;
+          this.columnList = data.columnList
+        });
+      },
+      cancel() {
+        this.dialogFormVisible = false;
+        this.$refs['form'].resetFields();
+      },
+      save() {
+        const set = this.$refs;
+        set['form'].validate(valid => {
+          if (valid) {
+            // this.form.password = undefined;
+            tableService.save(this.form).then(response => {
+              this.cancel('form');
+              this.$store.commit("DEL_TAG", this.$store.getters.tag)
+              let returnPath = '/gen/table';
+              this.$store.getters.tagList.forEach(item=>{
+                if(returnPath === item.value){
+                  this.$store.commit("DEL_TAG", item)
+                }
+              })
+              this.$router.push({path: returnPath})
+            });
+          } else {
+            this.activeName = 'first';
+            return false;
+          }
+        });
+      },
+      resetForm() {
+        this.form = {
+          name: undefined,
+          comments: undefined,
+          className: undefined,
+          parentTable: undefined,
+          parentTableFk: undefined,
+          columnFormList: [],
+          status: undefined,
+          description: undefined
+        };
+        this.$refs['form'] && this.$refs['form'].resetFields();
+      }
+    }
+  };
 </script>

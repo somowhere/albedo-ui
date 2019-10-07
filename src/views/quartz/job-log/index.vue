@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container calendar-list-container">
+  <div class="app-container calendar-listJobLog-container">
     <basic-container>
       <div class="filter-container">
-        <el-form :inline="true" :model="searchJobLogForm" ref="searchJobLogForm" v-show="searchFilterVisible">
+        <el-form :inline="true" :model="searchJobLogForm" ref="searchJobLogForm" v-show="searchJobLogFilterVisible">
           <el-form-item label="任务名称" prop="jobName">
             <el-input class="filter-item input-normal" v-model="searchJobLogForm.jobName"></el-input>
           </el-form-item>
@@ -10,34 +10,46 @@
             <el-input class="filter-item input-normal" v-model="searchJobLogForm.jobGroup"></el-input>
           </el-form-item>
           <el-form-item label="执行状态" prop="status">
-            <CrudRadio :dic="statusOptions" v-model="searchJobLogForm.status"></CrudRadio>
+            <crud-radio :dic="statusOptions" v-model="searchJobLogForm.status"></crud-radio>
           </el-form-item>
           <el-form-item>
-            <el-button @click="handleFilter" icon="el-icon-search" size="small" type="primary">查询</el-button>
-            <el-button @click="searchReset" icon="icon-rest" size="small">重置</el-button>
+            <el-button @click="handleJobLogFilter" icon="el-icon-search" size="small" type="primary">查询</el-button>
+            <el-button @click="searchResetJobLog" icon="icon-rest" size="small">重置</el-button>
           </el-form-item>
         </el-form>
       </div>
-
       <!-- 表格功能列 -->
       <div class="table-menu">
         <div class="table-menu-left">
           <el-button-group>
-            <el-button @click="handleClean" icon="icon-export" size="mini" type="primary"
+            <el-button @click="handleJobLogClean" icon="icon-export" size="mini" type="primary"
                        v-if="quartz_jobLog_clean">清空
             </el-button>
-            <el-button @click="handleExport" icon="icon-export" size="mini" type="primary"
+            <el-button @click="handleJobLogExport" icon="icon-export" size="mini" type="primary"
                        v-if="quartz_jobLog_export">导出
             </el-button>
           </el-button-group>
         </div>
         <div class="table-menu-right">
-          <el-button @click="searchFilterVisible= !searchFilterVisible" circle icon="el-icon-search"
+          <el-button @click="searchJobLogFilterVisible= !searchJobLogFilterVisible" circle icon="el-icon-search"
                      size="mini"></el-button>
         </div>
       </div>
-      <el-table :data="list" :key='tableKey' @sort-change="sortChange" element-loading-text="加载中..."
-                fit highlight-current-row v-loading="listLoading">
+      <el-table :data="listJobLog" :key='tableKeyJobLog' @sort-change="sortChangeJobLog" element-loading-text="加载中..."
+                fit highlight-current-row v-loading="listJobLogLoading">
+        <el-table-column
+          fixed="left"  type="expand" width="40">
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="demo-table-expand">
+              <el-form-item label="日志信息">
+                <span>{{ props.row.jobMessage }}</span>
+              </el-form-item>
+              <el-form-item label="异常信息">
+                <span>{{ props.row.exceptionInfo }}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="任务名称">
           <template slot-scope="scope">
             <span>{{scope.row.jobName}}</span>
@@ -73,30 +85,21 @@
             <span>{{scope.row.createTime}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="日志信息">
-          <template slot-scope="scope">
-            <span>{{scope.row.jobMessage}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="异常信息">
-          <template slot-scope="scope">
-            <span>{{scope.row.exceptionInfo}}</span>
-          </template>
-        </el-table-column>
         <el-table-column align="center" fixed="right" label="操作" v-if="quartz_jobLog_del">
           <template slot-scope="scope">
-            <el-button @click="handleDelete(scope.row)" icon="icon-delete" title="删除" type="text"
+            <el-button @click="handleJobLogDelete(scope.row)" icon="icon-delete" type="danger" title="删除" size="mini" circle
                        v-if="quartz_jobLog_del">
             </el-button>
           </template>
         </el-table-column>
 
       </el-table>
-
-      <div class="pagination-container" v-show="!listLoading">
-        <el-pagination :current-page.sync="listQuery.page" :page-size="listQuery.size"
-                       :page-sizes="[10,20,30, 50]" :total="total" @current-change="handleCurrentChange"
-                       @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper">
+      <div class="pagination-container" v-show="!listJobLogLoading">
+        <el-pagination :current-page.sync="listJobLogQuery.current" :page-size="listJobLogQuery.size"
+                       :page-sizes="[10,20,30, 50]"
+                       :total="totalJobLog" @current-change="handleJobLogCurrentChange"
+                       @size-change="handleJobLogSizeChange" background
+                       class="pull-right" layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
       </div>
     </basic-container>
@@ -104,113 +107,108 @@
 </template>
 
 <script>
-    import jobLogService from "./job-log-service";
-    import {mapGetters} from "vuex";
-    import util from "@/util/util";
-    import CrudSelect from "@/components/avue/crud-select";
-    import CrudCheckbox from "@/components/avue/crud-checkbox";
-    import CrudRadio from "@/components/avue/crud-radio";
-    import {baseUrl} from "../../../config/env";
+  import {mapGetters} from "vuex";
+  import util from "@/util/util";
+  import {baseUrl} from "../../../config/env";
+  import jobLogService from "../job/job-log-service";
 
-    export default {
-        name: "table_quartz_jobLog",
-        components: {CrudSelect, CrudCheckbox, CrudRadio},
-        data() {
-            return {
-                searchFilterVisible: true,
-                list: null,
-                total: null,
-                listLoading: true,
-                searchJobLogForm: {},
-                listQuery: {
-                    page: 1,
-                    size: 20
-                },
-                statusOptions: undefined,
-                tableKey: 0
-            };
+  export default {
+    name: "table_quartz_jobLog",
+    data() {
+      return {
+        searchJobLogFilterVisible: true,
+        listJobLog: null,
+        totalJobLog: null,
+        listJobLogLoading: true,
+        searchJobLogForm: {},
+        listJobLogQuery: {
+          page: 1,
+          size: 20
         },
-        computed: {
-            ...mapGetters(["permissions", "dicts"])
-        },
-        filters: {},
-        created() {
-            this.getList();
-            this.quartz_jobLog_export = this.permissions["quartz_jobLog_export"];
-            this.quartz_jobLog_clean = this.permissions["quartz_jobLog_clean"];
-            this.quartz_jobLog_del = this.permissions["quartz_jobLog_del"];
-            this.statusOptions = this.dicts["sys_status"];
-        },
-        methods: {
-            getList() {
-                this.listLoading = true;
-                this.listQuery.queryConditionJson = util.parseJsonItemForm([
-                    {fieldName: 'jobName', value: this.searchJobLogForm.jobName, operate: 'like', attrType: 'String'},
-                    {fieldName: 'jobGroup', value: this.searchJobLogForm.jobGroup, operate: 'like', attrType: 'String'},
-                    {fieldName: 'status', value: this.searchJobLogForm.status, operate: 'eq', attrType: 'String'},
-                ]);
-                jobLogService.page(this.listQuery).then(response => {
-                    this.list = response.data.records;
-                    this.total = response.data.total;
-                    this.listLoading = false;
-                });
-            },
-            sortChange(column) {
-                if (column.order == "ascending") {
-                    this.listQuery.ascs = column.prop;
-                    this.listQuery.descs = undefined;
-                } else {
-                    this.listQuery.descs = column.prop;
-                    this.listQuery.ascs = undefined;
-                }
-                this.getList()
-            },
-            searchReset() {
-                this.$refs['searchJobLogForm'].resetFields();
-            },
-            handleFilter() {
-                this.listQuery.page = 1;
-                this.getList();
-            },
-            handleSizeChange(val) {
-                this.listQuery.size = val;
-                this.getList();
-            },
-            handleCurrentChange(val) {
-                this.listQuery.page = val;
-                this.getList();
-            },
-            handleDelete(row) {
-                this.$confirm(
-                    "此操作将永久删除该任务调度日志, 是否继续?",
-                    "提示",
-                    {
-                        confirmButtonText: "确定",
-                        cancelButtonText: "取消",
-                        type: "warning"
-                    }
-                ).then(() => {
-                    jobLogService.remove(row.id).then((data) => {
-                        this.getList();
-                    });
-                });
-            },
-            handleClean(row) {
-                this.$confirm('确定要此操作吗?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    jobLogService.clean(row.id).then((rs) => {
-                        this.getList();
-                    })
-                })
-            },
-            handleExport() {
-                jobLogService.export(this.listQuery).then(response => {
-                    window.location.href = `${window.location.origin}` + baseUrl + "/file/download?fileName=" + encodeURI(response.data) + "&delete=" + true;
-                });
-            }
+        tableKeyJobLog: 1
+      };
+    },
+    computed: {
+      ...mapGetters(["permissions", "dicts"])
+    },
+    filters: {},
+    created() {
+      this.getListJobLog();
+      this.quartz_jobLog_export = this.permissions["quartz_jobLog_export"];
+      this.quartz_jobLog_clean = this.permissions["quartz_jobLog_clean"];
+      this.quartz_jobLog_del = this.permissions["quartz_jobLog_del"];
+      this.statusOptions = this.dicts["sys_status"];
+    },
+    methods: {
+      getListJobLog() {
+        this.listJobLogLoading = true;
+        this.listJobLogQuery.queryConditionJson = util.parseJsonItemForm([
+          {fieldName: 'jobName', value: this.searchJobLogForm.jobName, operate: 'like', attrType: 'String'},
+          {fieldName: 'jobGroup', value: this.searchJobLogForm.jobGroup, operate: 'like', attrType: 'String'},
+          {fieldName: 'status', value: this.searchJobLogForm.status, operate: 'eq', attrType: 'String'},
+        ]);
+        jobLogService.page(this.listJobLogQuery).then(response => {
+          this.listJobLog = response.data.records;
+          this.totalJobLog = response.data.total;
+          this.listJobLogLoading = false;
+        });
+      },
+      sortChangeJobLog(column) {
+        if (column.order == "ascending") {
+          this.listJobLogQuery.ascs = column.prop;
+          this.listJobLogQuery.descs = undefined;
+        } else {
+          this.listJobLogQuery.descs = column.prop;
+          this.listJobLogQuery.ascs = undefined;
         }
-    };
+        this.getListJobLog()
+      },
+      searchResetJobLog() {
+        this.$refs['searchJobLogForm'].resetFields();
+      },
+      handleJobLogFilter() {
+        this.listJobLogQuery.page = 1;
+        this.getListJobLog();
+      },
+      handleJobLogSizeChange(val) {
+        this.listJobLogQuery.size = val;
+        this.getListJobLog();
+      },
+      handleJobLogCurrentChange(val) {
+        this.listJobLogQuery.page = val;
+        this.getListJobLog();
+      },
+      handleJobLogDelete(row) {
+        this.$confirm(
+          "此操作将永久删除该任务调度日志, 是否继续?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        ).then(() => {
+          jobLogService.remove(row.id).then((data) => {
+            this.getListJobLog();
+          });
+        });
+      },
+      handleJobLogClean(row) {
+        this.$confirm('确定要此操作吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          jobLogService.clean(row.id).then((rs) => {
+            this.getListJobLog();
+          })
+        })
+      },
+      handleJobLogExport() {
+        jobLogService.export(this.listJobLogQuery).then(response => {
+          window.location.href = `${window.location.origin}` + baseUrl + "/file/download?fileName=" + encodeURI(response.data) + "&delete=" + true;
+        });
+      }
+    }
+  };
 </script>

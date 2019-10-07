@@ -156,13 +156,9 @@
     import clientService from "./client-service";
     import validate from "@/util/validate";
     import util from "@/util/util";
-    import CrudSelect from "@/components/avue/crud-select";
-    import CrudCheckbox from "@/components/avue/crud-checkbox";
-    import CrudRadio from "@/components/avue/crud-radio";
 
     export default {
         name: "table_sys_client",
-        components: {CrudSelect, CrudCheckbox, CrudRadio},
         data() {
             return {
                 searchFilterVisible: true,

@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="5"
                 style='margin-top:15px;'>
-          <el-card class="box-card">
+          <el-card class="box-card" shadow="never">
             <div class="clearfix" slot="header">
               <span>菜单</span>
               <el-button @click="searchTree=(searchTree ? false:true)" class="card-heard-btn" icon="icon-filesearch"
@@ -52,9 +52,10 @@
               <el-button-group>
                 <el-button @click="handleEdit" icon="el-icon-plus" size="mini" type="primary" v-if="sys_menu_edit">添加
                 </el-button>
-                <el-button @click="handleEditSort" icon="icon-up-circle" size="mini" type="primary" v-if="sys_menu_edit">更新序号
+                <el-button @click="handleEditSort" icon="icon-up-circle" size="mini" type="primary"
+                           v-if="sys_menu_edit">更新序号
                 </el-button>
-                <el-button @click="handleIcon()" icon="icon-eye" size="mini" type="primary" >查看图标</el-button>
+                <el-button @click="handleIcon()" icon="icon-eye" size="mini" type="primary">查看图标</el-button>
               </el-button-group>
             </div>
             <div class="table-menu-right">
@@ -62,10 +63,11 @@
                          size="mini"></el-button>
             </div>
           </div>
-          <el-table :data="list" :default-sort="{prop:'menu.sort',order:'ascending'}" :key='tableKey' @sort-change="sortChange" element-loading-text="加载中..."
+          <el-table :data="list" :default-sort="{prop:'menu.sort',order:'ascending'}" :key='tableKey'
+                    @sort-change="sortChange" element-loading-text="加载中..."
                     fit highlight-current-row v-loading="listLoading">
             <el-table-column
-              fixed="left" type="index" width="20">
+              fixed="left" type="index" width="40">
             </el-table-column>
             <!--            <el-table-column align="center" label="上级菜单" width="100">-->
             <!--              <template slot-scope="scope">-->
@@ -112,10 +114,11 @@
                 <el-tag>{{scope.row.showText}}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="序号" prop="menu.sort" sortable="custom">
+            <el-table-column align="center" label="序号" width="140" prop="menu.sort" sortable="custom">
               <template slot-scope="scope">
                 <span>
-                  <el-input-number size="small" v-model="scope.row.sort" :step="5" :ref="'sort'+scope.row.id"></el-input-number>
+                  <el-input-number :ref="'sort'+scope.row.id" :step="5" size="small"
+                                   v-model="scope.row.sort"></el-input-number>
                 </span>
               </template>
             </el-table-column>
@@ -129,9 +132,9 @@
                              v-if="sys_menu_edit || sys_menu_lock || sys_menu_del"
                              width="100">
               <template slot-scope="scope">
-                <el-button @click="handleEdit(scope.row)" icon="icon-edit" title="编辑" type="text" v-if="sys_menu_edit">
+                <el-button @click="handleEdit(scope.row)" icon="icon-edit" type="primary" title="编辑" size="mini" circle  v-if="sys_menu_edit">
                 </el-button>
-                <el-button @click="handleDelete(scope.row)" icon="icon-delete" title="删除" type="text"
+                <el-button @click="handleDelete(scope.row)" icon="icon-delete" type="danger" title="删除" size="mini" circle
                            v-if="sys_menu_del">
                 </el-button>
               </template>
@@ -3357,7 +3360,7 @@
             <el-input v-model="form.component"></el-input>
           </el-form-item>
           <el-form-item :rules="[{required: true,message: '请选择' }]" label="菜单类型" prop="type">
-            <CrudRadio :dic="menuTypeOptions" v-model="form.type"></CrudRadio>
+            <crud-radio :dic="menuTypeOptions" v-model="form.type"></crud-radio>
           </el-form-item>
           <!--          <el-form-item label="路由缓冲" prop="keepAlive">-->
           <!--            <el-switch-->
@@ -3369,7 +3372,7 @@
             <el-input v-model="form.path"></el-input>
           </el-form-item>
           <el-form-item :rules="[{required: true,message: '请选择' }]" label="是否显示" prop="show">
-            <CrudRadio :dic="flagOptions" v-model="form.show"></CrudRadio>
+            <crud-radio :dic="flagOptions" v-model="form.show"></crud-radio>
           </el-form-item>
           <el-form-item label="序号" prop="sort">
             <el-input-number :max="1000" :min="1" v-model="form.sort"></el-input-number>
@@ -3388,251 +3391,248 @@
 </template>
 
 <script>
-    import menuService from "./menu-service";
-    import {mapGetters} from 'vuex';
-    import util from "@/util/util";
-    import validate from "@/util/validate";
-    import CrudSelect from "@/components/avue/crud-select";
-    import CrudRadio from "@/components/avue/crud-radio";
+  import menuService from "./menu-service";
+  import {mapGetters} from 'vuex';
+  import util from "@/util/util";
+  import validate from "@/util/validate";
 
-    export default {
-        name: 'Menu',
-        components: {CrudSelect, CrudRadio},
-        data() {
-            return {
-                treeMenuData: [],
-                treeMenuSelectData: [],
-                dialogMenuVisible: false,
-                dialogIconVisible: false,
-                dialogFormVisible: false,
-                searchFilterVisible: true,
-                checkedKeys: [],
-                list: null,
-                total: null,
-                listLoading: true,
-                searchForm: {},
-                listQuery: {
-                    current: 1,
-                    size: 20
-                },
-                formEdit: true,
-                filterTreeMenuText: '',
-                filterParentTreeMenuText: '',
-                filterFormText: '',
-                formStatus: '',
-                flagOptions: [],
-                menuTypeOptions: [],
-                searchTree: false,
-                labelPosition: 'right',
-                disableSelectMenuParent: false,
-                form: {
-                    name: undefined,
-                    parentId: undefined,
-                    permission: undefined,
-                    icon: undefined,
-                    component: undefined,
-                    type: undefined,
-                    keepAlive: undefined,
-                    show: undefined,
-                    path: undefined,
-                    sort: undefined,
-                    description: undefined
-                },
-                validateUnique: (rule, value, callback) => {
-                    validate.isUnique(rule, value, callback, '/sys/menu/checkByProperty?id=' + util.objToStr(this.form.id))
-                },
-                dialogStatus: 'create',
-                textMap: {
-                    update: '编辑',
-                    create: '创建'
-                },
-                sys_menu_edit: false,
-                sys_menu_lock: false,
-                sys_menu_del: false,
-                currentNode: {},
-                tableKey: 0
-            }
+  export default {
+    name: 'Menu',
+    data() {
+      return {
+        treeMenuData: [],
+        treeMenuSelectData: [],
+        dialogMenuVisible: false,
+        dialogIconVisible: false,
+        dialogFormVisible: false,
+        searchFilterVisible: true,
+        checkedKeys: [],
+        list: null,
+        total: null,
+        listLoading: true,
+        searchForm: {},
+        listQuery: {
+          current: 1,
+          size: 20
         },
-        watch: {
-            filterTreeMenuText(val) {
-                this.$refs['leftMenuTree'].filter(val);
-            },
-            filterParentTreeMenuText(val) {
-                this.$refs['selectParentMenuTree'].filter(val);
-            },
+        formEdit: true,
+        filterTreeMenuText: '',
+        filterParentTreeMenuText: '',
+        filterFormText: '',
+        formStatus: '',
+        flagOptions: [],
+        menuTypeOptions: [],
+        searchTree: false,
+        labelPosition: 'right',
+        disableSelectMenuParent: false,
+        form: {
+          name: undefined,
+          parentId: undefined,
+          permission: undefined,
+          icon: undefined,
+          component: undefined,
+          type: undefined,
+          keepAlive: undefined,
+          show: undefined,
+          path: undefined,
+          sort: undefined,
+          description: undefined
         },
-        created() {
-            this.getTreeMenu();
-            this.sys_menu_edit = this.permissions["sys_menu_edit"];
-            this.sys_menu_lock = this.permissions["sys_menu_lock"];
-            this.sys_menu_del = this.permissions["sys_menu_del"];
-            this.flagOptions = this.dicts['sys_flag'];
-            this.menuTypeOptions = this.dicts['sys_menu_type'];
+        validateUnique: (rule, value, callback) => {
+          validate.isUnique(rule, value, callback, '/sys/menu/checkByProperty?id=' + util.objToStr(this.form.id))
+        },
+        dialogStatus: 'create',
+        textMap: {
+          update: '编辑',
+          create: '创建'
+        },
+        sys_menu_edit: false,
+        sys_menu_lock: false,
+        sys_menu_del: false,
+        currentNode: {},
+        tableKey: 0
+      }
+    },
+    watch: {
+      filterTreeMenuText(val) {
+        this.$refs['leftMenuTree'].filter(val);
+      },
+      filterParentTreeMenuText(val) {
+        this.$refs['selectParentMenuTree'].filter(val);
+      },
+    },
+    created() {
+      this.getTreeMenu();
+      this.sys_menu_edit = this.permissions["sys_menu_edit"];
+      this.sys_menu_lock = this.permissions["sys_menu_lock"];
+      this.sys_menu_del = this.permissions["sys_menu_del"];
+      this.flagOptions = this.dicts['sys_flag'];
+      this.menuTypeOptions = this.dicts['sys_menu_type'];
 
-        },
-        computed: {
-            ...mapGetters([
-                "permissions", "dicts"
-            ])
-        },
-        methods: {
-            getList() {
-                this.listLoading = true;
-                this.listQuery.queryConditionJson = util.parseJsonItemForm([{
-                    fieldName: 'name', value: this.searchForm.name
-                }, {
-                    fieldName: 'component', value: this.searchForm.component
-                }, {
-                    fieldName: 'parent_id', value: this.searchForm.parentId, operate: 'eq'
-                }]);
-                menuService.page(this.listQuery).then(response => {
-                    this.list = response.data.records;
-                    this.total = response.data.total;
-                    this.listLoading = false;
-                });
-            },
-            sortChange(column) {
-                if (column.order == "ascending") {
-                    this.listQuery.ascs = column.prop;
-                    this.listQuery.descs = undefined;
-                } else {
-                    this.listQuery.descs = column.prop;
-                    this.listQuery.ascs = undefined;
-                }
-                this.getList()
-            },
-            getTreeMenu() {
-                menuService.fetchTree().then(response => {
-                    this.treeMenuData = util.parseTreeData(response.data);
-                    this.currentNode = this.treeMenuData[0];
-                    this.searchForm.parentId = this.treeMenuData[0].id;
-                    setTimeout(() => {
-                        this.$refs['leftMenuTree'].setCurrentKey(this.searchForm.parentId);
-                    }, 100);
-                    this.getList();
-                })
-            },
-            filterNode(value, data) {
-                if (!value) return true;
-                return data.label.indexOf(value) !== -1
-            },
-            clickNodeTreeData(data) {
-                this.searchForm.parentId = data.id;
-                this.currentNode = data;
-                this.getList()
-            },
-            clickNodeSelectData(data) {
-                this.form.parentId = data.id;
-                this.form.parentName = data.label;
-                this.dialogMenuVisible = false;
-            },
-            handelParentMenuTree() {
-                menuService.fetchTree({extId: this.form.id}).then(response => {
-                    this.treeMenuSelectData = util.parseTreeData(response.data);
-                    this.dialogMenuVisible = true;
-                    setTimeout(() => {
-                        this.$refs['selectParentMenuTree'].setCurrentKey(this.form.parentId ? this.form.parentId : null);
-                    }, 100);
-                });
-            },
-            //搜索清空
-            searchReset() {
-                this.$refs['searchForm'].resetFields();
-                this.searchForm.parentId = undefined;
-                this.$refs['leftMenuTree'].setCurrentKey(null);
-                this.currentNode = undefined;
-            },
-            handleFilter() {
-                this.listQuery.current = 1;
-                this.getList();
-            },
-            handleSizeChange(val) {
-                this.listQuery.size = val;
-                this.getList();
-            },
-            handleCurrentChange(val) {
-                this.listQuery.current = val;
-                this.getList();
-            },
-            handleEdit(row) {
-                this.resetForm();
-                this.dialogStatus = row && validate.checkNotNull(row.id) ? "update" : "create";
-                if (this.dialogStatus == "create") {
-                    if (this.currentNode) {
-                        this.form.parentId = this.currentNode.id;
-                        this.form.parentName = this.currentNode.label;
-                    }
-                    this.dialogFormVisible = true;
-                } else {
-                    menuService.find(row.id).then(response => {
-                        this.form = response.data;
-                        this.disableSelectMenuParent = this.form.parentName ? false : true;
-                        this.form.show = util.objToStr(this.form.show);
-                        this.dialogFormVisible = true;
-                    });
-                }
-            },
-            handleEditSort(){
-                let sortData = [];
-                this.list.forEach(item=>{
-                    sortData.push({id:item.id,sort:this.$refs["sort"+item.id].value})
-                })
-                menuService.sortUpdate({"menuSortVoList":sortData}).then(response => {
-                    this.getList()
-                })
-            },
-            handleLock: function (row) {
-                menuService.lock(row.id).then(response => {
-                    this.getList();
-                });
-            },
-            handleDelete(row) {
-                this.$confirm('此操作将永久删除, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    menuService.remove(row.id).then(response => {
-                        this.getList();
-                    })
-                })
-            },
-            handleIcon() {
-                this.dialogIconVisible = true;
-            },
-            save() {
-                this.$refs['form'].validate(valid => {
-                    if (valid) {
-                        menuService.save(this.form).then(response => {
-                            this.getList();
-                            this.dialogFormVisible = false;
-                        })
-                    } else {
-                        return false;
-                    }
-                });
-            },
-            cancel() {
-                this.dialogFormVisible = false;
-                this.$refs['form'].resetFields();
-            },
-            resetForm() {
-                this.form = {
-                    name: undefined,
-                    parentId: undefined,
-                    permission: undefined,
-                    icon: undefined,
-                    component: undefined,
-                    type: undefined,
-                    keepAlive: undefined,
-                    show: undefined,
-                    path: undefined,
-                    sort: undefined,
-                    description: undefined
-                };
-                this.$refs['form'] && this.$refs['form'].resetFields();
-            }
+    },
+    computed: {
+      ...mapGetters([
+        "permissions", "dicts"
+      ])
+    },
+    methods: {
+      getList() {
+        this.listLoading = true;
+        this.listQuery.queryConditionJson = util.parseJsonItemForm([{
+          fieldName: 'name', value: this.searchForm.name
+        }, {
+          fieldName: 'component', value: this.searchForm.component
+        }, {
+          fieldName: 'parent_id', value: this.searchForm.parentId, operate: 'eq'
+        }]);
+        menuService.page(this.listQuery).then(response => {
+          this.list = response.data.records;
+          this.total = response.data.total;
+          this.listLoading = false;
+        });
+      },
+      sortChange(column) {
+        if (column.order == "ascending") {
+          this.listQuery.ascs = column.prop;
+          this.listQuery.descs = undefined;
+        } else {
+          this.listQuery.descs = column.prop;
+          this.listQuery.ascs = undefined;
         }
+        this.getList()
+      },
+      getTreeMenu() {
+        menuService.fetchTree().then(response => {
+          this.treeMenuData = util.parseTreeData(response.data);
+          this.currentNode = this.treeMenuData[0];
+          this.searchForm.parentId = this.treeMenuData[0].id;
+          setTimeout(() => {
+            this.$refs['leftMenuTree'].setCurrentKey(this.searchForm.parentId);
+          }, 100);
+          this.getList();
+        })
+      },
+      filterNode(value, data) {
+        if (!value) return true;
+        return data.label.indexOf(value) !== -1
+      },
+      clickNodeTreeData(data) {
+        this.searchForm.parentId = data.id;
+        this.currentNode = data;
+        this.getList()
+      },
+      clickNodeSelectData(data) {
+        this.form.parentId = data.id;
+        this.form.parentName = data.label;
+        this.dialogMenuVisible = false;
+      },
+      handelParentMenuTree() {
+        menuService.fetchTree({extId: this.form.id}).then(response => {
+          this.treeMenuSelectData = util.parseTreeData(response.data);
+          this.dialogMenuVisible = true;
+          setTimeout(() => {
+            this.$refs['selectParentMenuTree'].setCurrentKey(this.form.parentId ? this.form.parentId : null);
+          }, 100);
+        });
+      },
+      //搜索清空
+      searchReset() {
+        this.$refs['searchForm'].resetFields();
+        this.searchForm.parentId = undefined;
+        this.$refs['leftMenuTree'].setCurrentKey(null);
+        this.currentNode = undefined;
+      },
+      handleFilter() {
+        this.listQuery.current = 1;
+        this.getList();
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val;
+        this.getList();
+      },
+      handleEdit(row) {
+        this.resetForm();
+        this.dialogStatus = row && validate.checkNotNull(row.id) ? "update" : "create";
+        if (this.dialogStatus == "create") {
+          if (this.currentNode) {
+            this.form.parentId = this.currentNode.id;
+            this.form.parentName = this.currentNode.label;
+          }
+          this.dialogFormVisible = true;
+        } else {
+          menuService.find(row.id).then(response => {
+            this.form = response.data;
+            this.disableSelectMenuParent = this.form.parentName ? false : true;
+            this.form.show = util.objToStr(this.form.show);
+            this.dialogFormVisible = true;
+          });
+        }
+      },
+      handleEditSort() {
+        let sortData = [];
+        this.list.forEach(item => {
+          sortData.push({id: item.id, sort: this.$refs["sort" + item.id].value})
+        });
+        menuService.sortUpdate({"menuSortVoList": sortData}).then(response => {
+          this.getList()
+        })
+      },
+      handleLock: function (row) {
+        menuService.lock(row.id).then(response => {
+          this.getList();
+        });
+      },
+      handleDelete(row) {
+        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          menuService.remove(row.id).then(response => {
+            this.getList();
+          })
+        })
+      },
+      handleIcon() {
+        this.dialogIconVisible = true;
+      },
+      save() {
+        this.$refs['form'].validate(valid => {
+          if (valid) {
+            menuService.save(this.form).then(response => {
+              this.getList();
+              this.dialogFormVisible = false;
+            })
+          } else {
+            return false;
+          }
+        });
+      },
+      cancel() {
+        this.dialogFormVisible = false;
+        this.$refs['form'].resetFields();
+      },
+      resetForm() {
+        this.form = {
+          name: undefined,
+          parentId: undefined,
+          permission: undefined,
+          icon: undefined,
+          component: undefined,
+          type: undefined,
+          keepAlive: undefined,
+          show: undefined,
+          path: undefined,
+          sort: undefined,
+          description: undefined
+        };
+        this.$refs['form'] && this.$refs['form'].resetFields();
+      }
     }
+  }
 </script>
 

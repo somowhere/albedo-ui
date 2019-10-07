@@ -61,7 +61,14 @@ module.exports = {
     //     pathRewrite: {
     //       '^/gen': '/gen'
     //     }
-    //   }
+    //   },
+    //       '/quartz': {
+    //         target: url,
+    //         ws: true,
+    //         pathRewrite: {
+    //           '^/quartz': '/quartz'
+    //         }
+    //       }
     // }
   }
 }
