@@ -3,8 +3,8 @@
     <basic-container>
       <div class="banner-text">
         <span>
-          <img alt="Downloads" src="https://img.shields.io/badge/Spring%20Boot-2.1.2.RELEASE-yellowgreen.svg">
-          <img alt="Coverage Status" src="https://img.shields.io/badge/Spring%20Cloud-Greenwich.RELEASE-blue.svg">
+          <img alt="Downloads" src="https://img.shields.io/badge/Spring%20Boot-2.1.9.RELEASE-yellowgreen.svg">
+          <img alt="Coverage Status" src="https://img.shields.io/badge/Spring%20Cloud-Greenwich.SR3 -blue.svg">
         </span>
         <br/>
         <span>
@@ -14,10 +14,9 @@
               <div>- 基于 Spring Boot 2.1.6 、Spring Security 的RBAC权限管理系统  </div>
               <div>- 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手  </div>
               <div>- 提供 lambda 、stream api 、webflux 的生产实践   </div>
-              <div>Spring Boot |  2.1.6.RELEASE</div>
               <div>Mybatis Plus | 3.1.2</div>
-              <div>hutool | 4.5.16</div>
-              <div>Avue | 1.6.0</div>
+              <div>hutool | 5.0.3</div>
+              <div>Avue | 2.1.0</div>
             </el-collapse-item>
             <el-collapse-item name="2" title="代码生成">
               <div>可配置，可视化，可复制</div>
