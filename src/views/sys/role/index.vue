@@ -125,7 +125,7 @@
               <el-form-item label="机构权限" prop="orgIdList" v-show="formTreeDeptDataVisible">
                 <el-tree :data="treeDeptData" @check="getNodeTreeDeptData"
                          class="filter-tree"
-                         default-expand-all node-key="id" ref="treeDept"
+                         default-expand-all node-key="id" check-strictly="true" ref="treeDept"
                          show-checkbox>
                 </el-tree>
               </el-form-item>

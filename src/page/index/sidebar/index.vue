@@ -49,6 +49,6 @@
         methods: {}
     };
 </script>
-<style lang="scss" scoped>
+<style>
+  div.el-scrollbar__wrap{overflow-x: hidden}
 </style>
-
