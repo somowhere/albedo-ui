@@ -1,67 +1,50 @@
-/*
- *    Copyright (c) 2018-2025, lengleng All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- * Neither the name of the pig4cloud.com developer nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- * Author: lengleng (wangiegie@gmail.com)
- */
+import request from '@/utils/request'
+import qs from 'qs'
 
-import request from '@/router/axios'
+export function getDepts(query) {
+  return request({
+    url: '/sys/dept/tree',
+    method: 'get',
+    params: query
+  })
+}
 
-const deptService = {
-  fetchTreeUser(query) {
-    return request({
-      url: '/sys/dept/user-tree',
-      method: 'get',
-      params: query
-    })
-  },
+export function page(params) {
+  return request({
+    url: '/sys/dept/?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
 
-  fetchTree(query) {
-    return request({
-      url: '/sys/dept/tree',
-      method: 'get',
-      params: query
-    })
-  },
+export function get(id) {
+  return request({
+    url: '/sys/dept/' + id,
+    method: 'get'
+  })
+}
 
-  save(obj) {
-    return request({
-      url: '/sys/dept/',
-      method: 'post',
-      data: obj
-    })
-  },
+export function save(data) {
+  return request({
+    url: '/sys/dept',
+    method: 'post',
+    data
+  })
+}
 
-  get(id) {
-    return request({
-      url: '/sys/dept/' + id,
-      method: 'get'
-    })
-  },
+export function del(ids) {
+  return request({
+    url: '/sys/dept',
+    method: 'delete',
+    data: ids
+  })
+}
 
-  remove(id) {
-    return request({
-      url: '/sys/dept/' + id,
-      method: 'delete'
-    })
-  },
+export function lock(ids) {
+  return request({
+    url: '/sys/dept',
+    method: 'put',
+    data: ids
+  })
+}
 
-  lock(obj) {
-    return request({
-      url: '/sys/dept',
-      method: 'put',
-      data: obj
-    })
-  }
-};
-export default deptService
+export default { page, save, lock, del, get, getDepts }

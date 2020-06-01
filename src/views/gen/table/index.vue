@@ -1,352 +1,206 @@
 <template>
-  <div class="app-container calendar-list-container">
-    <basic-container>
-      <div class="filter-container" v-show="searchFilterVisible">
-        <el-form :inline="true" :model="searchForm" ref="searchForm">
-          <el-form-item label="表名" prop="name">
-            <el-input class="filter-item input-normal" size="small" v-model="searchForm.name"></el-input>
-          </el-form-item>
-          <el-form-item label="说明" prop="comments">
-            <el-input class="filter-item input-normal" size="small" v-model="searchForm.comments"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button @click="handleFilter" class="filter-item" icon="el-icon-search" size="small" type="primary">查询
-            </el-button>
-            <el-button @click="searchReset" icon="icon-rest" size="small">重置</el-button>
-          </el-form-item>
-        </el-form>
+  <div class="app-container">
+    <!--工具栏-->
+    <div class="head-container">
+      <div v-if="crud.props.searchToggle">
+        <!-- 搜索 -->
+        <el-input
+          v-model="query.blurry"
+          class="filter-item"
+          clearable
+          placeholder="模糊搜索"
+          size="small"
+          style="width: 200px;"
+          @keyup.enter.native="toQuery"
+        />
+        <el-date-picker
+          v-model="query.createdDate"
+          :default-time="['00:00:00','23:59:59']"
+          class="date-item"
+          end-placeholder="结束日期"
+          range-separator=":"
+          size="small"
+          start-placeholder="开始日期"
+          type="daterange"
+          value-format="yyyy-MM-dd HH:mm:ss"
+        />
+        <rrOperation />
       </div>
-      <!-- 表格功能列 -->
-      <div class="table-menu">
-        <div class="table-menu-left">
-          <el-button @click="handleEdit" class="filter-item" icon="el-icon-plus" size="mini" type="primary"
-                     v-if="gen_table_edit">添加
+      <crudOperation :permission="permission">
+        <el-button
+          slot="left"
+          v-permission="permission.edit"
+          class="filter-item"
+          icon="el-icon-plus"
+          plain
+          size="mini"
+          type="primary"
+          @click="handleEdit"
+        >新增
+        </el-button>
+        <el-tooltip
+          slot="left"
+          class="item"
+          effect="dark"
+          content="数据库中表字段变动时使用该功能"
+          placement="top-start"
+        >
+          <el-button
+            v-permission="permission.edit"
+            :disabled="crud.selections.length !== 1"
+            class="filter-item"
+            icon="el-icon-refresh"
+            plain
+            size="mini"
+            type="primary"
+            @click="handleRefreshColumn"
+          >同步
           </el-button>
-        </div>
-        <div class="table-menu-right">
-          <el-button @click="searchFilterVisible= !searchFilterVisible" circle icon="el-icon-search"
-                     size="mini"></el-button>
-        </div>
+        </el-tooltip>
+      </crudOperation>
+    </div>
+    <!--Form表单-->
+    <el-dialog
+      :title="'选择表'"
+      :visible.sync="dialogBeforeFormVisible"
+      width="570px"
+    >
+      <el-form ref="formSelect" :model="formSelect" label-width="100px">
+        <el-form-item :rules="[{required: true,message: '请选择表名'}]" label="表名" prop="name">
+          <el-select
+            v-model="formSelect.name"
+            clearable
+            placeholder="请选择表名"
+            size="small"
+            style="width: 90%"
+          >
+            <el-option v-for="(item,index) in selectTableList" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogBeforeFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="showNextForm()">下一步</el-button>
       </div>
-      <el-table :data="list" :key='tableKey' element-loading-text="加载中..." fit highlight-current-row
-                v-loading="listLoading">
-
-        <el-table-column align="center" label="表名">
-          <template slot-scope="scope">
-            <span>{{scope.row.name}}</span>
-          </template>
-        </el-table-column>
-
-
-        <el-table-column align="center" label="说明">
-          <template slot-scope="scope">
-            <span>
-              {{scope.row.comments}}
-            </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column align="center" label="类名">
-          <template slot-scope="scope">
-            <span>{{scope.row.className}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="父表名">
-          <template slot-scope="scope">
-            <span>{{scope.row.parentTable}}</span>
-          </template>
-        </el-table-column>
-        <!--        <el-table-column align="center" label="类名">-->
-        <!--          <template slot-scope="scope">-->
-        <!--            <span>{{scope.row.className}}</span>-->
-        <!--          </template>-->
-        <!--        </el-table-column>-->
-
-        <el-table-column align="center" label="创建时间">
-          <template slot-scope="scope">
-            <span>{{scope.row.createdDate}}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column align="center" label="操作">
-          <template slot-scope="scope">
-            <el-button @click="handleEdit(scope.row)" icon="icon-edit" type="primary" title="编辑" size="mini" circle  v-if="gen_table_edit">
-            </el-button>
-            <el-button @click="handleDelete(scope.row)" icon="icon-delete" type="danger" title="删除" size="mini" circle  v-if="gen_table_del">
-            </el-button>
-          </template>
-        </el-table-column>
-
-      </el-table>
-
-      <div class="pagination-container" v-show="!listLoading">
-        <el-pagination :current-page.sync="listQuery.current" :page-size="listQuery.size"
-                       :page-sizes="[10,20,30, 50]" :total="total" @current-change="handleCurrentChange"
-                       @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper">
-        </el-pagination>
-      </div>
-
-      <el-dialog :title="'选择表'" :visible.sync="dialogBeforeFormVisible">
-        <el-form :model="formSelect" label-width="100px" ref="formSelect">
-          <el-form-item :rules="[{required: true,message: '请选择表名'}]" label="表名" prop="name">
-            <crud-select :dic="selectTableList" :filterable="true" v-model="formSelect.name"></crud-select>
-          </el-form-item>
-        </el-form>
-        <div class="dialog-footer" slot="footer">
-          <el-button @click="dialogBeforeFormVisible = false" size="small">取 消</el-button>
-          <el-button @click="showNextForm()" size="small" type="primary">下一步</el-button>
-        </div>
-      </el-dialog>
-
-      <el-dialog :fullscreen="true" :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-        <el-form :model="form" label-width="100px" ref="form">
-          <el-form-item :rules="[{required: true,message: '请输入名称'}]" label="名称" prop="name">
-            <el-input placeholder="请输名称" v-model="form.name"></el-input>
-          </el-form-item>
-          <el-form-item :rules="[{required: true,message: '请输入说明'}]" label="说明" prop="comments">
-            <el-input v-model="form.comments"></el-input>
-          </el-form-item>
-          <el-form-item :rules="[{required: true,message: '请输入类名'}]" label="类名" prop="className">
-            <el-input v-model="form.className"></el-input>
-          </el-form-item>
-          <el-form-item label="父表表名" prop="parentTable">
-            <crud-select :dic="tableList" clearable v-model="form.parentTable"></crud-select>
-          </el-form-item>
-          <el-form-item label="当前表外键" prop="parentTableFk">
-            <crud-select :dic="columnList" v-model="form.parentTableFk"></crud-select>
-          </el-form-item>
-          <el-form-item label="备注" prop="description">
-            <el-input type="textarea" v-model="form.description"></el-input>
-          </el-form-item>
-          <table class="el-table-padding" id="contentTable">
-            <thead>
-            <tr>
-              <th title="数据库字段名">列名</th>
-              <th title="默认读取数据库字段备注">标题</th>
-              <th title="描述字段">说明</th>
-              <th title="数据库中设置的字段类型及长度">物理类型</th>
-              <th title="实体对象的属性字段类型">Java类型</th>
-              <th title="实体对象的属性字段（对象名.属性名|属性名2|属性名3，例如：用户user.id|name|loginName，属性名2和属性名3为Join时关联查询的字段）">
-                Java属性名称 <i class="icon-question-sign"></i></th>
-              <th title="是否是数据库主键">主键</th>
-              <th title="字段是否可为空值，不可为空字段自动进行空值验证">可空</th>
-              <th title="字段是否唯一，唯一空字段自动进行唯一性验证">唯一</th>
-              <th title="选中后该字段被加入到insert语句里">插入</th>
-              <th title="选中后该字段被加入到update语句里">编辑</th>
-              <th title="选中后该字段被加入到查询列表里">列表</th>
-              <th title="选中后该字段被加入到查询条件里">查询</th>
-              <th title="该字段为查询字段时的查询匹配放松">查询匹配方式</th>
-              <th title="字段在表单中显示的类型">显示表单类型</th>
-              <th title="显示表单类型设置为“下拉框、复选框、点选框”时，需设置字典的类型">字典类型</th>
-              <th>排序</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr :class="column.status=='-1'? 'error':''" :title="column.status=='-1'? '已删除的列，保存之后消失！':''"
-                v-bind:key="column.id" v-for=" (column,i) in form.columnFormList">
-              <td>
-                <el-input class="input-small" readonly="readonly" v-model="form.columnFormList[i].name"></el-input>
-              </td>
-              <td>
-                <el-input class="input-small" v-model="form.columnFormList[i].title"></el-input>
-              </td>
-              <td>
-                <el-input class="input-small" v-model="form.columnFormList[i].comments"></el-input>
-              </td>
-              <td>
-                <el-input class="input-small" v-model="form.columnFormList[i].jdbcType"></el-input>
-              </td>
-              <td>
-                <crud-select :dic="javaTypeList" class="input-mini"
-                             v-model="form.columnFormList[i].javaType"></crud-select>
-              </td>
-              <td>
-                <el-input class="input-small" v-model="form.columnFormList[i].javaField"></el-input>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].pk" v-model="form.columnFormList[i].pk"></el-checkbox>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].null" v-model="form.columnFormList[i].null"></el-checkbox>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].unique"
-                             v-model="form.columnFormList[i].unique"></el-checkbox>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].insert"
-                             v-model="form.columnFormList[i].insert"></el-checkbox>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].edit" v-model="form.columnFormList[i].edit"></el-checkbox>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].list" v-model="form.columnFormList[i].list"></el-checkbox>
-              </td>
-              <td>
-                <el-checkbox :checked="form.columnFormList[i].query"
-                             v-model="form.columnFormList[i].query"></el-checkbox>
-              </td>
-              <td>
-                <crud-select :dic="queryTypeList" class="input-mini"
-                             v-model="form.columnFormList[i].queryType"></crud-select>
-              </td>
-              <td>
-                <crud-select :dic="showTypeList" class="input-mini"
-                             v-model="form.columnFormList[i].showType"></crud-select>
-              </td>
-              <td>
-                <el-input class="input-small" v-model="form.columnFormList[i].dictType"></el-input>
-              </td>
-              <td>
-                <el-input class="input-small" v-model="form.columnFormList[i].sort"></el-input>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </el-form>
-        <div class="dialog-footer" slot="footer">
-          <el-button @click="cancel()" size="small">取 消</el-button>
-          <el-button @click="save()" size="small" type="primary">保 存</el-button>
-        </div>
-      </el-dialog>
-    </basic-container>
+    </el-dialog>
+    <!--表格渲染-->
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      style="width: 100%;"
+      @selection-change="crud.selectionChangeHandler"
+    >
+      <el-table-column type="selection" width="55" />
+      <el-table-column :show-overflow-tooltip="true" label="表名" prop="name" />
+      <el-table-column :show-overflow-tooltip="true" label="说明" prop="comments" />
+      <el-table-column :show-overflow-tooltip="true" label="类名" prop="className" />
+      <el-table-column :show-overflow-tooltip="true" label="父表名" prop="parentTable" />
+      <el-table-column :show-overflow-tooltip="true" label="描述" prop="description" />
+      <el-table-column :show-overflow-tooltip="true" label="创建日期" prop="createdDate" width="136px">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.createdDate) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-permission="[permission.edit, permission.del]"
+        align="center"
+        fixed="right"
+        label="操作"
+        width="170px"
+      >
+        <template slot-scope="scope">
+          <udOperation
+            :data="scope.row"
+            :permission="permission"
+          >
+            <el-button
+              slot="left"
+              v-permission="[permission.edit]"
+              icon="el-icon-edit"
+              plain
+              size="mini"
+              type="primary"
+              @click="handleEdit(scope.row)"
+            />
+          </udOperation>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页组件-->
+    <pagination />
   </div>
 </template>
 
 <script>
-  import tableService from "./table-service";
-  import {mapGetters} from 'vuex';
-  import validate from "@/util/validate";
-  import util from "@/util/util";
+import crudTable from '@/views/gen/table/table-service'
+import CRUD, { crud, header, presenter } from '@crud/crud'
+import rrOperation from '@crud/RR.operation'
+import udOperation from '@crud/UD.operation'
+import crudOperation from '@crud/CRUD.operation'
+import pagination from '@crud/Pagination'
+import { mapGetters } from 'vuex'
+import validate from '@/utils/validate'
 
-  export default {
-    name: "Table",
-    data() {
-      return {
-        searchFilterVisible: true,
-        list: null,
-        total: null,
-        listLoading: true,
-        needRefresh: false,
-        searchForm: {},
-        listQuery: {
-          page: 1,
-          size: 20
-        },
-        javaTypeList: [],
-        queryTypeList: [],
-        showTypeList: [],
-        tableList: [],
-        selectTableList: [],
-        columnList: [],
-        formSelect: {name: null},
-        form: {
-          name: undefined,
-          comments: undefined,
-          className: undefined,
-          parentTable: undefined,
-          parentTableFk: undefined,
-          columnFormList: [],
-          status: undefined,
-          description: undefined
-        },
-        dialogFormVisible: false,
-        dialogBeforeFormVisible: false,
-        dialogStatus: 'create',
-        textMap: {
-          update: '编辑表',
-          create: '创建表'
-        },
-        isDisabled: {
-          0: false,
-          1: true
-        },
-        tableKey: 0
-      };
-    },
-    computed: {
-      ...mapGetters(["permissions", "dicts"])
-    },
-    created() {
-      this.getList();
-      this.gen_table_edit = this.permissions["gen_table_edit"];
-      this.gen_table_del = this.permissions["gen_table_del"];
-    },
-    methods: {
-      getList() {
-        this.listLoading = true;
-        this.listQuery.queryConditionJson = util.parseJsonItemForm([{
-          fieldName: 'name', value: this.searchForm.name
-        }, {
-          fieldName: 'comments', value: this.searchForm.comments
-        }]);
-        tableService.page(this.listQuery).then(response => {
-          this.list = response.data.records;
-          this.total = response.data.total;
-          this.listLoading = false;
-        });
-      },
-      //搜索清空
-      searchReset() {
-        this.$refs['searchForm'].resetFields();
-      },
-      handleFilter() {
-        this.listQuery.current = 1;
-        this.getList();
-      },
-      handleSizeChange(val) {
-        this.listQuery.size = val;
-        this.getList();
-      },
-      handleCurrentChange(val) {
-        this.listQuery.current = val;
-        this.getList();
-      },
-      handleEdit(row) {
-        this.needRefresh=true
-        this.dialogStatus = row && !validate.checkNull(row.id) ? "update" : "create";
-        if (this.dialogStatus == "create") {
-          tableService.findSelect().then(response => {
-            this.selectTableList = response.data;
-            this.dialogBeforeFormVisible = true;
-          });
-        } else {
-          this.showEditForm({id: row.id})
-        }
-      },
-      showEditForm(params) {
-        this.dialogBeforeFormVisible = false;
-        this.dialogFormVisible = false;
-        this.$router.push({path: '/gen/edit', query: params})
-      },
-      showNextForm() {
-        const set = this.$refs;
-        set['formSelect'].validate(valid => {
-          if (valid) {
-            this.showEditForm({name: this.formSelect.name})
-          }
-        });
-      },
-      cancel() {
-        this.dialogFormVisible = false;
-        this.$refs['form'].resetFields();
-      },
-      handleDelete(row) {
-        this.$confirm(
-          "此操作将永久删除该表(表名:" + row.name + "), 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-          tableService.remove(row.id).then(response => {
-            this.getList();
-          });
-        });
+export default {
+  name: 'Timing',
+  components: { pagination, crudOperation, udOperation, rrOperation },
+  cruds() {
+    return CRUD({ title: '业务表管理', crudMethod: { ...crudTable }})
+  },
+  mixins: [presenter(), header(), crud()],
+  data() {
+    return {
+      delLoading: false,
+      dialogBeforeFormVisible: false,
+      formSelect: { name: null },
+      selectTableList: [],
+      dialogStatus: 'create',
+      permission: {
+        edit: 'gen_table_edit',
+        del: 'gen_table_del'
       }
     }
-  };
+  },
+  computed: {
+    ...mapGetters([
+      'dicts', 'permissions'
+    ])
+  },
+  created() {
+    this.crud.optShow = {
+      add: false,
+      edit: false,
+      del: true
+    }
+  },
+  methods: {
+    handleEdit(row) {
+      this.dialogStatus = row && !validate.checkNull(row.id) ? 'update' : 'create'
+      if (this.dialogStatus === 'create') {
+        crudTable.findSelect().then(response => {
+          this.selectTableList = response.data
+          this.dialogBeforeFormVisible = true
+        })
+      } else {
+        this.showEditForm({ id: row.id })
+      }
+    },
+    handleRefreshColumn() {
+      crudTable.refreshColumn(this.crud.selections[0].id).then(response => {
+      })
+    },
+    showEditForm(params) {
+      this.dialogBeforeFormVisible = false
+      this.$router.push({ path: '/gen/edit', query: params })
+    },
+    showNextForm() {
+      this.$refs['formSelect'].validate(valid => {
+        if (valid) {
+          this.showEditForm({ name: this.formSelect.name })
+        }
+      })
+    }
+  }
+}
 </script>

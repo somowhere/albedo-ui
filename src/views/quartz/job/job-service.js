@@ -1,81 +1,57 @@
-import request from '@/router/axios';
-import validate from "@/util/validate";
+import request from '@/utils/request'
+import qs from 'qs'
 
-let beforeCronValue = {};
-const jobService = {
-  page(query) {
-    return request({
-      url: '/quartz/job/',
-      method: 'get',
-      params: query
-    })
-  },
+export function save(data) {
+  return request({
+    url: '/quartz/job',
+    method: 'post',
+    data
+  })
+}
 
-  save(obj) {
-    return request({
-      url: '/quartz/job/',
-      method: 'post',
-      data: obj
-    })
-  },
+export function del(ids) {
+  return request({
+    url: '/quartz/job',
+    method: 'delete',
+    data: ids
+  })
+}
 
-  find(id) {
-    return request({
-      url: '/quartz/job/' + id,
-      method: 'get'
-    })
-  },
+export function page(params) {
+  return request({
+    url: '/quartz/job/?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
 
-  remove(id) {
-    return request({
-      url: '/quartz/job/' + id,
-      method: 'delete'
-    })
-  },
+export function get(id) {
+  return request({
+    url: '/quartz/job/' + id,
+    method: 'get'
+  })
+}
 
-  run(id) {
-    return request({
-      url: '/quartz/job/run/' + id,
-      method: 'post'
-    })
-  },
+export function updateStatus(ids) {
+  return request({
+    url: '/quartz/job/update-status',
+    method: 'put',
+    data: ids
+  })
+}
 
-  concurrent(id) {
-    return request({
-      url: '/quartz/job/concurrent/' + id,
-      method: 'post'
-    })
-  },
+export function run(ids) {
+  return request({
+    url: '/quartz/job/run/',
+    method: 'put',
+    data: ids
+  })
+}
 
-  available(id) {
-    return request({
-      url: '/quartz/job/available/' + id,
-      method: 'post'
-    })
-  },
-
-
-  validateUnique(rule, value, callback, id) {
-    validate.isUnique(rule, value, callback, '/quartz/job/checkByProperty?id=' + util.objToStr(id))
-  },
-  validateCronExpression(rule, value, callback) {
-    if (validate.checkNotNull(value) && value != beforeCronValue[rule.field]) {
-      let url = '/quartz/job/check-cron-expression?' + rule.field + '=' + value;
-      request({
-        url: url,
-        method: 'get'
-      }).then(rs => {
-        beforeCronValue[rule.field] = value;
-        if (!rs) {
-          callback(new Error(validate.checkNotNull(rule.message) ? rule.message : "cron表达式不合法"))
-        } else {
-          callback()
-        }
-      });
-    } else {
-      callback()
-    }
-  }
-};
-
-export default jobService
+export function downloadLog(params) {
+  return request({
+    url: '/quartz/job-log/download?' + qs.stringify(params, { indices: false }),
+    method: 'get',
+    responseType: 'blob'
+  })
+}
+export default { page, del, updateStatus, run, save, get, downloadLog }

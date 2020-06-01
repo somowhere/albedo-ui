@@ -1,560 +1,274 @@
 <template>
-  <div class="app-container calendar-list-container">
-    <basic-container>
-      <div class="filter-container">
-        <el-form :inline="true" :model="searchJobForm" ref="searchJobForm" v-show="searchFilterVisible">
-          <el-form-item label="任务名称" prop="name">
-            <el-input class="filter-item input-normal" v-model="searchJobForm.name"></el-input>
-          </el-form-item>
-          <el-form-item label="任务组名" prop="group">
-            <el-input class="filter-item input-normal" v-model="searchJobForm.group"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button @click="handleFilter" icon="el-icon-search" size="small" type="primado">查询</el-button>
-            <el-button @click="searchReset" icon="icon-rest" size="small">重置</el-button>
-          </el-form-item>
-        </el-form>
+  <div class="app-container">
+    <!--工具栏-->
+    <div class="head-container">
+      <div v-if="crud.props.searchToggle">
+        <!-- 搜索 -->
+        <el-input
+          v-model="query.jobName"
+          class="filter-item"
+          clearable
+          placeholder="输入任务名称搜索"
+          size="small"
+          style="width: 200px;"
+          @keyup.enter.native="toQuery"
+        />
+        <el-date-picker
+          v-model="query.createdDate"
+          :default-time="['00:00:00','23:59:59']"
+          class="date-item"
+          end-placeholder="结束日期"
+          range-separator=":"
+          size="small"
+          start-placeholder="开始日期"
+          type="daterange"
+          value-format="yyyy-MM-dd HH:mm:ss"
+        />
+        <rrOperation />
       </div>
-
-      <!-- 表格功能列 -->
-      <div class="table-menu">
-        <div class="table-menu-left">
-          <el-button-group>
-            <el-button @click="handleEdit" class="filter-item" icon="edit" size="mini" type="primado"
-                       v-if="quartz_job_edit">添加
-            </el-button>
-            <el-button @click="handleJobLog" class="filter-item" icon="edit" size="mini" type="primado"
-                       v-if="quartz_job_log_view">执行日志
-            </el-button>
-          </el-button-group>
-        </div>
-        <div class="table-menu-right">
-          <el-button @click="searchFilterVisible= !searchFilterVisible" circle icon="el-icon-search"
-                     size="mini"></el-button>
-        </div>
+      <crudOperation :permission="permission">
+        <!-- 任务日志 -->
+        <el-button
+          slot="right"
+          v-permission="[permission.jobLogView]"
+          plain
+          class="filter-item"
+          icon="el-icon-tickets"
+          size="mini"
+          type="info"
+          @click="doLog"
+        >日志
+        </el-button>
+      </crudOperation>
+      <Log ref="log" />
+    </div>
+    <!--Form表单-->
+    <el-dialog
+      :before-close="crud.cancelCU"
+      :close-on-click-modal="false"
+      :title="crud.status.title"
+      :visible.sync="crud.status.cu > 0"
+      append-to-body
+      width="730px"
+    >
+      <el-form ref="form" :inline="true" :model="form" label-width="110px" size="small">
+        <el-form-item label="任务名称" prop="name" :rules="[{ required: true, message: '请输入任务名称', trigger: 'blur' }]">
+          <el-input v-model="form.name" style="width: 220px;" />
+        </el-form-item>
+        <el-form-item label="任务分组" prop="group" :rules="[{ required: true, message: '请选择任务分组', trigger: 'change' }]">
+          <el-select v-model="form.group" style="width: 220px">
+            <el-option v-for="item in jobGroupOptions" :key="item.value" :value="item.value" :label="item.label" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Cron表达式" prop="cronExpression" :rules="[{ required: true, message: '请选择Cron表达式', trigger: 'blur' }]">
+          <el-input v-model="form.cronExpression" style="width: 220px;" />
+          <div>
+            <el-tag type="info" size="mini">Cron表达式</el-tag>
+          </div>
+        </el-form-item>
+        <el-form-item label="是否并发执行" :rules="[{ required: true, message: '请选择是否并发执行', trigger: 'change' }]">
+          <el-radio-group v-model="form.concurrent" style="width: 220px">
+            <el-checkbox-button v-for="item in flagOptions" :key="item.value" :label="item.value">{{ item.label }}</el-checkbox-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="执行错误策略" :rules="[{ required: true, message: '请选择计划执行错误策略', trigger: 'change' }]">
+          <el-select v-model="form.misfirePolicy" placeholder="请选择计划执行错误策略" style="width: 220px">
+            <el-option v-for="item in misfirePolicyOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="任务状态" :rules="[{ required: true, message: '请选择任务状态', trigger: 'change' }]">
+          <el-radio-group v-model="form.status" style="width: 220px">
+            <el-radio-button v-for="item in jobStatusOptions" :key="item.value" :label="item.value">{{ item.label }}</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="子任务ID">
+          <el-input v-model="form.subTask" placeholder="多个用逗号隔开，按顺序执行" style="width: 220px;" />
+        </el-form-item>
+        <el-form-item label="告警邮箱" prop="email">
+          <el-input v-model="form.email" placeholder="多个邮箱用逗号隔开" style="width: 220px;" />
+        </el-form-item>
+        <el-form-item label="调用目标" :rules="[{ required: true, message: '请选择调用目标', trigger: 'blur' }]">
+          <el-input v-model="form.invokeTarget" rows="4" style="width: 566px;" type="textarea" />
+        </el-form-item>
+        <el-form-item label="任务描述">
+          <el-input v-model="form.description" rows="4" style="width: 566px;" type="textarea" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="text" @click="crud.cancelCU">取消</el-button>
+        <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
       </div>
-      <el-table :data="list" :key='tableKey' @sort-change="sortChange" element-loading-text="加载中..."
-                fit highlight-current-row v-loading="listLoading">
-        <el-table-column align="center" label="任务名称">
-          <template slot-scope="scope">
-            <span>{{scope.row.name}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="任务组名">
-          <template slot-scope="scope">
-            <span>{{scope.row.group}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="调用目标">
-          <template slot-scope="scope">
-            <span>{{scope.row.invokeTarget}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="cron表达式">
-          <template slot-scope="scope">
-            <span>{{scope.row.cronExpression}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="执行失败策略" width="120">
-          <template slot-scope="scope">
-            <el-tag>{{scope.row.misfirePolicyText}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="是否并发执行" width="120">
-          <template slot-scope="scope">
-            <el-switch
-              @change="concurrentChange(scope.row.available, scope.row.id)"
-              active-value="1" inactive-value="0" v-model="scope.row.concurrent">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" label="是否启用" width="120">
-          <template slot-scope="scope">
-            <el-switch
-              @change="availableChange(scope.row.available, scope.row.id)"
-              active-value="1" inactive-value="0" v-model="scope.row.available">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column align="center" fixed="right" label="操作" v-if="quartz_job_edit || quartz_job_del">
-          <template slot-scope="scope">
-            <el-button @click="handleRun(scope.row)" icon="icon-check-circle" type="primary" title="执行" size="mini" circle v-if="quartz_job_run">
-            </el-button>
-            <el-button @click="handleEdit(scope.row)" icon="icon-edit" type="info" title="编辑" size="mini" circle  v-if="quartz_job_edit">
-            </el-button>
-            <el-button @click="handleDelete(scope.row)" icon="icon-delete" type="danger" title="删除" size="mini" circle  v-if="quartz_job_del">
-            </el-button>
-          </template>
-        </el-table-column>
-
-      </el-table>
-
-      <div class="pagination-container" v-show="!listLoading">
-        <el-pagination :current-page.sync="listQuery.current" :page-size="listQuery.size"
-                       :page-sizes="[10,20,30, 50]" :total="total" @current-change="handleCurrentChange"
-                       @size-change="handleSizeChange" layout="total, sizes, prev, pager, next, jumper">
-        </el-pagination>
-      </div>
-      <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-        <el-form :model="form" label-width="100px" ref="form">
-          <el-form-item :rules="[{required: true,message: '请输入任务名称'},{min: 0,max: 64,message: '长度在 0 到 64 个字符'},]"
-                        label="任务名称"
-                        prop="name">
-            <el-input v-model="form.name"></el-input>
-
-          </el-form-item>
-          <el-form-item :rules="[{required: true,message: '请输入任务组名'}]" label="任务组名" prop="group">
-            <crud-select :dic="jobGroupOptions" v-model="form.group"></crud-select>
-          </el-form-item>
-          <el-form-item :rules="[{required: true,message: '请输入调用目标'},{min: 0,max: 500,message: '长度在 0 到 500 个字符'},]"
-                        label="调用目标"
-                        prop="invokeTarget">
-            <el-input v-model="form.invokeTarget"></el-input>
-            <div>
-              <el-tag size="mini" type="info">Bean调用示例：simpleTask.doParams('albedo')</el-tag>
-              <el-tag size="mini" type="info">
-                Class类调用示例：com.albedo.java.modules.quartz.task.SimpleTask.doParams('albedo')
-              </el-tag>
-              <el-tag size="mini" type="info">
-                参数说明：支持字符串，布尔类型，长整型，浮点型，整型
-              </el-tag>
-              <el-tag size="mini" type="info">参数说明：支持字符串，布尔类型，长整型，浮点型，整型</el-tag>
+    </el-dialog>
+    <!--表格渲染-->
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      style="width: 100%;"
+      @selection-change="crud.selectionChangeHandler"
+    >
+      <el-table-column type="selection" width="55" />
+      <el-table-column :show-overflow-tooltip="true" label="任务ID" prop="id" width="90px" />
+      <el-table-column :show-overflow-tooltip="true" label="任务名称" prop="name" />
+      <el-table-column :show-overflow-tooltip="true" label="任务分组" prop="groupText" width="90px" />
+      <el-table-column :show-overflow-tooltip="true" label="子任务ID" prop="subTask" width="90px" />
+      <el-table-column :show-overflow-tooltip="true" label="调用目标" prop="invokeTarget" />
+      <el-table-column :show-overflow-tooltip="true" label="cron表达式" prop="cronExpression" width="120px" />
+      <el-table-column :show-overflow-tooltip="true" label="执行失败策略" prop="misfirePolicyText" width="100px" />
+      <el-table-column :show-overflow-tooltip="true" label="是否并发执行" prop="concurrentText" width="100px" />
+      <el-table-column :show-overflow-tooltip="true" label="状态" prop="statusText" width="90px">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.status === '1' ? 'success' : 'warning'">{{ scope.row.statusText }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column :show-overflow-tooltip="true" label="描述" prop="description" />
+      <el-table-column :show-overflow-tooltip="true" label="创建日期" prop="createdDate" width="136px">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.createdDate) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-permission="[permission.edit, permission.del]"
+        align="center"
+        fixed="right"
+        label="操作"
+        width="170px"
+      >
+        <template slot-scope="scope">
+          <el-button
+            v-permission="[permission.edit]"
+            size="mini"
+            style="margin-right: 3px;"
+            type="text"
+            @click="crud.toEdit(scope.row)"
+          >编辑
+          </el-button>
+          <el-button
+            v-permission="[permission.edit]"
+            size="mini"
+            style="margin-left: -2px"
+            type="text"
+            @click="execute(scope.row.id)"
+          >执行
+          </el-button>
+          <el-button
+            v-permission="[permission.edit]"
+            size="mini"
+            style="margin-left: 3px"
+            type="text"
+            @click="updateStatus(scope.row.id)"
+          >
+            {{ scope.row.status === '0' ? '恢复' : '暂停' }}
+          </el-button>
+          <el-popover
+            :ref="scope.row.id"
+            v-permission="[permission.del]"
+            placement="top"
+            width="200"
+          >
+            <p>确定停止并删除该任务吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
+              <el-button :loading="delLoading" size="mini" type="primary" @click="delMethod(scope.row.id)">确定
+              </el-button>
             </div>
-          </el-form-item>
-          <el-form-item :rules="[{validator: validateCronExpression}]" label="cron表达式" prop="cronExpression">
-            <el-input v-model="form.cronExpression"></el-input>
-
-          </el-form-item>
-          <el-form-item :rules="[{required: true},]" label="执行失败策略" prop="misfirePolicy">
-            <crud-select :dic="misfirePolicyOptions" v-model="form.misfirePolicy"></crud-select>
-            <div>
-              <el-tag size="mini" type="info">计划执行错误策略</el-tag>
-            </div>
-          </el-form-item>
-          <el-form-item :rules="[{required: true},]" label="是否并发执行" prop="concurrent">
-            <crud-radio :dic="concurrentOptions" v-model="form.concurrent"></crud-radio>
-
-          </el-form-item>
-          <el-form-item :rules="[{required: true},]" label="是否启用" prop="available">
-            <crud-radio :dic="availableOptions" v-model="form.available"></crud-radio>
-          </el-form-item>
-          <el-form-item :rules="[{min: 0,max: 255,message: '长度在 0 到 255 个字符'},]" label="备注" prop="description">
-            <el-input type="textarea" v-model="form.description"></el-input>
-
-          </el-form-item>
-        </el-form>
-        <div class="dialog-footer" slot="footer">
-          <el-button @click="cancel()">取 消</el-button>
-          <el-button @click="save()" type="primado">保 存</el-button>
-        </div>
-      </el-dialog>
-
-      <el-dialog :visible.sync="dialogJobLogVisible" title="任务调度日志" width="90%">
-        <div class="app-container calendar-listJobLog-container">
-            <div class="filter-container">
-              <el-form :inline="true" :model="searchJobLogForm" ref="searchJobLogForm"
-                       v-show="searchJobLogFilterVisible">
-                <el-form-item label="任务名称" prop="jobName">
-                  <el-input class="filter-item input-normal" v-model="searchJobLogForm.jobName"></el-input>
-                </el-form-item>
-                <el-form-item label="任务组名" prop="jobGroup">
-                  <el-input class="filter-item input-normal" v-model="searchJobLogForm.jobGroup"></el-input>
-                </el-form-item>
-                <el-form-item label="执行状态" prop="status">
-                  <crud-radio :dic="statusOptions" v-model="searchJobLogForm.status"></crud-radio>
-                </el-form-item>
-                <el-form-item>
-                  <el-button @click="handleJobLogFilter" icon="el-icon-search" size="small" type="primary">查询
-                  </el-button>
-                  <el-button @click="searchResetJobLog" icon="icon-rest" size="small">重置</el-button>
-                </el-form-item>
-              </el-form>
-            </div>
-            <!-- 表格功能列 -->
-            <div class="table-menu">
-              <div class="table-menu-left">
-                <el-button-group>
-                  <el-button @click="handleJobLogClean" icon="icon-export" size="mini" type="primary"
-                             v-if="quartz_jobLog_clean">清空
-                  </el-button>
-                  <el-button @click="handleJobLogExport" icon="icon-export" size="mini" type="primary"
-                             v-if="quartz_jobLog_export">导出
-                  </el-button>
-                </el-button-group>
-              </div>
-              <div class="table-menu-right">
-                <el-button @click="searchJobLogFilterVisible= !searchJobLogFilterVisible" circle icon="el-icon-search"
-                           size="mini"></el-button>
-              </div>
-            </div>
-            <el-table :data="listJobLog" :key='tableKeyJobLog' @sort-change="sortChangeJobLog"
-                      element-loading-text="加载中..."
-                      fit highlight-current-row v-loading="listJobLogLoading">
-              <el-table-column
-                fixed="left"  type="expand" width="40">
-                <template slot-scope="props">
-                  <el-form label-position="left" inline class="demo-table-expand">
-                    <el-form-item label="日志信息">
-                      <span>{{ props.row.jobMessage }}</span>
-                    </el-form-item>
-                    <el-form-item label="异常信息">
-                      <span>{{ props.row.exceptionInfo }}</span>
-                    </el-form-item>
-                  </el-form>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="任务名称">
-                <template slot-scope="scope">
-                  <span>{{scope.row.jobName}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="任务组名">
-                <template slot-scope="scope">
-                  <span>{{scope.row.jobGroup}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="调用目标字符串">
-                <template slot-scope="scope">
-                  <span>{{scope.row.invokeTarget}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="执行状态">
-                <template slot-scope="scope">
-                  <el-tag>{{scope.row.statusText}}</el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="开始时间">
-                <template slot-scope="scope">
-                  <span>{{scope.row.startTime}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="结束时间">
-                <template slot-scope="scope">
-                  <span>{{scope.row.endTime}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" label="创建时间">
-                <template slot-scope="scope">
-                  <span>{{scope.row.createTime}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column align="center" fixed="right" label="操作" v-if="quartz_jobLog_del">
-                <template slot-scope="scope">
-                  <el-button @click="handleJobLogDelete(scope.row)" icon="icon-delete" type="danger" title="删除" size="mini" circle
-                             v-if="quartz_jobLog_del">
-                  </el-button>
-                </template>
-              </el-table-column>
-
-            </el-table>
-            <div class="pagination-container" style="height: 50px" v-show="!listJobLogLoading">
-              <el-pagination :current-page.sync="listJobLogQuery.current" :page-size="listJobLogQuery.size"
-                             :page-sizes="[10,20,30, 50]"
-                             :total="totalJobLog" @current-change="handleJobLogCurrentChange"
-                             @size-change="handleJobLogSizeChange" background
-                             class="pull-right" layout="total, sizes, prev, pager, next, jumper">
-              </el-pagination>
-            </div>
-        </div>
-      </el-dialog>
-    </basic-container>
+            <el-button slot="reference" size="mini" type="text">删除</el-button>
+          </el-popover>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页组件-->
+    <pagination />
   </div>
 </template>
 
 <script>
-  import jobService from "./job-service";
-  import {mapGetters} from "vuex";
-  import util from "@/util/util";
-  import validate from "../../../util/validate";
-  import jobLogService from "./job-log-service";
-  import {baseUrl} from "../../../config/env";
+import crudJob from '@/views/quartz/job/job-service'
+import Log from './log'
+import CRUD, { crud, form, header, presenter } from '@crud/crud'
+import rrOperation from '@crud/RR.operation'
+import crudOperation from '@crud/CRUD.operation'
+import pagination from '@crud/Pagination'
+import { mapGetters } from 'vuex'
 
-  export default {
-    name: "table_quartz_job",
-    data() {
-      return {
-        searchFilterVisible: true,
-        dialogFormVisible: false,
-        dialogJobLogVisible: false,
-        list: null,
-        total: null,
-        listLoading: true,
-        searchJobForm: {},
-        listQuery: {
-          page: 1,
-          size: 20
-        },
-        form: {
-          name: undefined,
-          group: undefined,
-          invokeTarget: undefined,
-          cronExpression: undefined,
-          misfirePolicy: undefined,
-          concurrent: undefined,
-          available: undefined,
-          description: undefined,
-        },
-        sortList: [],
-        validateCronExpression: (rule, value, callback) => {
-          jobService.validateCronExpression(rule, value, callback, this.form.id)
-        },
-        misfirePolicyOptions: undefined,
-        concurrentOptions: undefined,
-        availableOptions: undefined,
-        dialogStatus: 'create',
-        textMap: {
-          update: '编辑任务调度',
-          create: '创建任务调度'
-        },
-        tableKey: 0,
-        searchJobLogFilterVisible: false,
-        listJobLog: null,
-        totalJobLog: null,
-        listJobLogLoading: true,
-        searchJobLogForm: {},
-        listJobLogQuery: {
-          page: 1,
-          size: 10
-        },
-        tableKeyJobLog: 1
-      };
-    },
-    computed: {
-      ...mapGetters(["permissions", "dicts"])
-    },
-    filters: {},
-    created() {
-      this.getList();
-      this.quartz_job_run = this.permissions["quartz_job_run"];
-      this.quartz_job_edit = this.permissions["quartz_job_edit"];
-      this.quartz_job_log_view = this.permissions["quartz_job_log_view"];
-      this.quartz_job_del = this.permissions["quartz_job_del"];
-      this.quartz_jobLog_export = this.permissions["quartz_jobLog_export"];
-      this.quartz_jobLog_clean = this.permissions["quartz_jobLog_clean"];
-      this.quartz_jobLog_del = this.permissions["quartz_jobLog_del"];
-      this.statusOptions = this.dicts["sys_status"];
-      this.jobGroupOptions = this.dicts["sys_job_group"];
-      this.misfirePolicyOptions = this.dicts["sys_misfire_policy"];
-      this.concurrentOptions = this.dicts["sys_flag"];
-      this.availableOptions = this.dicts["sys_flag"];
-    },
-    methods: {
-      getList() {
-        this.listLoading = true;
-        this.listQuery.quedoConditionJson = util.parseJsonItemForm([
-          {fieldName: 'name', value: this.searchJobForm.name, operate: 'like', attrType: 'String'},
-          {fieldName: 'group', value: this.searchJobForm.group, operate: 'like', attrType: 'String'},
-        ]);
-        jobService.page(this.listQuery).then(response => {
-          this.list = response.data.records;
-          this.total = response.data.total;
-          this.listLoading = false;
-        });
+const defaultForm = {
+  id: null,
+  name: null,
+  group: null,
+  subTask: null,
+  invokeTarget: null,
+  cronExpression: null,
+  misfirePolicy: null,
+  concurrent: null,
+  status: null,
+  email: null,
+  description: null
+}
+export default {
+  name: 'Timing',
+  components: { Log, pagination, crudOperation, rrOperation },
+  cruds() {
+    return CRUD({ title: '定时任务', crudMethod: { ...crudJob }})
+  },
+  mixins: [presenter(), header(), form(defaultForm), crud()],
+  data() {
+    return {
+      delLoading: false,
+      permission: {
+        edit: 'quartz_job_edit',
+        del: 'quartz_job_del',
+        jobLogView: 'quartz_jobLog_view'
       },
-      sortChange(column) {
-        if (column.order == "ascending") {
-          this.listQuery.ascs = column.prop;
-          this.listQuery.descs = undefined;
-        } else {
-          this.listQuery.descs = column.prop;
-          this.listQuery.ascs = undefined;
-        }
-        this.getList()
-      },
-      searchReset() {
-        this.$refs['searchJobForm'].resetFields();
-      },
-      handleFilter() {
-        this.listQuery.current = 1;
-        this.getList();
-      },
-      handleSizeChange(val) {
-        this.listQuery.size = val;
-        this.getList();
-      },
-      handleCurrentChange(val) {
-        this.listQuery.current = val;
-        this.getList();
-      },
-      handleEdit(row) {
-        this.resetForm();
-        this.dialogStatus = row && !validate.checkNull(row.id) ? "update" : "create";
-        if (this.dialogStatus == "create") {
-          this.dialogFormVisible = true;
-        } else {
-          jobService.find(row.id).then(response => {
-            this.form = response.data;
-            this.form.misfirePolicy = util.objToStr(this.form.misfirePolicy);
-            this.form.concurrent = util.objToStr(this.form.concurrent);
-            this.form.available = util.objToStr(this.form.available);
-            this.form.delFlag = util.objToStr(this.form.delFlag);
-            this.dialogFormVisible = true;
-          });
-        }
-      },
-      handleJobLog(row) {
-        this.dialogJobLogVisible = true;
-        this.getListJobLog();
-      },
-      availableChange(available, id) {
-        this.$confirm(
-          "您确定要执行此操作吗?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-          jobService.available(id).then((data) => {
-            this.getList();
-          });
-        });
-      },
-      concurrentChange(concurrent, id) {
-        this.$confirm(
-          "您确定要执行此操作吗?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-          jobService.concurrent(id).then((data) => {
-            this.getList();
-          });
-        });
-      },
-      cancel() {
-        this.dialogFormVisible = false;
-        this.$refs['form'].resetFields();
-      },
-      save() {
-        const set = this.$refs;
-        set['form'].validate(valid => {
-          if (valid) {
-            jobService.save(this.form).then((data) => {
-              this.getList();
-              this.cancel()
-            });
-          } else {
-            return false;
-          }
-        });
-      },
-      handleRun(row) {
-        this.$confirm(
-          "此操作将永久删除该任务调度, 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-          jobService.run(row.id).then((data) => {
-            this.getList();
-          });
-        });
-      },
-      handleDelete(row) {
-        this.$confirm(
-          "此操作将永久删除该任务调度, 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-          jobService.remove(row.id).then((data) => {
-            this.getList();
-          });
-        });
-      },
-      resetForm() {
-        this.form = {
-          name: "",
-          group: "",
-          invokeTarget: "",
-          cronExpression: "",
-          misfirePolicy: "",
-          concurrent: "",
-          available: "",
-          description: "",
-        };
-        this.$refs['form'] && this.$refs['form'].resetFields();
-      },
-      getListJobLog() {
-        this.listJobLogLoading = true;
-        this.listJobLogQuery.queryConditionJson = util.parseJsonItemForm([
-          {fieldName: 'jobName', value: this.searchJobLogForm.jobName, operate: 'like', attrType: 'String'},
-          {fieldName: 'jobGroup', value: this.searchJobLogForm.jobGroup, operate: 'like', attrType: 'String'},
-          {fieldName: 'status', value: this.searchJobLogForm.status, operate: 'eq', attrType: 'String'},
-        ]);
-        jobLogService.page(this.listJobLogQuery).then(response => {
-          this.listJobLog = response.data.records;
-          this.totalJobLog = response.data.total;
-          this.listJobLogLoading = false;
-        });
-      },
-      sortChangeJobLog(column) {
-        if (column.order == "ascending") {
-          this.listJobLogQuery.ascs = column.prop;
-          this.listJobLogQuery.descs = undefined;
-        } else {
-          this.listJobLogQuery.descs = column.prop;
-          this.listJobLogQuery.ascs = undefined;
-        }
-        this.getListJobLog()
-      },
-      searchResetJobLog() {
-        this.$refs['searchJobLogForm'].resetFields();
-      },
-      handleJobLogFilter() {
-        this.listJobLogQuery.page = 1;
-        this.getListJobLog();
-      },
-      handleJobLogSizeChange(val) {
-        this.listJobLogQuery.size = val;
-        this.getListJobLog();
-      },
-      handleJobLogCurrentChange(val) {
-        this.listJobLogQuery.page = val;
-        this.getListJobLog();
-      },
-      handleJobLogDelete(row) {
-        this.$confirm(
-          "此操作将永久删除该任务调度日志, 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          }
-        ).then(() => {
-          jobLogService.remove(row.id).then((data) => {
-            this.getListJobLog();
-          });
-        });
-      },
-      handleJobLogClean(row) {
-        this.$confirm('确定要此操作吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          jobLogService.clean(row.id).then((rs) => {
-            this.getListJobLog();
-          })
-        })
-      },
-      handleJobLogExport() {
-        jobLogService.export(this.listJobLogQuery).then(response => {
-          window.location.href = `${window.location.origin}` + baseUrl + "/file/download?fileName=" + encodeURI(response.data) + "&delete=" + true;
-        });
-      }
+      jobGroupOptions: [],
+      jobStatusOptions: [],
+      misfirePolicyOptions: [],
+      flagOptions: []
     }
-  };
+  },
+  computed: {
+    ...mapGetters([
+      'dicts', 'permissions'
+    ])
+  },
+  created() {
+    this.jobGroupOptions = this.dicts['quartz_job_group']
+    this.jobStatusOptions = this.dicts['quartz_job_status']
+    this.misfirePolicyOptions = this.dicts['quartz_misfire_policy']
+    this.flagOptions = this.dicts['sys_flag']
+  },
+  methods: {
+    // 执行
+    execute(id) {
+      crudJob.run([id]).then(res => {
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    // 改变状态
+    updateStatus(id) {
+      crudJob.updateStatus([id]).then(res => {
+        this.crud.toQuery()
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    delMethod(id) {
+      this.delLoading = true
+      crudJob.del([id]).then(() => {
+        this.delLoading = false
+        this.$refs[id].doClose()
+        this.crud.dleChangePage(1)
+        this.crud.toQuery()
+      }).catch(() => {
+        this.delLoading = false
+        this.$refs[id].doClose()
+      })
+    },
+    // 显示日志
+    doLog() {
+      this.$refs.log.dialog = true
+      this.$refs.log.doInit()
+    }
+  }
+}
 </script>

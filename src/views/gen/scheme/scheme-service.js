@@ -1,60 +1,65 @@
-import request from '@/router/axios'
+import request from '@/utils/request'
+import qs from 'qs'
 
-const schemeService = {
-  page(query) {
-    return request({
-      url: '/gen/scheme/',
-      method: 'get',
-      params: query
-    })
-  },
+export function page(params) {
+  return request({
+    url: '/gen/scheme/?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
+export function save(obj) {
+  return request({
+    url: '/gen/scheme/',
+    method: 'post',
+    data: obj
+  })
+}
 
-  save(obj) {
-    return request({
-      url: '/gen/scheme/',
-      method: 'post',
-      data: obj
-    })
-  },
+export function del(ids) {
+  return request({
+    url: '/gen/scheme/',
+    method: 'delete',
+    data: ids
+  })
+}
 
-  genMenu(obj) {
-    return request({
-      url: '/gen/scheme/gen-menu',
-      method: 'post',
-      data: obj
-    })
-  },
+export function get(id) {
+  return request({
+    url: '/gen/scheme/' + id,
+    method: 'get',
+    params: { id: id }
+  })
+}
 
-  genCode(obj) {
-    return request({
-      url: '/gen/scheme/gen-code',
-      method: 'put',
-      data: obj
-    })
-  },
+export function findFormData(id) {
+  return request({
+    url: '/gen/scheme/form-data',
+    method: 'get',
+    params: { id: id }
+  })
+}
+export function genMenu(obj) {
+  return request({
+    url: '/gen/scheme/gen-menu',
+    method: 'post',
+    data: obj
+  })
+}
 
+export function genCode(obj) {
+  return request({
+    url: '/gen/scheme/gen-code',
+    method: 'put',
+    data: obj
+  })
+}
 
-  find(query) {
-    return request({
-      url: '/gen/scheme/form-data',
-      method: 'get',
-      params: query
-    })
-  },
+export function previewCode(id) {
+  return request({
+    url: '/gen/scheme/preview/' + id,
+    method: 'get'
+  })
+}
 
-  previewCode(id) {
-    return request({
-      url: '/gen/scheme/preview/' + id,
-      method: 'get'
-    })
-  },
-
-  remove(id) {
-    return request({
-      url: '/gen/scheme/' + id,
-      method: 'delete'
-    })
-  },
-};
-export default schemeService
+export default { page, save, del, get, genMenu, genCode, previewCode, findFormData }
 

@@ -1,66 +1,49 @@
-/*
- *    Copyright (c) 2018-2025, lengleng All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- * Neither the name of the pig4cloud.com developer nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- * Author: lengleng (wangiegie@gmail.com)
- */
+import request from '@/utils/request'
+import qs from 'qs'
 
-import request from '@/router/axios'
+export function getDicts(query) {
+  return request({
+    url: '/sys/dict/tree',
+    method: 'get',
+    params: query
+  })
+}
 
-const dictService = {
-  fetchTree(query) {
-    return request({
-      url: '/sys/dict/tree',
-      method: 'get',
-      params: query
-    })
-  },
+export function page(params) {
+  return request({
+    url: '/sys/dict/?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
+export function get(id) {
+  return request({
+    url: '/sys/dict/' + id,
+    method: 'get'
+  })
+}
 
-  page(query) {
-    return request({
-      url: '/sys/dict/',
-      method: 'get',
-      params: query
-    })
-  },
+export function save(data) {
+  return request({
+    url: '/sys/dict',
+    method: 'post',
+    data
+  })
+}
 
-  save(obj) {
-    return request({
-      url: '/sys/dict/',
-      method: 'post',
-      data: obj
-    })
-  },
+export function del(ids) {
+  return request({
+    url: '/sys/dict',
+    method: 'delete',
+    data: ids
+  })
+}
 
-  find(id) {
-    return request({
-      url: '/sys/dict/' + id,
-      method: 'get'
-    })
-  },
+export function lock(ids) {
+  return request({
+    url: '/sys/dict',
+    method: 'put',
+    data: ids
+  })
+}
 
-  remove(id) {
-    return request({
-      url: '/sys/dict/' + id,
-      method: 'delete'
-    })
-  },
-
-  lock(id) {
-    return request({
-      url: '/sys/dict/' + id,
-      method: 'put'
-    })
-  }
-};
-export default dictService
+export default { page, save, lock, del, get, getDicts }

@@ -1,72 +1,64 @@
-/*
- *    Copyright (c) 2018-2025, lengleng All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- * Neither the name of the pig4cloud.com developer nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- * Author: lengleng (wangiegie@gmail.com)
- */
+import request from '@/utils/request'
+import qs from 'qs'
 
-import request from '@/router/axios'
+// 获取所有的Role
+export function getAll() {
+  return request({
+    url: '/sys/role/all',
+    method: 'get'
+  })
+}
 
-const roleService = {
-  page(query) {
-    return request({
-      url: '/sys/role/',
-      method: 'get',
-      params: query
-    })
-  },
+export function save(data) {
+  return request({
+    url: '/sys/role',
+    method: 'post',
+    data
+  })
+}
 
-  deptRoleList() {
-    return request({
-      url: '/sys/role/combo-data',
-      method: 'get'
-    })
-  },
+export function page(params) {
+  return request({
+    url: '/sys/role/?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
+export function get(id) {
+  return request({
+    url: '/sys/role/' + id,
+    method: 'get'
+  })
+}
 
-  find(id) {
-    return request({
-      url: '/sys/role/' + id,
-      method: 'get'
-    })
-  },
+export function getLevel() {
+  return request({
+    url: '/sys/role/level',
+    method: 'get'
+  })
+}
 
-  save(obj) {
-    return request({
-      url: '/sys/role',
-      method: 'post',
-      data: obj
-    })
-  },
+export function del(ids) {
+  return request({
+    url: '/sys/role',
+    method: 'delete',
+    data: ids
+  })
+}
 
-  remove(id) {
-    return request({
-      url: '/sys/role/' + id,
-      method: 'delete'
-    })
-  },
+export function lock(ids) {
+  return request({
+    url: '/sys/role/',
+    method: 'put',
+    data: ids
+  })
+}
 
-  fetchRoleTree(roleName) {
-    return request({
-      url: '/sys/menu/tree/' + roleName,
-      method: 'get'
-    })
-  },
+export function editMenu(data) {
+  return request({
+    url: '/sys/role/menu',
+    method: 'put',
+    data
+  })
+}
 
-  lock(id) {
-    return request({
-      url: '/sys/role/' + id,
-      method: 'put'
-    })
-  }
-};
-export default roleService
+export default { page, save, lock, del, get, editMenu, getLevel }
