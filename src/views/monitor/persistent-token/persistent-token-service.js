@@ -3,14 +3,14 @@ import qs from 'qs'
 
 export function page(params) {
   return request({
-    url: '/sys/token/?' + qs.stringify(params, { indices: false }),
+    url: '/sys/persistent-token/?' + qs.stringify(params, { indices: false }),
     method: 'get'
   })
 }
 
 export function del(ids) {
   return request({
-    url: '/sys/token',
+    url: '/sys/persistent-token',
     method: 'delete',
     data: ids
   })
