@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
-        <el-input v-model="query.username" clearable size="small" placeholder="用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model="query.blurry" clearable size="small" placeholder="全表模糊搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <rrOperation />
       </div>
       <crudOperation>
@@ -37,9 +37,9 @@
       <el-table-column prop="ipAddress" label="IP" />
       <el-table-column :show-overflow-tooltip="true" prop="loginLocation" label="登录地点" />
       <el-table-column :show-overflow-tooltip="true" prop="userAgent" label="用户代理" />
-      <el-table-column prop="token_type" label="类型" />
-      <el-table-column prop="client_id" label="客户端" />
-      <el-table-column prop="expires_in" label="过期时间" />
+      <el-table-column prop="browser" label="浏览器" />
+      <el-table-column prop="os" label="操作系统" />
+      <el-table-column prop="tokenDate" label="创建时间" />
       <el-table-column v-permission="[permission.del]" label="操作" width="70px" fixed="right">
         <template slot-scope="scope">
           <el-popover

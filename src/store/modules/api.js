@@ -6,6 +6,8 @@ const api = {
     socketApi: baseUrl + '/websocket?token=kl',
     // swagger
     swaggerApi: baseUrl + '/swagger-ui.html',
+    // service
+    serviceApi: 'http://albedo-gateway:5001',
     // 文件上传
     fileUploadApi: defaultSettings.api + '/file/upload',
     // baseUrl，

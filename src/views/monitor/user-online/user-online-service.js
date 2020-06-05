@@ -8,7 +8,7 @@ export function page(params) {
   })
 }
 
-export function del(ids) {
+export function batchForceLogout(ids) {
   return request({
     url: '/sys/user-online',
     method: 'delete',
@@ -16,12 +16,4 @@ export function del(ids) {
   })
 }
 
-export function batchForceLogout(ids) {
-  return request({
-    url: '/sys/user-online/batch-force-logout',
-    method: 'put',
-    data: ids
-  })
-}
-
-export default { page, del, batchForceLogout }
+export default { page, batchForceLogout }
