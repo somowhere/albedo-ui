@@ -43,6 +43,7 @@ router.beforeEach((to, from, next) => {
         })
         // 登录时未拉取 菜单，在此处拉取
       } else {
+        console.log(store.getters.user)
         next()
       }
     }
