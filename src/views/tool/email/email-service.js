@@ -2,14 +2,14 @@ import request from '@/utils/request'
 
 export function get() {
   return request({
-    url: '/tool/email',
+    url: '/sys/email',
     method: 'get'
   })
 }
 
 export function update(data) {
   return request({
-    url: '/tool/email',
+    url: '/sys/email',
     data,
     method: 'put'
   })

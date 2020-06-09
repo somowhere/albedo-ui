@@ -20,6 +20,7 @@ const getters = {
   baseApi: state => state.api.baseApi,
   baseUrl: state => state.api.baseUrl,
   fileUploadApi: state => state.api.fileUploadApi,
-  swaggerApi: state => state.api.swaggerApi
+  swaggerApi: state => state.api.swaggerApi,
+  serviceApi: state => state.api.serviceApi
 }
 export default getters
