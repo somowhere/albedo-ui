@@ -174,9 +174,7 @@ export default {
       Avatar: Avatar,
       activeName: 'first',
       saveLoading: false,
-      headers: {
-        'X-XSRF-TOKEN': getXsrfToken()
-      },
+      headers: {},
       form: {},
       rules: {
         nickname: [
@@ -193,10 +191,15 @@ export default {
     ...mapGetters([
       'user',
       'fileUploadApi',
-      'baseApi'
+      'baseApi',
+      'accessToken'
     ])
   },
   created() {
+    this.headers = {
+      'Authorization': 'Bearer ' + this.accessToken,
+      'X-XSRF-TOKEN': getXsrfToken()
+    }
     this.form = { id: this.user.id, nickname: this.user.nickname, description: this.user.description, phone: this.user.phone }
     store.dispatch('GetUser').then(() => {
     })

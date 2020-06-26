@@ -38,6 +38,13 @@ module.exports = {
           '^/sys': '/sys'
         }
       },
+      '/asset-file': {
+        target: url,
+        ws: true,
+        pathRewrite: {
+          '^/asset-file': '/asset-file'
+        }
+      },
       '/code': {
         target: url,
         ws: true,

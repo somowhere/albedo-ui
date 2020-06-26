@@ -9,7 +9,7 @@ const api = {
     // service
     serviceApi: 'http://albedo-gateway:5001',
     // 文件上传
-    fileUploadApi: defaultSettings.api + '/file/upload',
+    fileUploadApi: defaultSettings.api + '/sys/file/upload',
     // baseUrl，
     baseUrl: baseUrl,
     // baseApi，

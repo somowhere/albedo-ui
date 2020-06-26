@@ -9,14 +9,14 @@ const accountService = {
       confirmPassword: encrypt(user.confirmPassword)
     }
     return request({
-      url: '/account/change-password',
+      url: '/sys/account/change-password',
       method: 'post',
       data
     })
   },
   resetEmailSend(data) {
     return request({
-      url: '/reset/email-send?email=' + data,
+      url: '/sys/account/reset/email-send?email=' + data,
       method: 'post'
     })
   },
@@ -27,14 +27,14 @@ const accountService = {
       email: form.email
     }
     return request({
-      url: '/account/change-email/' + form.code,
+      url: '/sys/account/change-email/' + form.code,
       method: 'post',
       data
     })
   },
   updateAvatar(avatar) {
     return request({
-      url: '/account/change-avatar',
+      url: '/sys/account/change-avatar',
       method: 'post',
       params: { avatar: avatar }
     })
