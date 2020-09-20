@@ -13,6 +13,11 @@
             <el-form-item :rules="[{required: true,message: '请输入类名'}]" label="类名" prop="className">
               <el-input v-model="form.className" />
             </el-form-item>
+            <el-form-item :rules="[{required: true,message: '请选择数据源'}]" label="数据源" prop="dsName">
+              <el-select v-model="form.dsName" clearable style="width: 100%">
+                <el-option v-for="(item,index) in dsNameList" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
             <el-form-item label="父表表名" prop="parentTable">
               <el-select v-model="form.parentTable" clearable style="width: 100%">
                 <el-option v-for="(item,index) in tableList" :key="index" :label="item.label" :value="item.value" />
@@ -165,6 +170,7 @@ export default {
       javaTypeList: [],
       queryTypeList: [],
       showTypeList: [],
+      dsNameList: [],
       tableList: [],
       selectTableList: [],
       columnList: [],
@@ -208,6 +214,7 @@ export default {
         this.queryTypeList = data.queryTypeList
         this.showTypeList = data.showTypeList
         this.tableList = data.tableList
+        this.dsNameList = data.dsNameList
         this.columnList = data.columnList
       })
     },
