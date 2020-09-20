@@ -24,46 +24,11 @@ module.exports = {
       errors: true
     },
     proxy: {
-      '/auth': {
+      '/': {
         target: url,
-        ws: true,
+        ws: false,
         pathRewrite: {
-          '^/auth': '/auth'
-        }
-      },
-      '/sys': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/sys': '/sys'
-        }
-      },
-      '/asset-file': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/asset-file': '/asset-file'
-        }
-      },
-      '/code': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/code': '/code'
-        }
-      },
-      '/gen': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/gen': '/gen'
-        }
-      },
-      '/quartz': {
-        target: url,
-        ws: true,
-        pathRewrite: {
-          '^/quartz': '/quartz'
+          '^/': '/'
         }
       }
     }
