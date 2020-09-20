@@ -1,12 +1,12 @@
  <p align="center">
-  <img src="https://img.shields.io/badge/Avue-2.3-green.svg" alt="Build Status">
-   <img src="https://img.shields.io/badge/Spring%20Cloud-Hoxton.SR4-blue.svg" alt="Coverage Status">
-   <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2.2.1.RELEASE-blue.svg" alt="Coverage Status">
-   <img src="https://img.shields.io/badge/Spring%20Boot-2.3.0.RELEASE-blue.svg" alt="Downloads">
+   <img src="https://img.shields.io/badge/Spring%20Cloud-Hoxton.SR8-blue.svg" alt="Coverage Status">
+   <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2.2.2.RELEASE-blue.svg" alt="Coverage Status">
+   <img src="https://img.shields.io/badge/Spring%20Boot-2.3.3.RELEASE-blue.svg" alt="Downloads">
  </p>  
  
-**albedo-ui**
+**albedo-cloud Microservice Architecture**
 - 全网最新spring-cloud-alibaba微服务架构
+- 前端<a href="https://github.com/somowhere/albedo-ui" target="_blank">albedo-ui </a>
 - 基于<a href="https://gitee.com/log4j/pig" target="_blank">pix</a>开源版本（保持更新）二次开发(同时借鉴<a href="https://www.jhipster.tech/" target="_blank">jhipster</a>)
 - 基于 Spring Cloud 、Spring Security OAuth2 的RBAC权限管理系统  
 - 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手  
@@ -23,6 +23,7 @@
 127.0.0.1 albedo-auth
 127.0.0.1 albedo-gateway
 127.0.0.1 albedo-register
+127.0.0.1 albedo-sentinel
 ```
 
 2. 依次启动
@@ -72,12 +73,12 @@ AlbedoGatewayApplication
 
 依赖 | 版本
 ---|---
-Spring Boot |  2.3.0.RELEASE  
-Spring Cloud | Hoxton.SR4 
-Spring Cloud Alibaba | 2.2.1.RELEASE
+Spring Boot |  2.3.3.RELEASE  
+Spring Cloud | Hoxton.SR8 
+Spring Cloud Alibaba | 2.2.2.RELEASE
 Spring Security OAuth2 | 2.3.6.RELEASE
-Mybatis Plus | 3.3.1
-hutool | 5.3.4
+Mybatis Plus | 3.4.0
+hutool | 5.4.2
    
 
 
@@ -97,7 +98,8 @@ albedo
      ├── albedo-monitor -- Spring Boot Admin监控 [5001]
      ├── albedo-quartz -- 任务调度 [5004]
      ├── albedo-sentinel -- 流量监控模块 [8858]
-     └── albedo-sys -- 通用用户权限管理系统业务处理模块[4000]
+     ├── albedo-sys -- 通用用户权限管理系统业务处理模块[4000]
+     └── albedo-xxl-job-admin -- 分布式调度模块[5005]
 └── albedo-plugin  -- 插件模块 
      ├── albedo-data-mybatis -- mybatis 基础模块
      └── albedo-swagger-api -- swagger api
