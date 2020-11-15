@@ -13,6 +13,12 @@
 - 提供对常见容器化支持 Docker、Kubernetes、Rancher2 支持  
 - 提供 lambda 、stream api 、webflux 的生产实践   
 
+#### 前端模板
+
+初始模板基于： [https://github.com/PanJiaChen/vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+
+模板文档： [https://panjiachen.github.io/vue-element-admin-site/zh/guide/](https://panjiachen.github.io/vue-element-admin-site/zh/guide/)
+
 #### 快速开始
 
 1. 在host添加
