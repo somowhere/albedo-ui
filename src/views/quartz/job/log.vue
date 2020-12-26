@@ -146,7 +146,6 @@ export default {
     downloadLog() {
       // this.downloadLoading = true
       crudJob.downloadLog().then(response => {
-        console.log(response)
         commonUtil.downloadFile(response, '任务调度执行日志数据', 'xlsx')
         // this.downloadLoading = false
       }).catch((e) => {

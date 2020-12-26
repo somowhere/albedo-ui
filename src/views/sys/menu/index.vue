@@ -278,7 +278,6 @@ export default {
       if (validate.checkNull(obj)) {
         this.sortData.push({ id: id, sort: sort })
       }
-      console.log(this.sortData)
     },
     editSort() {
       if (validate.checkNull(this.sortData)) {

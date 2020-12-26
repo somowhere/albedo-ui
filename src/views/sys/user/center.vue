@@ -221,7 +221,6 @@ export default {
     },
 
     cropUploadSuccess(jsonData, field) {
-      console.log(jsonData, field)
       accountService.updateAvatar(jsonData.data.fileName).then(() => {
         store.dispatch('GetUser').then(() => {
         })
