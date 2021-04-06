@@ -1,7 +1,7 @@
 {
-  "name": "albedo-ui",
-  "version": "3.0.5",
-  "description": "albedo-ui",
+  "name": "albedo-ui-cloud",
+  "version": "3.0.6",
+  "description": "albedo-ui cloud",
   "author": "somewhere",
   "license": "Apache-2.0",
   "scripts": {
