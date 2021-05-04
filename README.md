@@ -1,23 +1,17 @@
  <p align="center">
-   <img src="https://img.shields.io/badge/Spring%20Cloud-Hoxton.SR8-blue.svg" alt="Coverage Status">
-   <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2.2.5.RELEASE-blue.svg" alt="Coverage Status">
-   <img src="https://img.shields.io/badge/Spring%20Boot-2.4.3-blue.svg" alt="Downloads">
+   <img src="https://img.shields.io/badge/Spring%20Cloud-2020.0.2-blue.svg" alt="Coverage Status">
+   <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2021.1-blue.svg" alt="Coverage Status">
+   <img src="https://img.shields.io/badge/Spring%20Boot-2.4.5-blue.svg" alt="Downloads">
  </p>  
-
+ 
 **albedo-cloud Microservice Architecture**
 - 全网最新spring-cloud-alibaba微服务架构
 - 前端<a href="https://github.com/somowhere/albedo-ui" target="_blank">albedo-ui </a>
 - 基于<a href="https://gitee.com/log4j/pig" target="_blank">pix</a>开源版本（保持更新）二次开发(同时借鉴<a href="https://www.jhipster.tech/" target="_blank">jhipster</a>)
-- 基于 Spring Cloud 、Spring Security OAuth2 的RBAC权限管理系统
-- 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手
-- 提供对常见容器化支持 Docker、Kubernetes、Rancher2 支持
-- 提供 lambda 、stream api 、webflux 的生产实践
-
-#### 前端模板
-
-初始模板基于： [https://github.com/PanJiaChen/vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
-
-模板文档： [https://panjiachen.github.io/vue-element-admin-site/zh/guide/](https://panjiachen.github.io/vue-element-admin-site/zh/guide/)
+- 基于 Spring Cloud 、Spring Security OAuth2 的RBAC权限管理系统  
+- 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手  
+- 提供对常见容器化支持 Docker、Kubernetes、Rancher2 支持  
+- 提供 lambda 、stream api 、webflux 的生产实践   
 
 #### 快速开始
 
@@ -80,12 +74,12 @@ AlbedoGatewayApplication
 
 依赖 | 版本
 ---|---
-Spring Boot |  2.4.2
-Spring Cloud | 2020.0.1
-Spring Cloud Alibaba | 2.2.5.RELEASE
+Spring Boot |  2.4.5  
+Spring Cloud | 2020.0.2
+Spring Cloud Alibaba | 2021.1
 Spring Security OAuth2 | 2.3.6.RELEASE
 Mybatis Plus | 3.4.2
-hutool | 5.5.7
+hutool | 5.6.3
    
 
 
@@ -113,6 +107,12 @@ albedo
 └── albedo-register  -- Nacos 注册中心
 	 
 ```
+
+#### 特别鸣谢
+
+- 感谢 [JetBrains](https://www.jetbrains.com/) 提供的非商业开源软件开发授权
+- 感谢
+  [jhipster](https://www.jhipster.tech/)  [pig](https://gitee.com/log4j/pig)  [RuoYi](https://gitee.com/y_project/RuoYi)  [eladmin](https://github.com/elunez/eladmin)
 
 #### 提交反馈
 
