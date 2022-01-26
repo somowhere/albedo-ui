@@ -1,0 +1,19 @@
+version: '3'
+services:
+  albedo-ui:
+    build:
+      context: .
+    restart: always
+    container_name: albedo-ui
+    image: albedo-ui
+    networks:
+      - albedo_default
+    external_links:
+      - albedo-gateway
+    ports:
+      - 80:80
+
+# 加入到后端网络， 默认为 albedo_default  | docker network ls   查看
+networks:
+  albedo_default:
+    external: true

@@ -1,0 +1,27 @@
+const getters = {
+  deployUploadApi: state => state.api.deployUploadApi,
+  databaseUploadApi: state => state.api.databaseUploadApi,
+  size: state => state.app.size,
+  sidebar: state => state.app.sidebar,
+  device: state => state.app.device,
+  token: state => state.user.token,
+  tenant: state => state.user.tenant,
+  visitedViews: state => state.tagsView.visitedViews,
+  cachedViews: state => state.tagsView.cachedViews,
+  roles: state => state.user.roles,
+  user: state => state.user.user,
+  accessToken: state => state.user.accessToken,
+  refreshToken: state => state.user.refreshToken,
+  expiresIn: state => state.user.expiresIn,
+  dicts: state => state.dict.dicts,
+  permissions: state => state.user.permissions,
+  permission_routers: state => state.permission.routers,
+  addRouters: state => state.permission.addRouters,
+  socketApi: state => state.api.socketApi,
+  baseApi: state => state.api.baseApi,
+  baseUrl: state => state.api.baseUrl,
+  fileUploadApi: state => state.api.fileUploadApi,
+  swaggerApi: state => state.api.swaggerApi,
+  serviceApi: state => state.api.serviceApi
+}
+export default getters
