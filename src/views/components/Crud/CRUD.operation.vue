@@ -94,7 +94,7 @@
   </div>
 </template>
 <script>
-import CRUD, { crud } from '@crud/crud'
+import CRUD, { crud } from '@/views/components/Crud/crud'
 
 export default {
   mixins: [crud()],

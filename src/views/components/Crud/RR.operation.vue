@@ -20,7 +20,7 @@
   </span>
 </template>
 <script>
-import { crud } from '@crud/crud'
+import { crud } from '@/views/components/Crud/crud'
 
 export default {
   mixins: [crud()],

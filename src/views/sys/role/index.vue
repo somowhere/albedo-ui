@@ -42,8 +42,8 @@
           <el-input v-model="form.name" />
         </el-form-item>
         <el-form-item label="角色编码" prop="name" :rules="[{ required: true, message: '请输入编码', trigger: 'blur' }]">
-        <el-input v-model="form.code" />
-      </el-form-item>
+          <el-input v-model="form.code" />
+        </el-form-item>
         <el-form-item label="角色级别" prop="level">
           <el-input-number v-model.number="form.level" :min="1" controls-position="right" :rules="[{ required: true, message: '请输入角色级别', trigger: 'blur' }]" />
         </el-form-item>

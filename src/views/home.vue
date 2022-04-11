@@ -31,18 +31,18 @@
                   </div>
                   <div class="user-dept">
                     <span>{{
-                        user.description
-                          ? user.description
-                          : $t("common.noWorkDescribe")
-                      }}</span>
+                      user.description
+                        ? user.description
+                        : $t("common.noWorkDescribe")
+                    }}</span>
                   </div>
                   <div class="user-login-info">
                     {{ $t("common.lastLoginTime") }}：
                     <span id="last-login-time">{{
-                        user.lastLoginTime
-                          ? user.lastLoginTime
-                          : $t("common.firstLogin")
-                      }}</span>
+                      user.lastLoginTime
+                        ? user.lastLoginTime
+                        : $t("common.firstLogin")
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -302,7 +302,7 @@
 import echarts from 'echarts'
 import commonUtil from '@/utils/common'
 import countTo from 'vue-count-to'
-import resize from '@/components/Echarts/mixins/resize'
+import resize from '@/views/components/Echarts/mixins/resize'
 import clipboard from '@/utils/clipboard'
 import { simplePie, simpleBar } from '@/utils/charts-option'
 import dashboardApi from '@/api/dashboard.js'

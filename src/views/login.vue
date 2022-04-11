@@ -79,7 +79,7 @@
 <script>
 import commonUtil from '../utils/common'
 import { Base64 } from 'js-base64'
-import LangSelect from '@/components/LangSelect'
+import LangSelect from '@/views/components/LangSelect'
 import defaultSettings from '@/settings'
 
 export default {

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import Yaml from '@/components/YamlEdit/index'
+import Yaml from '@/views/components/YamlEdit'
 export default {
   name: 'YamlEdit',
   components: { Yaml },
