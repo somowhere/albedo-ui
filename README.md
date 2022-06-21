@@ -35,6 +35,7 @@
 AlbedoRegisterApplication
 AlbedoAuthApplication
 AlbedoSysApplication
+AlbedoFileApplication
 AlbedoGenApplication
 AlbedoQuartzApplication
 AlbedoMonitorApplication
