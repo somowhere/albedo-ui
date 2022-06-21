@@ -15,7 +15,7 @@ const commonService = {
     const username = user.username; const password = user.password; const code = user.code; const randomStr = user.randomStr; const grant_type = 'password'
     const dataObj = qs.stringify({ 'username': username, 'password': password })
     return request({
-      url: '/auth/oauth/token',
+      url: '/auth/oauth2/token',
       headers: {
         isToken: false,
         'Authorization': 'Basic YWxiZWRvOmFsYmVkbw=='
@@ -28,7 +28,7 @@ const commonService = {
   refreshToken(refresh_token) {
     const grant_type = 'refresh_token'
     return request({
-      url: '/auth/oauth/token',
+      url: '/auth/oauth2/token',
       headers: {
         'isToken': false,
         'Authorization': 'Basic YWxiZWRvOmFsYmVkbw=='
