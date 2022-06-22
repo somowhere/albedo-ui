@@ -3,7 +3,14 @@
     <!--工具栏-->
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
-        <el-input v-model="query.name" class="filter-item input-small" clearable size="small" placeholder="输入名称搜索" @keyup.enter.native="toQuery" />
+        <el-input
+          v-model="query.name"
+          class="filter-item"
+          style="width: 200px;"
+          clearable
+          placeholder="输入名称搜索"
+          @keyup.enter.native="toQuery"
+        />
         <rrOperation />
       </div>
       <crudOperation :permission="permission" />
