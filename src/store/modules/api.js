@@ -5,7 +5,7 @@ const api = {
     // 实时控制台
     socketApi: baseUrl + '/websocket?token=kl',
     // swagger
-    swaggerApi: baseUrl + '/doc.html',
+    swaggerApi: baseUrl + '/webjars/swagger-ui/index.html',
     // service
     serviceApi: 'http://albedo-monitor:5001',
     // 文件上传
