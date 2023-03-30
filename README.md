@@ -1,7 +1,7 @@
  <p align="center">
-   <img src="https://img.shields.io/badge/Spring%20Cloud-2021.0.3-blue.svg" alt="Coverage Status">
-   <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2021.0.1.0-blue.svg" alt="Coverage Status">
-   <img src="https://img.shields.io/badge/Spring%20Boot-2.7.0-blue.svg" alt="Downloads">
+   <img src="https://img.shields.io/badge/Spring%20Cloud-2021.0.5-blue.svg" alt="Coverage Status">
+   <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2021.0.4.0-blue.svg" alt="Coverage Status">
+   <img src="https://img.shields.io/badge/Spring%20Boot-2.7.10-blue.svg" alt="Downloads">
  </p>  
 
 **albedo-cloud Microservice Architecture**
@@ -77,11 +77,11 @@ AlbedoGatewayApplication
 
 依赖 | 版本
 ---|---
-Spring Boot |  2.7.0
-Spring Cloud | 2021.0.3
-Spring Cloud Alibaba | 2021.0.1.0
-Mybatis Plus | 3.5.2
-hutool | 5.8.2
+Spring Boot |  2.7.10
+Spring Cloud | 2021.0.6
+Spring Cloud Alibaba | 2021.0.5.0
+Mybatis Plus | 3.5.3.1
+hutool | 5.8.16
 
 #### 模块说明
 
